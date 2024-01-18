@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SECURE_SMTP = exports.SMTP_PORT = exports.SMTP_HOST = exports.EMAIL_SERVICE = exports.EMAIL_PASSWORD = exports.EMAIL_USERNAME = exports.JWT_SECRET_KEY = exports.MYSQL_PORT = exports.MYSQL_HOST = exports.MYSQL_USERNAME = exports.MYSQL_PASSWORD = exports.MYSQL_DATABASE = exports.ENVIROMENT = exports.APP_VERSION = void 0;
+require('dotenv').config();
+exports.APP_VERSION = process.env.APP_VERSION || "";
+// enviroment
+exports.ENVIROMENT = process.env.ENVIROMENT || "";
+// MySQL
+exports.MYSQL_DATABASE = process.env.MYSQL_DATABASE || "";
+exports.MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || "";
+exports.MYSQL_USERNAME = process.env.MYSQL_USERNAME || "";
+exports.MYSQL_HOST = process.env.MYSQL_HOST || "";
+exports.MYSQL_PORT = process.env.MYSQL_PORT || "";
+// JWT
+exports.JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "";
+// EMAIL
+exports.EMAIL_USERNAME = process.env.EMAIL_USERNAME || "";
+exports.EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || "";
+exports.EMAIL_SERVICE = process.env.EMAIL_SERVICE || "";
+exports.SMTP_HOST = process.env.SMTP_HOST || "";
+exports.SMTP_PORT = process.env.SMTP_PORT || "";
+exports.SECURE_SMTP = process.env.EMAIL_SERVICE || "";
