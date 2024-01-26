@@ -2,6 +2,7 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/db";
 
 class User extends Model {
+  declare id:number;
   declare email: string;
   declare fullname: string;
   declare phone_number: number;

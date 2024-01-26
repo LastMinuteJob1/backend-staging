@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
 const env_1 = require("../config/env");
+const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const authorization_1 = require("./authorization");
 const crypto = require('crypto');
 function sendResponse(data, message = "OK", status = 200) {
@@ -57,3 +61,14 @@ function generateRandomNumber() {
     return value.toString();
 }
 exports.generateRandomNumber = generateRandomNumber;
+function getUser(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const headers = req["headers"];
+        let user_req = headers["user"];
+        if (user_req == null)
+            return new UserModel_1.default();
+        else
+            return JSON.parse(user_req);
+    });
+}
+exports.getUser = getUser;

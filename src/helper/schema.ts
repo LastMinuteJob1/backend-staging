@@ -7,4 +7,12 @@ export const userSchema = Joi.object({
     password: Joi.string().min(8).required(),
     address:  Joi.string().min(10).required(),
     isGmail: Joi.bool().required()
-  });
+});
+
+export const jobSchema = Joi.object({
+  title: Joi.string().required(),
+  description: Joi.string().required(),
+  price: Joi.number().required(),
+  location: Joi.string().required(),
+  priority: Joi.number().required()
+})

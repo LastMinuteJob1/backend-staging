@@ -1,7 +1,9 @@
 import { JWT_SECRET_KEY } from "../config/env";
+import User from "../modules/user/UserModel";
 import { responseInterface } from "./Interfaces";
 import { JWTToken } from "./authorization";
 import { AppError } from "./error";
+import { Request, Response } from "express";
 
 const crypto = require('crypto');
 
@@ -46,3 +48,9 @@ export function generateRandomNumber(): string {
     return value.toString()
 }
    
+export async function getUser(req:Request): Promise<User> {
+    const headers = req["headers"]
+    let user_req:any = headers["user"];
+    if (user_req == null) return new User()
+    else return JSON.parse(user_req)
+}

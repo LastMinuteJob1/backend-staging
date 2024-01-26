@@ -20,6 +20,12 @@ const env_1 = require("./src/config/env");
 const UserModel_1 = __importDefault(require("./src/modules/user/UserModel"));
 const db_1 = __importDefault(require("./src/config/db"));
 const MailController_1 = require("./src/modules/mailer/MailController");
+const JobRoute_1 = __importDefault(require("./src/modules/job/JobRoute"));
+const JobModel_1 = __importDefault(require("./src/modules/job/JobModel"));
+const NotificationRoute_1 = __importDefault(require("./src/modules/notification/NotificationRoute"));
+const NotificationModel_1 = __importDefault(require("./src/modules/notification/NotificationModel"));
+const JobRequestRoute_1 = __importDefault(require("./src/modules/job_request/JobRequestRoute"));
+const JobRequestModel_1 = __importDefault(require("./src/modules/job_request/JobRequestModel"));
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
@@ -28,22 +34,20 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
 // mounting routes 
 app.use("/user", UserRoute_1.default);
+app.use("/job", JobRoute_1.default);
+app.use("/notification", NotificationRoute_1.default);
+app.use("/job-request", JobRequestRoute_1.default);
 // connecting to DB
 db_1.default.authenticate().then(() => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Connection to database established successfully.\n');
     // syncing models
     yield UserModel_1.default.sync();
+    yield JobModel_1.default.sync();
+    yield NotificationModel_1.default.sync();
+    yield JobRequestModel_1.default.sync();
     console.log("Synced Models");
     // preparing mailing service
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
-    // // testing email service
-    // let res = await mailController.send({
-    //     from: EMAIL_USERNAME,
-    //     to: 'chibuezeadeyemi@gmail.com',
-    //     subject: 'Test mail',
-    //     text: 'Node.js testing mail for GeeksforGeeks'
-    // })
-    // console.log(res);
     app.listen(port, () => console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`));
 })).catch((error) => console.error('Unable to connect to the database:', error));
