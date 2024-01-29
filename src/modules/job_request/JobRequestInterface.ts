@@ -4,5 +4,5 @@ export interface IJobRequest {
 }
 
 export enum JobRequestStatus {
-    REJECTED, ACCEPT, PENDING
+    REJECTED, ACCEPT, PENDING, COMPLETED_PENDING, COMPLETED
 }
