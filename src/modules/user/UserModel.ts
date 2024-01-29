@@ -30,6 +30,7 @@ User.init({
   },
   phone_number: {
     type: DataTypes.STRING,
+    unique: true,
     allowNull: false,
   },
   address: {

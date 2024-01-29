@@ -8,8 +8,15 @@ import slugify from "slugify";
 import { log } from "console";
 import { Op } from "sequelize";
 import { JobRequestStatus } from "./JobRequestInterface";
+import { NotificationService } from "../notification/NotificationService";
+import { MailService } from "../mailer/MailService";
+import { EMAIL_USERNAME } from "../../config/env";
+import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
 
 export class JobRequestService {
+
+    private notificationService = new NotificationService()
+    private emailService = new MailService()
 
     public create_request = async (req:Request, res:Response) => {
         try {
@@ -44,6 +51,7 @@ export class JobRequestService {
             
             // check if you haven't applied before
             let my_job_request = await JobRequest.findOne({
+                where:{slug},
                 include: [
                     {
                         model:User,
@@ -62,7 +70,7 @@ export class JobRequestService {
 
             if (my_job_request) {console.log("Already applied"); return my_job_request;}
             // apply for job
-            let job_req_slug = slugify((job.title + generateRandomNumber()), {lower:true})
+            let job_req_slug = slugify((job.title + " " + generateRandomNumber()), {lower:true})
             let my_job_application:any = await JobRequest.create({slug:job_req_slug})
             await my_job_application.setUser(user.id)
             await my_job_application.setJob(job.id)
@@ -130,16 +138,16 @@ export class JobRequestService {
             }
 
             let {
-                page, limit, desc, q
+                page, limit, desc, q, status
             } = req.query
 
             let page_ = page ? parseInt(page as string) : 1;
             let limit_ = limit ? parseInt(limit as string) : 10
             let desc_ = desc ? parseInt(desc as string) : 1
             let q_ = q ? q : ""
+            let status_ = status ? status : ""
 
-            // view request
-            const job_request = await (<any>JobRequest).paginate({
+            let clause:any = {
                 page:page_, paginate:limit_,
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                 include:[
@@ -154,7 +162,11 @@ export class JobRequestService {
                           ]
                     }, include: [{model:User, where:{email}, attributes:{exclude:["password", "verification_code", "token"]}}]}
                 ]
-            })
+            }
+
+            if (status_) clause.where = {status:status_}
+            // view request
+            const job_request = await (<any>JobRequest).paginate(clause)
 
             return job_request
             
@@ -183,16 +195,16 @@ export class JobRequestService {
             }
 
             let {
-                page, limit, desc, q
+                page, limit, desc, q, status
             } = req.query
 
             let page_ = page ? parseInt(page as string) : 1;
             let limit_ = limit ? parseInt(limit as string) : 10
             let desc_ = desc ? parseInt(desc as string) : 1
             let q_ = q ? q : ""
+            let status_ = status ? status : ""
 
-            // view request
-            const job_request = await (<any>JobRequest).paginate({
+            let clause:any = {
                 page:page_, paginate:limit_,
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                 include:[
@@ -207,7 +219,12 @@ export class JobRequestService {
                           ]
                     }, include: [{model:User, attributes:{exclude:["password", "verification_code", "token"]}}]}
                 ]
-            })
+            }
+
+            if (status_) clause["where"] = {status:status_}
+
+            // view request
+            const job_request = await (<any>JobRequest).paginate(clause)
 
             return job_request
             
@@ -229,9 +246,11 @@ export class JobRequestService {
             }
 
             const job_req_slug = req.params.slug
-            const {status} = req.body
+            
+            let {status} = req.body;
+            status  = parseInt(status as string);
             // verify if the job belongs to the user
-            let job_req = await JobRequest.findOne({where:{slug:job_req_slug}, include:[
+            let job_req:any = await JobRequest.findOne({where:{slug:job_req_slug}, include:[
                 { 
                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
                 },
@@ -243,7 +262,7 @@ export class JobRequestService {
             ]})
 
             if (job_req == null) {
-                res.send(sendError("This job doen't exist"))
+                res.send(sendError("This job request doen't exist"))
                 return null
             }
 
@@ -253,13 +272,16 @@ export class JobRequestService {
             }
 
             // toggle job request
+            
             // if toggle == accept
+            const job:Job = job_req.dataValues.Job
             if (status == JobRequestStatus.ACCEPT) {
-                const job:Job = job_req.dataValues.Job
-                if (job.active) {
+                if (!job.active) {
                     res.send(sendError("The current job request has been assigned to a user already"))
                     return null
                 } 
+                // update job to false
+                await job.update({active:false})
                 // auto-reject all requests and add inapp notification
                 let rejected_emails:Array<string> = []
                 JobRequest.findAll({
@@ -268,8 +290,10 @@ export class JobRequestService {
                             model: User, attributes:{exclude:["password", "verification_code", "token"]}
                         },
                         {
-                            model: Job, include:[{
-                                model: User, where:{email:user.email}, attributes:{exclude:["password", "verification_code", "token"]}
+                            model: Job, 
+                            where:{slug:job.slug},
+                            include:[{
+                                model: User, attributes:{exclude:["password", "verification_code", "token"]}
                             }]
                         }
                     ]
@@ -277,20 +301,54 @@ export class JobRequestService {
                     job_requests.forEach((job_request:JobRequest) => {
                         if (job_request.id != job_req.dataValues.id) {
                             rejected_emails.push(job_request.dataValues.User.email)
-                            job_request.update({status})
+                            job_request.update({status:JobRequestStatus.REJECTED})
+                            this.emailService.send({
+                                from: EMAIL_USERNAME, to: job_request.dataValues.User.email,
+                                text: `Dear ${job_request.dataValues.User.fullname} <br> we are sorry to inform you that your job application <b>${job_request.dataValues.Job.title}</b> was rejected.
+                                <br>Ther are more jobs on our platform, we are sure you'll find your ideal job soon.
+                                <br>Best regards`,
+                                subject: "Job Application Update"
+                            })
+                            this.notificationService.add_notification({
+                                from: "Last Minute Job", user: job_request.dataValues.User,
+                                title: `Job Application Update`,
+                                type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                                content: `Your job application ${job_request.dataValues.Job.title} was rejected`
+                            })
                         }
                     })
                 }).finally(() => {
                     // disbuse rejection email
                     rejected_emails.forEach((rejected_email:string) => {
                         // forward in app rejection and email rejection
+                        // updating the exact jpb request
+                        job_req.update({status})
                     })
                 })
             }
            
             let accepted_job_req = await job_req.update({status})
 
-            // disbuse acceptance email and in app notification
+            // disbuse acceptance email and in app notification to the owner of the request
+            this.emailService.send({
+                from: EMAIL_USERNAME, to: job_req.dataValues.User.email,
+                text: status == JobRequestStatus.ACCEPT ? `Dear ${job_req.dataValues.User.fullname} 
+                <br>We are glad to inform you that your job application has been accepted
+                <br>Ensure you do a wonderful job
+                <br>Best Regards` 
+                    : 
+                `Dear ${job_req.dataValues.User.fullname} 
+                <br> we are sorry to inform you that your job application <b>${job_req.dataValues.Job.title}</b> was rejected.
+                <br>There are more jobs on our platform, we are sure you'll find your ideal job soon.
+                <br>Best regards`,
+                subject: "Job Application Update"
+            })
+            this.notificationService.add_notification({
+                from: "Last Minute Job", user: job_req.dataValues.User,
+                title: `Job Application Update`,
+                type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                content:  status == JobRequestStatus.ACCEPT ? `Your job application ${job_req.dataValues.Job.title} was accepted` : `Your job application ${job_req.dataValues.Job.title} was rejected`
+            })
 
             return accepted_job_req
 

@@ -24,6 +24,7 @@ User.init({
     },
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
+        unique: true,
         allowNull: false,
     },
     address: {
