@@ -10,6 +10,7 @@ class JobRequest extends Model {
     declare id:number
     declare slug:string
     declare status:number
+    declare completed:false
 }
 
 JobRequest.init({
@@ -26,7 +27,11 @@ JobRequest.init({
     status: {
         type: DataTypes.INTEGER,
         defaultValue: JobRequestStatus.PENDING
-     },
+   },
+   completed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+   },
    }, { sequelize, tableName: "job_request" });
    
    // person who sent the job request
