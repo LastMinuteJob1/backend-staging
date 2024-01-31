@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
 const env_1 = require("../config/env");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const authorization_1 = require("./authorization");
@@ -72,3 +72,7 @@ function getUser(req) {
     });
 }
 exports.getUser = getUser;
+function getCharges(price) {
+    return (10 * price) / 100;
+}
+exports.getCharges = getCharges;

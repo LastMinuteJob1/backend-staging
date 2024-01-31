@@ -54,3 +54,7 @@ export async function getUser(req:Request): Promise<User> {
     if (user_req == null) return new User()
     else return JSON.parse(user_req)
 }
+
+export function getCharges(price:number) {
+    return (10*price)/100
+}
