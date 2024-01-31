@@ -4,7 +4,7 @@ import { ErrorWatcher, signup_middleware } from "../../helper/middlewares";
 
 let userController = new UserController()
 
-let userRouter = Router()
+const userRouter = Router()
 
 // error watcher middleware
 userRouter.use(ErrorWatcher)
