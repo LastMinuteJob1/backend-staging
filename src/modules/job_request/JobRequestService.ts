@@ -71,11 +71,28 @@ export class JobRequestService {
             })
 
             if (my_job_request) {console.log("Already applied"); return my_job_request;}
+
             // apply for job
             let job_req_slug = slugify((job.title + " " + generateRandomNumber()), {lower:true})
             let my_job_application:any = await JobRequest.create({slug:job_req_slug})
             await my_job_application.setUser(user.id)
             await my_job_application.setJob(job.id)
+
+            // forward email and inapp notification to job owner
+            // parallel operations
+
+            this.notificationService.add_notification({
+                from: "Last Minute Job", user: job.dataValues.User,
+                title: `Job Application Update`,
+                type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                content:  `${user.fullname} Just applied for your job, kindly review in the app`
+            })
+
+            this.emailService.send({
+                from: EMAIL_USERNAME, to: job.dataValues.User.email,
+                text: `Dear ${job.dataValues.User["fullname"].split(" ")[0]} <br> ${user["fullname"]} just sent a proposal regarding your job ${job.title}`,
+                subject: "Job Application"
+            })
 
             return await JobRequest.findOne({where:{slug:job_req_slug}, include: [
                 {
@@ -113,6 +130,11 @@ export class JobRequestService {
             // view request
             const job_request = await JobRequest.findOne({where:{slug}, include:[{model:Job, include: [{model:User, attributes:{exclude:["password", "verification_code", "token"]}}]}]})
 
+            if (!job_request) {
+                res.send(sendError("The request you are trying to open doen't exist"))
+                return null
+            }
+            
             return job_request
             
         } catch (error:any) {
@@ -302,21 +324,24 @@ export class JobRequestService {
                 }).then((job_requests:JobRequest[]) => {
                     job_requests.forEach((job_request:JobRequest) => {
                         if (job_request.id != job_req.dataValues.id) {
-                            rejected_emails.push(job_request.dataValues.User.email)
-                            job_request.update({status:JobRequestStatus.REJECTED})
-                            this.emailService.send({
-                                from: EMAIL_USERNAME, to: job_request.dataValues.User.email,
-                                text: `Dear ${job_request.dataValues.User.fullname} <br> we are sorry to inform you that your job application <b>${job_request.dataValues.Job.title}</b> was rejected.
-                                <br>Ther are more jobs on our platform, we are sure you'll find your ideal job soon.
-                                <br>Best regards`,
-                                subject: "Job Application Update"
-                            })
-                            this.notificationService.add_notification({
-                                from: "Last Minute Job", user: job_request.dataValues.User,
-                                title: `Job Application Update`,
-                                type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
-                                content: `Your job application ${job_request.dataValues.Job.title} was rejected`
-                            })
+                            // escaping the user that got accepted
+                            if (job_request.dataValues.User.emai != job_req.User.email) {
+                                rejected_emails.push(job_request.dataValues.User.email)
+                                job_request.update({status:JobRequestStatus.REJECTED})
+                                this.emailService.send({
+                                    from: EMAIL_USERNAME, to: job_request.dataValues.User.email,
+                                    text: `Dear ${job_request.dataValues.User.fullname} <br> we are sorry to inform you that your job application <b>${job_request.dataValues.Job.title}</b> was rejected.
+                                    <br>Ther are more jobs on our platform, we are sure you'll find your ideal job soon.
+                                    <br>Best regards`,
+                                    subject: "Job Application Update"
+                                })
+                                this.notificationService.add_notification({
+                                    from: "Last Minute Job", user: job_request.dataValues.User,
+                                    title: `Job Application Update`,
+                                    type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                                    content: `Your job application ${job_request.dataValues.Job.title} was rejected`
+                                })
+                            }
                         }
                     })
                 }).finally(() => {
@@ -452,6 +477,12 @@ export class JobRequestService {
             const job_req_slug = req.params.slug
             
             let {status} = req.body;
+
+            if (!status) {
+                res.send(sendError("Please provide a status for this action"))
+                return null
+            }
+
             status  = parseInt(status as string);
             // verify if the job belongs to the user
             let job_req:any = await JobRequest.findOne({where:{slug:job_req_slug, status:JobRequestStatus.COMPLETED_PENDING}, include:[
@@ -476,11 +507,11 @@ export class JobRequestService {
             }
 
             let worker:User = job_req.User, {email} = worker,
-                job:Job = job_req;
+                job:Job = job_req.Job;
 
-            if (status != JobRequestStatus.COMPLETED) {
+            if (status == JobRequestStatus.COMPLETED) {
 
-                await job_req.update({status})
+                await job_req.update({status, completed:true})
 
                  // parallel operations
                 this.notificationService.add_notification({
@@ -505,10 +536,10 @@ export class JobRequestService {
                     charges: getCharges(job.price)
                 })
 
-            } else if (status != JobRequestStatus.COMPLETED_REJECTED) {
+            } else if (status == JobRequestStatus.COMPLETED_REJECTED) {
 
                 await job_req.update({status})
-
+ 
                  // parallel operations
                  this.notificationService.add_notification({
                     from: "Last Minute Job", user: job_req.dataValues.User,
