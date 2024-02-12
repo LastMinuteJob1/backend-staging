@@ -11,6 +11,9 @@ exports.userSchema = joi_1.default.object({
     phone_number: joi_1.default.string().min(8).required(),
     password: joi_1.default.string().min(8).required(),
     address: joi_1.default.string().min(10).required(),
+    pronoun: joi_1.default.string().min(2).required(),
+    city: joi_1.default.string().min(2).required(),
+    postal_code: joi_1.default.number().required(),
     isGmail: joi_1.default.bool().required()
 });
 exports.jobSchema = joi_1.default.object({

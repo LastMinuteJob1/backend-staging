@@ -6,6 +6,9 @@ export const userSchema = Joi.object({
     phone_number:  Joi.string().min(8).required(),
     password: Joi.string().min(8).required(),
     address:  Joi.string().min(10).required(),
+    pronoun:  Joi.string().min(2).required(),
+    city:  Joi.string().min(2).required(),
+    postal_code:  Joi.number().required(),
     isGmail: Joi.bool().required()
 });
 

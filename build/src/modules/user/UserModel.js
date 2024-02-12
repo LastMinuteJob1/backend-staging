@@ -22,10 +22,22 @@ User.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    pronoun: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    postal_code: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    city: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
         unique: true,
-        allowNull: false,
+        // allowNull: false,
     },
     address: {
         type: sequelize_1.DataTypes.STRING,

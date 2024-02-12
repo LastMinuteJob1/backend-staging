@@ -26,6 +26,8 @@ const NotificationRoute_1 = __importDefault(require("./src/modules/notification/
 const NotificationModel_1 = __importDefault(require("./src/modules/notification/NotificationModel"));
 const JobRequestRoute_1 = __importDefault(require("./src/modules/job_request/JobRequestRoute"));
 const JobRequestModel_1 = __importDefault(require("./src/modules/job_request/JobRequestModel"));
+const ProfileRoute_1 = __importDefault(require("./src/modules/profile/ProfileRoute"));
+const ProfileModel_1 = __importDefault(require("./src/modules/profile/ProfileModel"));
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
@@ -34,17 +36,19 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
 // mounting routes 
 app.use("/user", UserRoute_1.default);
+app.use("/profile", ProfileRoute_1.default);
 app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
 // connecting to DB
-db_1.default.authenticate().then(() => __awaiter(void 0, void 0, void 0, function* () {
+db_1.default.sync({ alter: false, force: false }).then(() => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Connection to database established successfully.\n');
     // syncing models
     yield UserModel_1.default.sync();
     yield JobModel_1.default.sync();
     yield NotificationModel_1.default.sync();
     yield JobRequestModel_1.default.sync();
+    yield ProfileModel_1.default.sync();
     console.log("Synced Models");
     // preparing mailing service
     exports.mailController = mailController = new MailController_1.MailController();

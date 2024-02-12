@@ -5,8 +5,11 @@ class User extends Model {
   declare id:number;
   declare email: string;
   declare fullname: string;
+  declare pronoun: string;
   declare phone_number: number;
   declare address: string;
+  declare postal_code: number;
+  declare city: string;
   declare password: string;
   declare is_verified: boolean;
   declare verification_code: string;
@@ -28,10 +31,22 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false
   },
+  pronoun: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  postal_code: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   phone_number: {
     type: DataTypes.STRING,
     unique: true,
-    allowNull: false,
+    // allowNull: false,
   },
   address: {
     type: DataTypes.STRING,

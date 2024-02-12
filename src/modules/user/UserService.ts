@@ -12,8 +12,8 @@ export class UserService {
         try {
             let payload:SignupRequest = request.body;
             let {
-                fullname, email, phone_number,
-                address, password, isGmail
+                fullname, email, phone_number, pronoun, city, postal_code,
+                address, password, isGmail, 
             } = payload
             let token = await generateToken(payload)
             let verification_code = generateRandomNumber()
@@ -21,7 +21,7 @@ export class UserService {
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
             let data = {
                 fullname, email, phone_number, address, verification_code,
-                password: hashPassword(password), 
+                password: hashPassword(password), pronoun, city, postal_code,
                 is_verified: isGmail, token: isGmail ? token : null
             };
             let user = await User.create(data)

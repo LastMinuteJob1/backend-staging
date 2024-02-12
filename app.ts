@@ -11,6 +11,8 @@ import notificationRoute from './src/modules/notification/NotificationRoute';
 import NotificationModel from './src/modules/notification/NotificationModel';
 import jobRequestRoute from './src/modules/job_request/JobRequestRoute';
 import JobRequest from './src/modules/job_request/JobRequestModel';
+import profileRoute from './src/modules/profile/ProfileRoute';
+import Profile from './src/modules/profile/ProfileModel';
 
 const app = express();
 const port = 3000 || process.env.PORT;
@@ -23,18 +25,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // mounting routes 
 app.use("/user", userRouter)
+app.use("/profile", profileRoute)
 app.use("/job", jobRoute)
 app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute)
 
 // connecting to DB
-sequelize.authenticate().then(async () => {    
+sequelize.sync({alter:false, force:false}).then(async () => {    
     console.log('Connection to database established successfully.\n');
     // syncing models
     await User.sync()
     await Job.sync()
     await NotificationModel.sync()
     await JobRequest.sync()
+    await Profile.sync()
     console.log("Synced Models") 
     // preparing mailing service
     mailController = new MailController()
