@@ -47,5 +47,5 @@ sequelize.sync({alter:false, force:false}).then(async () => {
 }).catch((error) => console.error('Unable to connect to the database:', error));
  
 export {
-    mailController
+    mailController 
 }
