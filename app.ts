@@ -46,6 +46,6 @@ sequelize.sync({alter:false, force:false}).then(async () => {
     app.listen(port, () => console.log(`Server listening on port ${port} - App version ${APP_VERSION}`)); 
 }).catch((error) => console.error('Unable to connect to the database:', error));
  
-export {
+export { 
     mailController 
-}
+} 
