@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ProfileController_1 = require("./ProfileController");
+const middlewares_1 = require("../../helper/middlewares");
+const profileRoute = (0, express_1.Router)(), profileCotroller = new ProfileController_1.ProfileController();
+profileRoute.use(middlewares_1.authorization);
+profileRoute.get("/", profileCotroller.viewProfile);
+profileRoute.post("/", profileCotroller.addProfile);
+exports.default = profileRoute;
