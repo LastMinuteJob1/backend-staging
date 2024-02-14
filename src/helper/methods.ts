@@ -42,8 +42,8 @@ export function hashPassword(password:string) {
 // }
 
 export function generateRandomNumber(): string {
-    const min = 100000;
-    const max = 999999;
+    const min = 1000;
+    const max = 9999;
     let value = Math.floor(Math.random() * (max - min + 1) + min);
     return value.toString()
 }

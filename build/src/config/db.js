@@ -9,8 +9,14 @@ const dbConfig = {
         database: env_1.MYSQL_DATABASE,
         host: env_1.MYSQL_HOST,
         port: env_1.MYSQL_PORT,
-        dialect: 'mysql',
-        models: []
+        dialect: 'postgres',
+        models: [],
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false, // You can set this to true if you want to validate the certificate
+            },
+        },
     },
     'testing': {},
     'preproduction': {},
