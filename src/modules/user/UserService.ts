@@ -5,7 +5,7 @@ import { /*AppError,*/ sendError } from "../../helper/error";
 import { generateRandomNumber, generateToken, hashPassword } from "../../helper/methods";
 import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
-// import { where } from "sequelize";
+
 export class UserService {
 
     public signup = async (request:Request, response:Response) => {
