@@ -24,7 +24,7 @@ export class UserService {
                 password: hashPassword(password), pronoun, city, postal_code,
                 is_verified: isGmail, token: isGmail ? token : null
             };
-            let user = await User.create(data)
+            let user = await User.create(data) 
             await mailController.send({
                 from: EMAIL_USERNAME, to: email,
                 text: "Your email verification token is: " + verification_code + " valid within 5 minutes",
