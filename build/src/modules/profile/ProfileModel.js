@@ -36,7 +36,7 @@ Profile.init({
     other_info: {
         type: sequelize_1.DataTypes.STRING,
     }
-}, { sequelize: db_1.default, tableName: "job" });
+}, { sequelize: db_1.default, tableName: "profile" });
 UserModel_1.default.hasOne(Profile);
 Profile.belongsTo(UserModel_1.default);
 sequelizePaginate.paginate(Profile);

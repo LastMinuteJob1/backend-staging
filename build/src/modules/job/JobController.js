@@ -45,6 +45,16 @@ class JobController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.upload_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.jobService.upload_pics(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.publish = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.jobService.publish(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.JobController = JobController;

@@ -28,6 +28,7 @@ const JobRequestRoute_1 = __importDefault(require("./src/modules/job_request/Job
 const JobRequestModel_1 = __importDefault(require("./src/modules/job_request/JobRequestModel"));
 const ProfileRoute_1 = __importDefault(require("./src/modules/profile/ProfileRoute"));
 const ProfileModel_1 = __importDefault(require("./src/modules/profile/ProfileModel"));
+const JobPics_1 = __importDefault(require("./src/modules/job/JobPics"));
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
@@ -40,18 +41,28 @@ app.use("/profile", ProfileRoute_1.default);
 app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
+// Job.drop().then(() => {
 // connecting to DB
-db_1.default.sync({ alter: false, force: false }).then(() => __awaiter(void 0, void 0, void 0, function* () {
+db_1.default.sync({ alter: false, force: false })
+    .then(() => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Connection to database established successfully.\n');
-    // syncing models
+    // syncing models 
     yield UserModel_1.default.sync();
     yield JobModel_1.default.sync();
+    yield JobPics_1.default.sync();
     yield NotificationModel_1.default.sync();
     yield JobRequestModel_1.default.sync();
     yield ProfileModel_1.default.sync();
+    UserModel_1.default.hasMany(JobModel_1.default);
+    JobModel_1.default.belongsTo(UserModel_1.default);
+    // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models");
     // preparing mailing service
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
     app.listen(port, () => console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`));
-})).catch((error) => console.error('Unable to connect to the database:', error));
+}))
+    .catch((error) => console.error('Unable to connect to the database:', error))
+    .finally(() => __awaiter(void 0, void 0, void 0, function* () {
+    // log(await Job.findAll())
+}));

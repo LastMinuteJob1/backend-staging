@@ -42,7 +42,7 @@ Profile.init({
  other_info: {
     type: DataTypes.STRING,
  }
-}, { sequelize, tableName: "job" });
+}, { sequelize, tableName: "profile" });
 
 User.hasOne(Profile)
 Profile.belongsTo(User)

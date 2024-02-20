@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import { SignupRequest } from "./UserInterface";
 import User from "./UserModel";
 import { /*AppError,*/ sendError } from "../../helper/error";
-import { generateRandomNumber, generateToken, hashPassword } from "../../helper/methods";
+import { generateRandomNumber, generateToken, hashPassword, sendResponse } from "../../helper/methods";
 import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
+import { log } from "console";
 
 export class UserService {
 
@@ -24,7 +25,24 @@ export class UserService {
                 password: hashPassword(password), pronoun, city, postal_code,
                 is_verified: isGmail, token: isGmail ? token : null
             };
-            let user = await User.create(data) 
+            let user = await User.findOne({where:{email}})
+            
+            if (user) {
+
+                log("found", {user})
+                if (user.is_verified) { 
+                    log("verified")
+                    response.send(sendError("User already exists with email " + email))
+                    return null;
+                }
+
+            } else user = await User.create(data) 
+
+            if (!user) {
+                response.send(sendError("Something went wrong " + email))
+                return null;
+            }
+
             await mailController.send({
                 from: EMAIL_USERNAME, to: email,
                 text: "Your email verification token is: " + verification_code + " valid within 5 minutes",

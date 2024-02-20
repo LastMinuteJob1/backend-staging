@@ -18,7 +18,7 @@ const error_1 = require("../../helper/error");
 const methods_1 = require("../../helper/methods");
 const app_1 = require("../../../app");
 const env_1 = require("../../config/env");
-// import { where } from "sequelize";
+const console_1 = require("console");
 class UserService {
     constructor() {
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
@@ -34,7 +34,21 @@ class UserService {
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
                     is_verified: isGmail, token: isGmail ? token : null
                 };
-                let user = yield UserModel_1.default.create(data);
+                let user = yield UserModel_1.default.findOne({ where: { email } });
+                if (user) {
+                    (0, console_1.log)("found", { user });
+                    if (user.is_verified) {
+                        (0, console_1.log)("verified");
+                        response.send((0, error_1.sendError)("User already exists with email " + email));
+                        return null;
+                    }
+                }
+                else
+                    user = yield UserModel_1.default.create(data);
+                if (!user) {
+                    response.send((0, error_1.sendError)("Something went wrong " + email));
+                    return null;
+                }
                 yield app_1.mailController.send({
                     from: env_1.EMAIL_USERNAME, to: email,
                     text: "Your email verification token is: " + verification_code + " valid within 5 minutes",

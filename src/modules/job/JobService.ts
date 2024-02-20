@@ -5,9 +5,11 @@ import Job from "./JobModel";
 import User from "../user/UserModel";
 import { BlobController } from "../../third-party/azure-blob-storage/BlobController";
 import slugify from "slugify";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { NotificationController } from "../notification/NotificationController";
 import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
+import { log } from "console";
+import JobPics from "./JobPics";
 export class JobService {
 
     private blobController = new BlobController()
@@ -17,10 +19,12 @@ export class JobService {
         try {
 
             
-            let {
-                title, description, price,
-                location, priority
+            let { 
+                description, price,
+                location, date, ad_type, time, 
             } = req.body
+
+            log(req.body)
 
             // performing upload using azure-blob-storage third party
 
@@ -31,16 +35,14 @@ export class JobService {
                 return null
             }
 
-            let picx_url = await this.blobController.uploadFile(request)
+            let slug = slugify(description.substring(0, 10) + " " + generateRandomNumber(), { lower: true })
 
-            if (picx_url == null) {
-                res.send(sendError("Unable to upload file, please retry"))
-                return null
+            let obj = {
+                slug, description, price, 
+                job_location:location, job_date:date, type:ad_type, job_time:time,
             }
-
-            let slug = slugify(title + " " + generateRandomNumber(), { lower: true })
-
-            const job:any = await Job.create({slug, title, description, price, location, priority_lvl:priority, picx_url})
+            // log({obj})
+            const job:any = await Job.create(obj)
 
             if (!job) {
                 res.send(sendError("Error creating job"))
@@ -48,18 +50,18 @@ export class JobService {
             }
 
             await job.setUser(user.id)
-            await job.save()
+            // await job.save()
             
             // job.user 
 
             // stack in an in-app notification
-            this.notificationController.add_notification({
-                from: "Last Minute Job", // sender
-                title: "Job creation",
-                type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
-                content: `Hello ${user.fullname}, \nYour job '${title}' have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
-                user: user // receipant
-            })
+            // this.notificationController.add_notification({
+            //     from: "Last Minute Job", // sender
+            //     title: "Job creation",
+            //     type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+            //     content: `Hello ${user.fullname}, \nYour job have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
+            //     user: user // receipant
+            // })
 
             return await Job.findOne({
                 where:{slug},
@@ -68,6 +70,7 @@ export class JobService {
             
         } catch (error:any) {
             res.send(sendError(error))
+            log({error})
             return null
         }
     } 
@@ -99,8 +102,8 @@ export class JobService {
         try {
 
             let {
-                title, description, price,
-                location, priority
+                description, price,
+                location, type, date, time
             } = req.body
 
             let {slug} = req.params
@@ -115,10 +118,15 @@ export class JobService {
             // include in the where clause where current user is the owner of the job
             let job = await Job.findOne({
                 where:{slug},
-                include: [{
-                    where:{id:user.id},
-                    model: User, attributes: {exclude:["password", "verification_code", "token"]}
-                }]
+                include: [
+                    {
+                        where:{id:user.id},
+                        model: User, attributes: {exclude:["password", "verification_code", "token"]}
+                    },
+                    {
+                        model: JobPics
+                    }
+                ]
             })
 
             if (!job) {
@@ -128,11 +136,15 @@ export class JobService {
 
             await job.update({
                 where:{slug},
-                title: title || job.title,
+                // title: title || job.title,
                 description: description || job.description,
                 price: price || job.price,
-                location: location || job.location,
-                priority: priority || job.priority_lvl
+                location: location || job.job_location,
+                job_location:location || job.job_location, 
+                job_date:date || job.job_date, 
+                type:type || job.type, 
+                job_time:time || job.job_time,
+                // priority: priority || job.priority_lvl
             })
 
             return await this.view_job(req, res)
@@ -181,7 +193,7 @@ export class JobService {
         try {
 
             let {
-                page, limit, desc, q
+                page, limit, desc, q, type, published
             } = req.query
 
             const {email} = req.params 
@@ -199,23 +211,48 @@ export class JobService {
             let limit_ = limit ? parseInt(limit as string) : 10
             let desc_ = desc ? parseInt(desc as string) : 1
             let q_ = q ? q : ""
+            let type_ = type ? type : ""
+            let pb_ = published ? published : "";
 
+            let published_ = pb_ == "true" ? true : false;
+
+            console.log({published_});
+            
             // search query param
-            let where = q_ == "" ? {} : {
+            let where = q_ == "" ? {
+                    where:{published:published_}
+            } : {
                 where:{
-                    [Op.or]: [
-                        { title: { [Op.like]: `%${q_}%` } },
-                        { description: { [Op.like]: `%${q_}%` } },
-                      ]
+                    [Op.and]: [
+                        {published:published_},
+                        { description: { [Op.like]: `%${q_}%` } }
+                    ]
                 }
             };
+
+            if (type_ != "") 
+                return await (<any> Job).paginate({
+                    page:page_, paginate:limit_,
+                    order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where:{[Op.and]: [{type: type_}, {published:published_}]},
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        where: {email},
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    }]
+                });
 
             //  pagination
             const {docs, pages, total} = await (<any> Job).paginate({
                 page:page_, paginate:limit_,
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                 ...where,
-                include: [{
+                include: [
+                    {
+                        model: JobPics
+                    },{
                     where: {email},
                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
                 }]
@@ -225,6 +262,7 @@ export class JobService {
             
         } catch (error:any) {
             res.send(sendError(error))
+            log({error})
             return null
         }
     }
@@ -233,14 +271,30 @@ export class JobService {
         try {
 
             let {
-                page, limit, desc, q
-            } = req.query
+                page, limit, desc, q, type
+            } = req.query 
 
             let page_ = page ? parseInt(page as string) : 1;
             let limit_ = limit ? parseInt(limit as string) : 10
             let desc_ = desc ? parseInt(desc as string) : 1
             let q_ = q ? q : ""
+            let type_ = type ? type : ""
             //  pagination
+
+            log({type_})
+            if (type_ != "") 
+                return await (<any> Job).paginate({
+                    page:page_, paginate:limit_,
+                    order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where:{type: type_, published:true},
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    }]
+                });
+
 
             // results by job search
             const {docs, pages, total} = await (<any> Job).paginate({
@@ -248,15 +302,15 @@ export class JobService {
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                 where:{
                     [Op.or]: [
-                        { title: { [Op.like]: `%${q_}%` } },
                         { description: { [Op.like]: `%${q_}%` } },
-                        { location: { [Op.like]: `%${q_}%` } },
-                        { priority_lvl: { [Op.like]: `%${q_}%` } },
-                        { createdAt: { [Op.like]: `%${q}%` } },
+                        { job_location: { [Op.like]: `%${q_}%` } },
                     ],
-                    // [Op.and]: [{active:true}]
+                    published:true
                 },
-                include: [{
+                include: [
+                    {
+                        model: JobPics
+                    },{
                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
                 }]
             })
@@ -268,7 +322,11 @@ export class JobService {
                 const {docs_, pages_, total_} = await (<any> Job).paginate({
                     page:page_, paginate:limit_,
                     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
-                    include: [{
+                    where: {published:true},
+                    include: [
+                        {
+                            model: JobPics
+                        },{
                         where: {
                             [Op.or]: [
                                 { fullname: { [Op.like]: `%${q_}%` } },
@@ -279,12 +337,47 @@ export class JobService {
                     }]
                 })
                 return {docs_, pages_, total_}
-            }
+            }  
             
             return {docs, pages, total}
+             
+        } catch (error:any) {
+            res.send(sendError(error))
+            log({error})
+            return null
+        }
+    }
+
+    public upload_pics = async (req:Request, res:Response) => {
+        try {
+
+            res.send("Under maintainace")
             
         } catch (error:any) {
             res.send(sendError(error))
+            log({error})
+            return null
+        }
+    }
+
+    public publish = async (req:Request, res:Response) => {
+        try {
+
+            let slug  = req.params.slug,
+                job = await Job.findOne({where:{slug}});
+
+            if (!job) {
+                res.send(sendError("Unable to find job"))
+                return null
+            }
+
+            await job.update({published:true})
+
+            return job;
+            
+        } catch (error:any) {
+            res.send(sendError(error))
+            log({error})
             return null
         }
     }

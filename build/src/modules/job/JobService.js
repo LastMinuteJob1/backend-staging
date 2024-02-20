@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobService = void 0;
 const error_1 = require("../../helper/error");
-const express_1 = require("express");
 const methods_1 = require("../../helper/methods");
 const JobModel_1 = __importDefault(require("./JobModel"));
 const UserModel_1 = __importDefault(require("../user/UserModel"));
@@ -22,42 +21,44 @@ const BlobController_1 = require("../../third-party/azure-blob-storage/BlobContr
 const slugify_1 = __importDefault(require("slugify"));
 const sequelize_1 = require("sequelize");
 const NotificationController_1 = require("../notification/NotificationController");
-const NotificationInterface_1 = require("../notification/NotificationInterface");
+const console_1 = require("console");
+const JobPics_1 = __importDefault(require("./JobPics"));
 class JobService {
     constructor() {
         this.blobController = new BlobController_1.BlobController();
         this.notificationController = new NotificationController_1.NotificationController();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { title, description, price, location, priority } = req.body;
+                let { description, price, location, date, ad_type, time, } = req.body;
+                (0, console_1.log)(req.body);
                 // performing upload using azure-blob-storage third party
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
                     res.send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
-                let picx_url = yield this.blobController.uploadFile(express_1.request);
-                if (picx_url == null) {
-                    res.send((0, error_1.sendError)("Unable to upload file, please retry"));
-                    return null;
-                }
-                let slug = (0, slugify_1.default)(title + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
-                const job = yield JobModel_1.default.create({ slug, title, description, price, location, priority_lvl: priority, picx_url });
+                let slug = (0, slugify_1.default)(description.substring(0, 10) + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
+                let obj = {
+                    slug, description, price,
+                    job_location: location, job_date: date, type: ad_type, job_time: time,
+                };
+                // log({obj})
+                const job = yield JobModel_1.default.create(obj);
                 if (!job) {
                     res.send((0, error_1.sendError)("Error creating job"));
                     return null;
                 }
                 yield job.setUser(user.id);
-                yield job.save();
+                // await job.save()
                 // job.user 
                 // stack in an in-app notification
-                this.notificationController.add_notification({
-                    from: "Last Minute Job", // sender
-                    title: "Job creation",
-                    type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
-                    content: `Hello ${user.fullname}, \nYour job '${title}' have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
-                    user: user // receipant
-                });
+                // this.notificationController.add_notification({
+                //     from: "Last Minute Job", // sender
+                //     title: "Job creation",
+                //     type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                //     content: `Hello ${user.fullname}, \nYour job have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
+                //     user: user // receipant
+                // })
                 return yield JobModel_1.default.findOne({
                     where: { slug },
                     include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }]
@@ -65,6 +66,7 @@ class JobService {
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
                 return null;
             }
         });
@@ -88,7 +90,7 @@ class JobService {
         });
         this.update_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { title, description, price, location, priority } = req.body;
+                let { description, price, location, type, date, time } = req.body;
                 let { slug } = req.params;
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
@@ -98,10 +100,15 @@ class JobService {
                 // include in the where clause where current user is the owner of the job
                 let job = yield JobModel_1.default.findOne({
                     where: { slug },
-                    include: [{
+                    include: [
+                        {
                             where: { id: user.id },
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        }]
+                        },
+                        {
+                            model: JobPics_1.default
+                        }
+                    ]
                 });
                 if (!job) {
                     res.send((0, error_1.sendError)("You can't update this job"));
@@ -109,11 +116,15 @@ class JobService {
                 }
                 yield job.update({
                     where: { slug },
-                    title: title || job.title,
+                    // title: title || job.title,
                     description: description || job.description,
                     price: price || job.price,
-                    location: location || job.location,
-                    priority: priority || job.priority_lvl
+                    location: location || job.job_location,
+                    job_location: location || job.job_location,
+                    job_date: date || job.job_date,
+                    type: type || job.type,
+                    job_time: time || job.job_time,
+                    // priority: priority || job.priority_lvl
                 });
                 return yield this.view_job(req, res);
             }
@@ -151,7 +162,7 @@ class JobService {
         });
         this.list_my_jobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { page, limit, desc, q } = req.query;
+                let { page, limit, desc, q, type, published } = req.query;
                 const { email } = req.params;
                 const user = UserModel_1.default.findOne({
                     where: { email }
@@ -164,52 +175,93 @@ class JobService {
                 let limit_ = limit ? parseInt(limit) : 10;
                 let desc_ = desc ? parseInt(desc) : 1;
                 let q_ = q ? q : "";
+                let type_ = type ? type : "";
+                let pb_ = published ? published : "";
+                let published_ = pb_ == "true" ? true : false;
+                console.log({ published_ });
                 // search query param
-                let where = q_ == "" ? {} : {
+                let where = q_ == "" ? {
+                    where: { published: published_ }
+                } : {
                     where: {
-                        [sequelize_1.Op.or]: [
-                            { title: { [sequelize_1.Op.like]: `%${q_}%` } },
-                            { description: { [sequelize_1.Op.like]: `%${q_}%` } },
+                        [sequelize_1.Op.and]: [
+                            { published: published_ },
+                            { description: { [sequelize_1.Op.like]: `%${q_}%` } }
                         ]
                     }
                 };
+                if (type_ != "")
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: { [sequelize_1.Op.and]: [{ type: type_ }, { published: published_ }] },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                where: { email },
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
                 //  pagination
-                const { docs, pages, total } = yield JobModel_1.default.paginate(Object.assign(Object.assign({ page: page_, paginate: limit_, order: [['id', desc_ == 1 ? "DESC" : "ASC"]] }, where), { include: [{
+                const { docs, pages, total } = yield JobModel_1.default.paginate(Object.assign(Object.assign({ page: page_, paginate: limit_, order: [['id', desc_ == 1 ? "DESC" : "ASC"]] }, where), { include: [
+                        {
+                            model: JobPics_1.default
+                        }, {
                             where: { email },
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        }] }));
+                        }
+                    ] }));
                 return { docs, pages, total };
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
                 return null;
             }
         });
         this.list_all_jobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { page, limit, desc, q } = req.query;
+                let { page, limit, desc, q, type } = req.query;
                 let page_ = page ? parseInt(page) : 1;
                 let limit_ = limit ? parseInt(limit) : 10;
                 let desc_ = desc ? parseInt(desc) : 1;
                 let q_ = q ? q : "";
+                let type_ = type ? type : "";
                 //  pagination
+                (0, console_1.log)({ type_ });
+                if (type_ != "")
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: { type: type_, published: true },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
                 // results by job search
                 const { docs, pages, total } = yield JobModel_1.default.paginate({
                     page: page_, paginate: limit_,
                     order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                     where: {
                         [sequelize_1.Op.or]: [
-                            { title: { [sequelize_1.Op.like]: `%${q_}%` } },
                             { description: { [sequelize_1.Op.like]: `%${q_}%` } },
-                            { location: { [sequelize_1.Op.like]: `%${q_}%` } },
-                            { priority_lvl: { [sequelize_1.Op.like]: `%${q_}%` } },
-                            { createdAt: { [sequelize_1.Op.like]: `%${q}%` } },
+                            { job_location: { [sequelize_1.Op.like]: `%${q_}%` } },
                         ],
-                        // [Op.and]: [{active:true}]
+                        published: true
                     },
-                    include: [{
+                    include: [
+                        {
+                            model: JobPics_1.default
+                        }, {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        }]
+                        }
+                    ]
                 });
                 if (docs.length == 0) {
                     // results by user search
@@ -217,7 +269,11 @@ class JobService {
                     const { docs_, pages_, total_ } = yield JobModel_1.default.paginate({
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
-                        include: [{
+                        where: { published: true },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
                                 where: {
                                     [sequelize_1.Op.or]: [
                                         { fullname: { [sequelize_1.Op.like]: `%${q_}%` } },
@@ -225,7 +281,8 @@ class JobService {
                                     ]
                                 },
                                 model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                            }]
+                            }
+                        ]
                     });
                     return { docs_, pages_, total_ };
                 }
@@ -233,6 +290,33 @@ class JobService {
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.upload_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                res.send("Under maintainace");
+            }
+            catch (error) {
+                res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.publish = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let slug = req.params.slug, job = yield JobModel_1.default.findOne({ where: { slug } });
+                if (!job) {
+                    res.send((0, error_1.sendError)("Unable to find job"));
+                    return null;
+                }
+                yield job.update({ published: true });
+                return job;
+            }
+            catch (error) {
+                res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
                 return null;
             }
         });

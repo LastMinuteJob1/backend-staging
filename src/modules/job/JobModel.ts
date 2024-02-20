@@ -1,64 +1,62 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/db";
-import User from "../user/UserModel";
+import { ADTYPE } from "./JobInterface";
 
 const sequelizePaginate = require('sequelize-paginate')
 
 class Job extends Model {
- declare id:number
- declare slug:string
- declare title:string
- declare picx_url:string
- declare description:string
- declare price:number
- declare location:string
- declare priority_lvl:number
- declare userId:number
- declare active:boolean
+  declare id:number;
+  declare slug:string;
+  declare description:string;
+  declare job_location:string;
+  declare type:string;
+  declare price:string;
+  declare job_date:any;
+  declare job_time:any;
+  declare published:boolean;
 }
 
 Job.init({
- id: {
+  id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
- },
- slug: {
+  }, 
+  slug: {
     type: DataTypes.STRING,
-    unique: true,
-    allowNull: false
- },
- title: {
-    type: DataTypes.STRING,
-    allowNull: false
- },
- picx_url: {
+    allowNull: true, unique: true
+  },  
+  description: {
     type: DataTypes.STRING,
     allowNull: false
- },
- description: {
+  }, 
+  job_location: {
     type: DataTypes.STRING,
     allowNull: false
- },
- price: {
-    type: DataTypes.FLOAT,
-    allowNull: false
- },
- location: {
+  }, 
+  type: {
+    type: DataTypes.ENUM,
+    allowNull: false,
+    values: [ADTYPE.GOODS, ADTYPE.SERVICES]
+  }, 
+  price: {
     type: DataTypes.STRING,
     allowNull: false
- },
- priority_lvl: {
-    type: DataTypes.INTEGER,
- },
- active: {
-   type: DataTypes.BOOLEAN,
-   defaultValue: true
- }
+  }, 
+  job_date: {
+    type: DataTypes.STRING
+  }, 
+  job_time: {
+    type: DataTypes.STRING
+  }, 
+  published: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  UserId:{
+    type:DataTypes.INTEGER
+  }
 }, { sequelize, tableName: "job" });
-
-User.hasMany(Job)
-Job.belongsTo(User)
 
 sequelizePaginate.paginate(Job)
 export default Job
