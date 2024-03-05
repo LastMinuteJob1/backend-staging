@@ -1,8 +1,9 @@
 import { Request, Response } from "express"
 import { sendError } from "../../helper/error"
-import { getUser } from "../../helper/methods"
+import { generateReferralCode, getUser } from "../../helper/methods"
 import User from "../user/UserModel"
 import Profile from "./ProfileModel"
+import { log } from "console"
 
 export class ProfileService {
     public viewProfile = async(req:Request, res:Response) => {
@@ -28,17 +29,19 @@ export class ProfileService {
 
             if (!user) {
                 res.send(sendError("Unfortunately something went wrong"))
-                return;
+                return null;
             }
 
             let profile = user["dataValues"]["Profile"];
 
             let data = req.body;
 
+            let referal_code = generateReferralCode()
+
             let {
                 job_title, job_description, years_of_experience,
                 certifications, other_jobs, description,
-                other_info
+                other_info, prove_of_location, 
             } = data;
 
             if (!profile) {
@@ -46,7 +49,7 @@ export class ProfileService {
                 let new_profile = await Profile.create({
                     job_title, job_description, years_of_experience,
                     certifications, other_jobs, description,
-                    other_info
+                    other_info, prove_of_location, referal_code
                 })
                 if (!new_profile) {
                     res.send(sendError("Unable to create profile"))
@@ -77,6 +80,42 @@ export class ProfileService {
 
         } catch (error:any) {
             res.send(sendError(error))
+            return null
+        }
+    }
+    public upload = async (req: any, res: Response) => {
+        try {
+
+            log(">>>>>>>>>>>>>>>>>>>>>>>>UPLOAD>>>>>>>>>>>>>>>>>>>>>>>>")
+
+            const {filename} = req.file;
+
+            let {type} = req.body;
+
+            log({body:req.body}, {type})
+
+            if (type != "pics" && type != "prove") {
+                res.send(sendError("upload type must either be 'pics' or 'prove'"))
+                return null;
+            }
+
+            let data = type == "pics" ? {
+                profile_pics:filename
+            } : {
+                prove_of_location:filename
+            };
+
+            let user = await getUser(req), email = user.email;
+            let new_user:any = await User.findOne({where:{email}, include:[{model:Profile}]})
+            let profile:Profile = new_user["Profile"];
+
+            await await profile.update(data);
+
+            return await this.viewProfile(req, res);
+
+        } catch (err:any) {
+            res.send(sendError(err))
+            log(err)
             return null
         }
     }

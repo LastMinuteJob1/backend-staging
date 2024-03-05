@@ -25,6 +25,17 @@ export class UserService {
                 password: hashPassword(password), pronoun, city, postal_code,
                 is_verified: isGmail, token: isGmail ? token : null
             };
+
+            // check if phone number is unique
+            let user_by_tel = await User.findOne({where:{phone_number}});
+
+            if (user_by_tel) {
+                if (user_by_tel.email != email) {
+                    response.send(sendError("Phone number already exists"))
+                    return null;
+                }
+            }
+
             let user = await User.findOne({where:{email}})
             
             if (user) {
@@ -156,8 +167,12 @@ export class UserService {
 
     public login = async (request:Request, response:Response) => {
         try {
-         
+
+            console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
+            
             let {email, password} = request.body
+
+            log(request.body)
 
             password = hashPassword(password)
 

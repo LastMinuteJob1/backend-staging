@@ -17,6 +17,7 @@ const error_1 = require("../../helper/error");
 const methods_1 = require("../../helper/methods");
 const UserModel_1 = __importDefault(require("../user/UserModel"));
 const ProfileModel_1 = __importDefault(require("./ProfileModel"));
+const console_1 = require("console");
 class ProfileService {
     constructor() {
         this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -37,16 +38,17 @@ class ProfileService {
                 let user = yield this.viewProfile(req, res);
                 if (!user) {
                     res.send((0, error_1.sendError)("Unfortunately something went wrong"));
-                    return;
+                    return null;
                 }
                 let profile = user["dataValues"]["Profile"];
                 let data = req.body;
-                let { job_title, job_description, years_of_experience, certifications, other_jobs, description, other_info } = data;
+                let referal_code = (0, methods_1.generateReferralCode)();
+                let { job_title, job_description, years_of_experience, certifications, other_jobs, description, other_info, prove_of_location, } = data;
                 if (!profile) {
                     let new_profile = yield ProfileModel_1.default.create({
                         job_title, job_description, years_of_experience,
                         certifications, other_jobs, description,
-                        other_info
+                        other_info, prove_of_location, referal_code
                     });
                     if (!new_profile) {
                         res.send((0, error_1.sendError)("Unable to create profile"));
@@ -72,6 +74,33 @@ class ProfileService {
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.upload = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>>UPLOAD>>>>>>>>>>>>>>>>>>>>>>>>");
+                const { filename } = req.file;
+                let { type } = req.body;
+                (0, console_1.log)({ body: req.body }, { type });
+                if (type != "pics" && type != "prove") {
+                    res.send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
+                    return null;
+                }
+                let data = type == "pics" ? {
+                    profile_pics: filename
+                } : {
+                    prove_of_location: filename
+                };
+                let user = yield (0, methods_1.getUser)(req), email = user.email;
+                let new_user = yield UserModel_1.default.findOne({ where: { email }, include: [{ model: ProfileModel_1.default }] });
+                let profile = new_user["Profile"];
+                yield yield profile.update(data);
+                return yield this.viewProfile(req, res);
+            }
+            catch (err) {
+                res.send((0, error_1.sendError)(err));
+                (0, console_1.log)(err);
                 return null;
             }
         });

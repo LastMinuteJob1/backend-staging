@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mailController = void 0;
+exports.storage_path = exports.mailController = void 0;
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const UserRoute_1 = __importDefault(require("./src/modules/user/UserRoute"));
@@ -29,6 +29,8 @@ const JobRequestModel_1 = __importDefault(require("./src/modules/job_request/Job
 const ProfileRoute_1 = __importDefault(require("./src/modules/profile/ProfileRoute"));
 const ProfileModel_1 = __importDefault(require("./src/modules/profile/ProfileModel"));
 const JobPics_1 = __importDefault(require("./src/modules/job/JobPics"));
+const path_1 = __importDefault(require("path"));
+const StorageRoute_1 = __importDefault(require("./storage/StorageRoute"));
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
@@ -41,6 +43,7 @@ app.use("/profile", ProfileRoute_1.default);
 app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
+app.use("/storage", StorageRoute_1.default);
 // Job.drop().then(() => {
 // connecting to DB
 db_1.default.sync({ alter: false, force: false })
@@ -66,3 +69,6 @@ db_1.default.sync({ alter: false, force: false })
     .finally(() => __awaiter(void 0, void 0, void 0, function* () {
     // log(await Job.findAll())
 }));
+// })
+const storage_path = path_1.default.join(__dirname + "/storage");
+exports.storage_path = storage_path;

@@ -34,6 +34,14 @@ class UserService {
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
                     is_verified: isGmail, token: isGmail ? token : null
                 };
+                // check if phone number is unique
+                let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
+                if (user_by_tel) {
+                    if (user_by_tel.email != email) {
+                        response.send((0, error_1.sendError)("Phone number already exists"));
+                        return null;
+                    }
+                }
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {
                     (0, console_1.log)("found", { user });
@@ -146,7 +154,9 @@ class UserService {
         });
         this.login = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
                 let { email, password } = request.body;
+                (0, console_1.log)(request.body);
                 password = (0, methods_1.hashPassword)(password);
                 let user = yield UserModel_1.default.findOne({
                     where: { email, password }

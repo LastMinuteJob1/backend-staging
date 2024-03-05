@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.generateReferralCode = exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
 const env_1 = require("../config/env");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const authorization_1 = require("./authorization");
@@ -76,3 +76,24 @@ function getCharges(price) {
     return (10 * price) / 100;
 }
 exports.getCharges = getCharges;
+function generateReferralCode(options) {
+    // Define default options
+    const defaultOptions = {
+        prefixLength: 6, // Adjust as desired
+        separator: "-",
+        codeLength: 5,
+    };
+    // Merge provided options with defaults
+    const settings = Object.assign({}, defaultOptions, options);
+    // Generate random prefix
+    let prefix = "";
+    for (let i = 0; i < settings.prefixLength; i++) {
+        const randomChar = String.fromCharCode(Math.floor(Math.random() * 26) + 65); // Generate A-Z characters
+        prefix += randomChar;
+    }
+    // Generate random numbers for the code part
+    const code = Math.floor(Math.random() * Math.pow(10, settings.codeLength)).toString().padStart(settings.codeLength, "0");
+    // Combine the components
+    return prefix + settings.separator + code;
+}
+exports.generateReferralCode = generateReferralCode;

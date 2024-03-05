@@ -7,6 +7,9 @@ const sequelize_1 = require("sequelize");
 const db_1 = __importDefault(require("../../config/db"));
 const UserModel_1 = __importDefault(require("../user/UserModel"));
 const sequelizePaginate = require('sequelize-paginate');
+// - profile_pics
+// - prove of location
+// - referal_code
 class Profile extends sequelize_1.Model {
 }
 Profile.init({
@@ -34,6 +37,15 @@ Profile.init({
         type: sequelize_1.DataTypes.STRING,
     },
     other_info: {
+        type: sequelize_1.DataTypes.STRING,
+    },
+    profile_pics: {
+        type: sequelize_1.DataTypes.STRING,
+    },
+    prove_of_location: {
+        type: sequelize_1.DataTypes.STRING,
+    },
+    referal_code: {
         type: sequelize_1.DataTypes.STRING,
     }
 }, { sequelize: db_1.default, tableName: "profile" });

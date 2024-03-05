@@ -15,6 +15,8 @@ import profileRoute from './src/modules/profile/ProfileRoute';
 import Profile from './src/modules/profile/ProfileModel';
 import { log } from 'console';
 import JobPics from './src/modules/job/JobPics';
+import path from 'path';
+import storageRoute from './storage/StorageRoute';
 
 const app = express();
 const port = 3000 || process.env.PORT;
@@ -31,6 +33,7 @@ app.use("/profile", profileRoute)
 app.use("/job", jobRoute)
 app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute)
+app.use("/storage", storageRoute)
 
 // Job.drop().then(() => {
 // connecting to DB
@@ -63,7 +66,7 @@ sequelize.sync({alter:false, force:false})
 }); 
 
 // })
- 
+const storage_path = path.join(__dirname + "/storage")
 export { 
-    mailController 
+    mailController, storage_path
 }  

@@ -25,6 +25,11 @@ class ProfileController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.upload = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.profileService.upload(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.ProfileController = ProfileController;

@@ -15,4 +15,9 @@ export class ProfileController {
         if (data != null)
             res.send(sendResponse(data))
     }
+    public upload = async(req: Request, res: Response) => {
+       let data = await this.profileService.upload(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
 }
