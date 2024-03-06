@@ -61,12 +61,8 @@ sequelize.sync({alter:false, force:false})
     app.listen(port, () => console.log(`Server listening on port ${port} - App version ${APP_VERSION}`)); 
 })
 .catch((error) => console.error('Unable to connect to the database:', error))
-.finally(async () => { 
-    // log(await Job.findAll())
-}); 
+.finally(async () => { }); 
 
 // })
 const storage_path = path.join(__dirname + "/storage")
-export { 
-    mailController, storage_path
-}  
+export { mailController, storage_path }  

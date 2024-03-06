@@ -29,7 +29,7 @@ class JobService {
         this.notificationController = new NotificationController_1.NotificationController();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { description, price, location, date, ad_type, time, } = req.body;
+                let { description, price, location, date, pricing, time, } = req.body;
                 (0, console_1.log)(req.body);
                 // performing upload using azure-blob-storage third party
                 let user = yield (0, methods_1.getUser)(req);
@@ -40,7 +40,7 @@ class JobService {
                 let slug = (0, slugify_1.default)(description.substring(0, 10) + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
                 let obj = {
                     slug, description, price,
-                    job_location: location, job_date: date, type: ad_type, job_time: time,
+                    job_location: location, job_date: date, pricing, job_time: time,
                 };
                 // log({obj})
                 const job = yield JobModel_1.default.create(obj);

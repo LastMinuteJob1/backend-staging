@@ -66,9 +66,7 @@ db_1.default.sync({ alter: false, force: false })
     app.listen(port, () => console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`));
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))
-    .finally(() => __awaiter(void 0, void 0, void 0, function* () {
-    // log(await Job.findAll())
-}));
+    .finally(() => __awaiter(void 0, void 0, void 0, function* () { }));
 // })
 const storage_path = path_1.default.join(__dirname + "/storage");
 exports.storage_path = storage_path;

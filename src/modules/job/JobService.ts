@@ -21,7 +21,7 @@ export class JobService {
             
             let { 
                 description, price,
-                location, date, ad_type, time, 
+                location, date, pricing, time, 
             } = req.body
 
             log(req.body)
@@ -39,12 +39,12 @@ export class JobService {
 
             let obj = {
                 slug, description, price, 
-                job_location:location, job_date:date, type:ad_type, job_time:time,
+                job_location:location, job_date:date, pricing, job_time:time,
             }
             // log({obj})
             const job:any = await Job.create(obj)
 
-            if (!job) {
+            if (!job) { 
                 res.send(sendError("Error creating job"))
                 return null
             }

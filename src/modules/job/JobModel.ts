@@ -5,15 +5,16 @@ import { ADTYPE } from "./JobInterface";
 const sequelizePaginate = require('sequelize-paginate')
 
 class Job extends Model {
-  declare id:number;
+  declare id:number; 
   declare slug:string;
-  declare description:string;
-  declare job_location:string;
+  declare description:string; 
+  declare job_location:string; 
   declare type:string;
-  declare price:string;
-  declare job_date:any;
-  declare job_time:any;
-  declare published:boolean;
+  declare price:string; 
+  declare job_date:any; 
+  declare job_time:any; 
+  declare published:boolean; 
+  declare pricing:string; 
 }
 
 Job.init({
@@ -23,7 +24,7 @@ Job.init({
     primaryKey: true
   }, 
   slug: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING, 
     allowNull: true, unique: true
   },  
   description: {
@@ -36,7 +37,6 @@ Job.init({
   }, 
   type: {
     type: DataTypes.ENUM,
-    allowNull: false,
     values: [ADTYPE.GOODS, ADTYPE.SERVICES]
   }, 
   price: {
@@ -55,6 +55,11 @@ Job.init({
   },
   UserId:{
     type:DataTypes.INTEGER
+  },
+  pricing: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    values: ["fixed", "negotiable"]
   }
 }, { sequelize, tableName: "job" });
 

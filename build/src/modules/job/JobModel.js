@@ -29,7 +29,6 @@ Job.init({
     },
     type: {
         type: sequelize_1.DataTypes.ENUM,
-        allowNull: false,
         values: [JobInterface_1.ADTYPE.GOODS, JobInterface_1.ADTYPE.SERVICES]
     },
     price: {
@@ -48,6 +47,11 @@ Job.init({
     },
     UserId: {
         type: sequelize_1.DataTypes.INTEGER
+    },
+    pricing: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        values: ["fixed", "negotiable"]
     }
 }, { sequelize: db_1.default, tableName: "job" });
 sequelizePaginate.paginate(Job);
