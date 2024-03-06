@@ -65,7 +65,10 @@ export class JobService {
 
             return await Job.findOne({
                 where:{slug},
-                include: [{model: User, attributes: {exclude:["password", "verification_code", "token"]}}]
+                include: [
+                    {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
+                    {model: JobPics}
+                ]
             })
             
         } catch (error:any) {
@@ -82,7 +85,10 @@ export class JobService {
 
             const job = await Job.findOne({
                 where:{slug},
-                include: [{model: User, attributes: {exclude:["password", "verification_code", "token"]}}]
+                include: [
+                    {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
+                    {model: JobPics}
+                ]
             })
 
             if (job == null) {
@@ -102,7 +108,7 @@ export class JobService {
         try {
 
             let {
-                description, price,
+                description, price, pricing,
                 location, type, date, time
             } = req.body
 
@@ -142,7 +148,8 @@ export class JobService {
                 location: location || job.job_location,
                 job_location:location || job.job_location, 
                 job_date:date || job.job_date, 
-                type:type || job.type, 
+                // type:type || job.type, 
+                pricing: pricing || job.pricing,
                 job_time:time || job.job_time,
                 // priority: priority || job.priority_lvl
             })
@@ -348,16 +355,61 @@ export class JobService {
         }
     }
 
-    public upload_pics = async (req:Request, res:Response) => {
+    public upload_pics = async (req:any, res:Response) => {
         try {
 
-            res.send("Under maintainace")
+            // res.send("Under maintainace");
+
+            let {slug} = req.params
+
+            let job = await Job.findOne({
+                where:{slug},
+                include: [
+                    {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
+                    {model: JobPics}
+                ]
+            })
+
+            if (!job) {
+                res.send(sendError("Unable to find job"))
+                return null;
+            }
+
+            let {files} = req;
+
+            for (let file of files) {
+                let {filename} = file;
+                let pics = await JobPics.create({url:filename});
+                await (<any>pics).setJob(job);
+            }
+        
+            return await Job.findOne({
+                where:{slug},
+                include: [
+                    {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
+                    {model: JobPics}
+                ]
+            })
             
         } catch (error:any) {
             res.send(sendError(error))
             log({error})
             return null
         }
+    }
+
+    public delete_job_pics = async (req:Request, res:Response) => {
+        try {
+
+            let {id} = req.query;
+
+            return await JobPics.destroy({where:{id}});
+
+        } catch (error:any) {
+            res.send(sendError(error))
+            log({error})
+            return null
+        } 
     }
 
     public publish = async (req:Request, res:Response) => {

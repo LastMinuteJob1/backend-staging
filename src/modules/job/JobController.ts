@@ -48,6 +48,12 @@ export class JobController {
             res.send(sendResponse(data))
     }
 
+    public delete_job_pics = async (req:Request, res:Response) => {
+        let data = await this.jobService.delete_job_pics(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
     public publish = async (req:Request, res:Response) => {
         let data = await this.jobService.publish(req, res)
         if (data != null)

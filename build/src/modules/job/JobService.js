@@ -61,7 +61,10 @@ class JobService {
                 // })
                 return yield JobModel_1.default.findOne({
                     where: { slug },
-                    include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }]
+                    include: [
+                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: JobPics_1.default }
+                    ]
                 });
             }
             catch (error) {
@@ -75,7 +78,10 @@ class JobService {
                 let { slug } = req.params;
                 const job = yield JobModel_1.default.findOne({
                     where: { slug },
-                    include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }]
+                    include: [
+                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: JobPics_1.default }
+                    ]
                 });
                 if (job == null) {
                     res.send((0, error_1.sendError)("Job not found"));
@@ -90,7 +96,7 @@ class JobService {
         });
         this.update_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { description, price, location, type, date, time } = req.body;
+                let { description, price, pricing, location, type, date, time } = req.body;
                 let { slug } = req.params;
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
@@ -122,7 +128,8 @@ class JobService {
                     location: location || job.job_location,
                     job_location: location || job.job_location,
                     job_date: date || job.job_date,
-                    type: type || job.type,
+                    // type:type || job.type, 
+                    pricing: pricing || job.pricing,
                     job_time: time || job.job_time,
                     // priority: priority || job.priority_lvl
                 });
@@ -296,7 +303,43 @@ class JobService {
         });
         this.upload_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                res.send("Under maintainace");
+                // res.send("Under maintainace");
+                let { slug } = req.params;
+                let job = yield JobModel_1.default.findOne({
+                    where: { slug },
+                    include: [
+                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: JobPics_1.default }
+                    ]
+                });
+                if (!job) {
+                    res.send((0, error_1.sendError)("Unable to find job"));
+                    return null;
+                }
+                let { files } = req;
+                for (let file of files) {
+                    let { filename } = file;
+                    let pics = yield JobPics_1.default.create({ url: filename });
+                    yield pics.setJob(job);
+                }
+                return yield JobModel_1.default.findOne({
+                    where: { slug },
+                    include: [
+                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: JobPics_1.default }
+                    ]
+                });
+            }
+            catch (error) {
+                res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.delete_job_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { id } = req.query;
+                return yield JobPics_1.default.destroy({ where: { id } });
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
