@@ -39,7 +39,7 @@ export class JobService {
 
             let obj = {
                 slug, description, price, 
-                job_location:location, job_date:date, pricing, job_time:time,
+                job_location:location, job_date: date, pricing, job_time:time,
             }
             // log({obj})
             const job:any = await Job.create(obj)
@@ -200,7 +200,7 @@ export class JobService {
         try {
 
             let {
-                page, limit, desc, q, type, published
+                page, limit, desc, q, type, published, from_date, to_date, time
             } = req.query
 
             const {email} = req.params 
@@ -224,6 +224,52 @@ export class JobService {
             let published_ = pb_ == "true" ? true : false;
 
             console.log({published_});
+
+            // list by date
+            if (from_date) {
+
+                let from_date_ = new Date(from_date as string);
+                let to_date_ = to_date ? new Date(to_date as string) : new Date();
+                    to_date_.setDate(to_date_.getDate() + 1);
+
+                log(">>>>>>>>>>>>>>>>>>>>>>>>Filtering by date>>>>>>>>>>>>>>>>>>>>>>");
+                
+                    return await (<any> Job).paginate({
+                        page:page_, paginate:limit_,
+                        order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where:{
+                            createdAt: {
+                                [Op.between]: [from_date_, to_date_]
+                            },
+                            published:published_,
+                        },
+                        include: [
+                            {
+                                model: JobPics
+                            },{
+                            where: {email},
+                            model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        }] 
+                    });
+
+            }
+
+            // // list by time
+            // if (time) return await (<any> Job).paginate({
+            //     page:page_, paginate:limit_,
+            //     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+            //     where:{
+            //         // job_time: {Op["like"]:``}
+            //     },
+            //     include: [
+            //         {
+            //             model: JobPics
+            //         },{
+            //         where: {email},
+            //         model: User, attributes:{exclude:["password", "verification_code", "token"]}
+            //     }] 
+            // });
+
             
             // search query param
             let where = q_ == "" ? {
@@ -278,7 +324,7 @@ export class JobService {
         try {
 
             let {
-                page, limit, desc, q, type
+                page, limit, desc, q, type, from_date, to_date, job_date, job_time
             } = req.query 
 
             let page_ = page ? parseInt(page as string) : 1;
@@ -288,12 +334,81 @@ export class JobService {
             let type_ = type ? type : ""
             //  pagination
 
+            if (job_date) {
+
+                log(">>>>>>>>>>>>>>>>>>Job Date>>>>>>>>>>>>>>>>>>>>")
+
+                return await (<any> Job).paginate({
+                    page:page_, paginate:limit_,
+                    order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where:{
+                        job_date: { [Op.like] : `%${job_date}%`  },
+                        published: true
+                    },
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    }] 
+                });
+
+            }
+
+            if (job_time) {
+
+                log(">>>>>>>>>>>>>>>>>>Job Time>>>>>>>>>>>>>>>>>>>>")
+
+                return await (<any> Job).paginate({
+                    page:page_, paginate:limit_,
+                    order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where:{
+                        job_time: { [Op.like] : `%${job_time}%`  },
+                        published: true
+                    },
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    }] 
+                });
+
+            }
+
+            if (from_date) {
+
+                let from_date_ = new Date(from_date as string);
+                let to_date_ = to_date ? new Date(to_date as string) : new Date();
+                    to_date_.setDate(to_date_.getDate() + 1);
+
+                log(">>>>>>>>>>>>>>>>>>>>>>>>Filtering by date>>>>>>>>>>>>>>>>>>>>>>");
+                
+                    return await (<any> Job).paginate({
+                        page:page_, paginate:limit_,
+                        order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where:{
+                            createdAt: {
+                                [Op.between]: [from_date_, to_date_]
+                            },
+                            published: true
+                        },
+                        include: [
+                            {
+                                model: JobPics
+                            },{
+                            model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        }] 
+                    });
+
+            }
+
             log({type_})
             if (type_ != "") 
                 return await (<any> Job).paginate({
                     page:page_, paginate:limit_,
                     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
-                    where:{type: type_, published:true},
+                    where:{published:true},
                     include: [
                         {
                             model: JobPics

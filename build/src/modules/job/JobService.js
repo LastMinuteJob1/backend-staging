@@ -169,7 +169,7 @@ class JobService {
         });
         this.list_my_jobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { page, limit, desc, q, type, published } = req.query;
+                let { page, limit, desc, q, type, published, from_date, to_date, time } = req.query;
                 const { email } = req.params;
                 const user = UserModel_1.default.findOne({
                     where: { email }
@@ -186,6 +186,46 @@ class JobService {
                 let pb_ = published ? published : "";
                 let published_ = pb_ == "true" ? true : false;
                 console.log({ published_ });
+                // list by date
+                if (from_date) {
+                    let from_date_ = new Date(from_date);
+                    let to_date_ = to_date ? new Date(to_date) : new Date();
+                    to_date_.setDate(to_date_.getDate() + 1);
+                    (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>>Filtering by date>>>>>>>>>>>>>>>>>>>>>>");
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: {
+                            createdAt: {
+                                [sequelize_1.Op.between]: [from_date_, to_date_]
+                            },
+                            published: published_,
+                        },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                where: { email },
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
+                }
+                // // list by time
+                // if (time) return await (<any> Job).paginate({
+                //     page:page_, paginate:limit_,
+                //     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                //     where:{
+                //         // job_time: {Op["like"]:``}
+                //     },
+                //     include: [
+                //         {
+                //             model: JobPics
+                //         },{
+                //         where: {email},
+                //         model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                //     }] 
+                // });
                 // search query param
                 let where = q_ == "" ? {
                     where: { published: published_ }
@@ -230,19 +270,78 @@ class JobService {
         });
         this.list_all_jobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { page, limit, desc, q, type } = req.query;
+                let { page, limit, desc, q, type, from_date, to_date, job_date, job_time } = req.query;
                 let page_ = page ? parseInt(page) : 1;
                 let limit_ = limit ? parseInt(limit) : 10;
                 let desc_ = desc ? parseInt(desc) : 1;
                 let q_ = q ? q : "";
                 let type_ = type ? type : "";
                 //  pagination
+                if (job_date) {
+                    (0, console_1.log)(">>>>>>>>>>>>>>>>>>Job Date>>>>>>>>>>>>>>>>>>>>");
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: {
+                            job_date: { [sequelize_1.Op.like]: `%${job_date}%` },
+                            published: true
+                        },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
+                }
+                if (job_time) {
+                    (0, console_1.log)(">>>>>>>>>>>>>>>>>>Job Time>>>>>>>>>>>>>>>>>>>>");
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: {
+                            job_time: { [sequelize_1.Op.like]: `%${job_time}%` },
+                            published: true
+                        },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
+                }
+                if (from_date) {
+                    let from_date_ = new Date(from_date);
+                    let to_date_ = to_date ? new Date(to_date) : new Date();
+                    to_date_.setDate(to_date_.getDate() + 1);
+                    (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>>Filtering by date>>>>>>>>>>>>>>>>>>>>>>");
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: {
+                            createdAt: {
+                                [sequelize_1.Op.between]: [from_date_, to_date_]
+                            },
+                            published: true
+                        },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            }
+                        ]
+                    });
+                }
                 (0, console_1.log)({ type_ });
                 if (type_ != "")
                     return yield JobModel_1.default.paginate({
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
-                        where: { type: type_, published: true },
+                        where: { published: true },
                         include: [
                             {
                                 model: JobPics_1.default

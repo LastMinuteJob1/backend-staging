@@ -35,10 +35,9 @@ app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute)
 app.use("/storage", storageRoute)
 
-// Job.drop().then(() => {
-// connecting to DB
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
+    // await Job.drop();
     console.log('Connection to database established successfully.\n');
     // syncing models 
     await User.sync()
@@ -63,6 +62,5 @@ sequelize.sync({alter:false, force:false})
 .catch((error) => console.error('Unable to connect to the database:', error))
 .finally(async () => { }); 
 
-// })
 const storage_path = path.join(__dirname + "/storage")
 export { mailController, storage_path }  

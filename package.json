@@ -4,11 +4,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc -watch & nodemon build/app.js",
+    "dev": "npx tsc -watch & nodemon build/app.js",
+    "start": "node build/app.js",
     "build": "node build/app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jilo Developer",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.21",

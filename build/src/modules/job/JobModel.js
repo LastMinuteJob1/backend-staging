@@ -36,7 +36,8 @@ Job.init({
         allowNull: false
     },
     job_date: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING, // Change to DataTypes.DATE
+        allowNull: true
     },
     job_time: {
         type: sequelize_1.DataTypes.STRING

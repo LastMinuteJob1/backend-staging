@@ -44,10 +44,9 @@ app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
 app.use("/storage", StorageRoute_1.default);
-// Job.drop().then(() => {
-// connecting to DB
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
+    // await Job.drop();
     console.log('Connection to database established successfully.\n');
     // syncing models 
     yield UserModel_1.default.sync();
@@ -67,6 +66,5 @@ db_1.default.sync({ alter: false, force: false })
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))
     .finally(() => __awaiter(void 0, void 0, void 0, function* () { }));
-// })
 const storage_path = path_1.default.join(__dirname + "/storage");
 exports.storage_path = storage_path;

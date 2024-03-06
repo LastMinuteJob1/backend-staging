@@ -44,7 +44,8 @@ Job.init({
     allowNull: false
   }, 
   job_date: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING, // Change to DataTypes.DATE
+    allowNull: true
   }, 
   job_time: {
     type: DataTypes.STRING
