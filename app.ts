@@ -59,7 +59,7 @@ sequelize.sync({alter:false, force:false})
     console.log("Email service ready"); 
     app.listen(port, () => {
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
-        setTimeout(() => {
+        setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
     }); 
