@@ -8,7 +8,7 @@ const joi_1 = __importDefault(require("joi"));
 exports.userSchema = joi_1.default.object({
     fullname: joi_1.default.string().min(5).required(),
     email: joi_1.default.string().email().required(),
-    phone_number: joi_1.default.string().min(8).required(),
+    // phone_number:  Joi.string().min(8).required(),
     password: joi_1.default.string().min(8).required(),
     address: joi_1.default.string().min(10).required(),
     pronoun: joi_1.default.string().min(2).required(),

@@ -34,11 +34,11 @@ User.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
-    phone_number: {
-        type: sequelize_1.DataTypes.STRING,
-        unique: true,
-        // allowNull: false,
-    },
+    // phone_number: {
+    //   type: DataTypes.STRING,
+    //   unique: true,
+    //   // allowNull: false,
+    // },
     address: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,

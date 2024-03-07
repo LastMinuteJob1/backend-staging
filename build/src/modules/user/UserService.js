@@ -24,24 +24,24 @@ class UserService {
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payload = request.body;
-                let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, } = payload;
+                let { fullname, email, /*phone_number*/ pronoun, city, postal_code, address, password, isGmail, } = payload;
                 let token = yield (0, methods_1.generateToken)(payload);
                 let verification_code = (0, methods_1.generateRandomNumber)();
                 // console.log({verification_code});
                 // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
                 let data = {
-                    fullname, email, phone_number, address, verification_code,
+                    fullname, email, /*phone_number*/ address, verification_code,
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
                     is_verified: isGmail, token: isGmail ? token : null
                 };
                 // check if phone number is unique
-                let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
-                if (user_by_tel) {
-                    if (user_by_tel.email != email) {
-                        response.send((0, error_1.sendError)("Phone number already exists"));
-                        return null;
-                    }
-                }
+                // let user_by_tel = await User.findOne({where:{phone_number}});
+                // if (user_by_tel) {
+                //     if (user_by_tel.email != email) {
+                //         response.send(sendError("Phone number already exists"))
+                //         return null;
+                //     }
+                // }
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {
                     (0, console_1.log)("found", { user });
