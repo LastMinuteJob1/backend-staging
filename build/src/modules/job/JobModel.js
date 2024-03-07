@@ -27,6 +27,10 @@ Job.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    active: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: true
+    },
     type: {
         type: sequelize_1.DataTypes.ENUM,
         values: [JobInterface_1.ADTYPE.GOODS, JobInterface_1.ADTYPE.SERVICES]

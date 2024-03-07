@@ -33,7 +33,7 @@ app.use("/profile", profileRoute)
 app.use("/job", jobRoute)
 app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute)
-app.use("/storage", storageRoute)
+app.use("/storage", storageRoute) 
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    

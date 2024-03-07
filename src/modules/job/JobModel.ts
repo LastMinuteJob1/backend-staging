@@ -15,6 +15,7 @@ class Job extends Model {
   declare job_time:any; 
   declare published:boolean; 
   declare pricing:string; 
+  declare active:boolean; 
 }
 
 Job.init({
@@ -34,6 +35,10 @@ Job.init({
   job_location: {
     type: DataTypes.STRING,
     allowNull: false
+  }, 
+  active: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }, 
   type: {
     type: DataTypes.ENUM,
