@@ -283,6 +283,7 @@ class JobService {
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                         where: {
+                            active: true,
                             job_date: { [sequelize_1.Op.like]: `%${job_date}%` },
                             published: true
                         },
@@ -301,6 +302,7 @@ class JobService {
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                         where: {
+                            active: true,
                             job_time: { [sequelize_1.Op.like]: `%${job_time}%` },
                             published: true
                         },
@@ -322,6 +324,7 @@ class JobService {
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                         where: {
+                            active: true,
                             createdAt: {
                                 [sequelize_1.Op.between]: [from_date_, to_date_]
                             },
@@ -341,7 +344,7 @@ class JobService {
                     return yield JobModel_1.default.paginate({
                         page: page_, paginate: limit_,
                         order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
-                        where: { published: true },
+                        where: { active: true, published: true },
                         include: [
                             {
                                 model: JobPics_1.default
@@ -355,6 +358,7 @@ class JobService {
                     page: page_, paginate: limit_,
                     order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                     where: {
+                        active: true,
                         [sequelize_1.Op.or]: [
                             { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                             { job_location: { [sequelize_1.Op.like]: `%${q_}%` } },
@@ -381,6 +385,7 @@ class JobService {
                                 model: JobPics_1.default
                             }, {
                                 where: {
+                                    active: true,
                                     [sequelize_1.Op.or]: [
                                         { fullname: { [sequelize_1.Op.like]: `%${q_}%` } },
                                         { email: { [sequelize_1.Op.like]: `%${q_}%` } },

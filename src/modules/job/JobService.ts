@@ -342,6 +342,7 @@ export class JobService {
                     page:page_, paginate:limit_,
                     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                     where:{
+                        active: true,
                         job_date: { [Op.like] : `%${job_date}%`  },
                         published: true
                     },
@@ -363,6 +364,7 @@ export class JobService {
                     page:page_, paginate:limit_,
                     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                     where:{
+                        active: true,
                         job_time: { [Op.like] : `%${job_time}%`  },
                         published: true
                     },
@@ -388,6 +390,7 @@ export class JobService {
                         page:page_, paginate:limit_,
                         order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                         where:{
+                            active: true,
                             createdAt: {
                                 [Op.between]: [from_date_, to_date_]
                             },
@@ -408,7 +411,7 @@ export class JobService {
                 return await (<any> Job).paginate({
                     page:page_, paginate:limit_,
                     order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
-                    where:{published:true},
+                    where:{active: true,published:true},
                     include: [
                         {
                             model: JobPics
@@ -423,6 +426,7 @@ export class JobService {
                 page:page_, paginate:limit_,
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
                 where:{
+                    active: true,
                     [Op.or]: [
                         { description: { [Op.like]: `%${q_}%` } },
                         { job_location: { [Op.like]: `%${q_}%` } },
@@ -450,6 +454,7 @@ export class JobService {
                             model: JobPics
                         },{
                         where: {
+                            active: true,
                             [Op.or]: [
                                 { fullname: { [Op.like]: `%${q_}%` } },
                                 { email: { [Op.like]: `%${q_}%` } },
