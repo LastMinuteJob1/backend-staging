@@ -57,7 +57,12 @@ sequelize.sync({alter:false, force:false})
     // preparing mailing service
     mailController = new MailController()
     console.log("Email service ready"); 
-    app.listen(port, () => console.log(`Server listening on port ${port} - App version ${APP_VERSION}`)); 
+    app.listen(port, () => {
+        console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
+        setTimeout(() => {
+            log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
+        }, 1000 * 60);
+    }); 
 })
 .catch((error) => console.error('Unable to connect to the database:', error))
 .finally(async () => { }); 

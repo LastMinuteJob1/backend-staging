@@ -28,6 +28,7 @@ const JobRequestRoute_1 = __importDefault(require("./src/modules/job_request/Job
 const JobRequestModel_1 = __importDefault(require("./src/modules/job_request/JobRequestModel"));
 const ProfileRoute_1 = __importDefault(require("./src/modules/profile/ProfileRoute"));
 const ProfileModel_1 = __importDefault(require("./src/modules/profile/ProfileModel"));
+const console_1 = require("console");
 const JobPics_1 = __importDefault(require("./src/modules/job/JobPics"));
 const path_1 = __importDefault(require("path"));
 const StorageRoute_1 = __importDefault(require("./storage/StorageRoute"));
@@ -62,7 +63,12 @@ db_1.default.sync({ alter: false, force: false })
     // preparing mailing service
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
-    app.listen(port, () => console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`));
+    app.listen(port, () => {
+        console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
+        setTimeout(() => {
+            (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
+        }, 1000 * 60);
+    });
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))
     .finally(() => __awaiter(void 0, void 0, void 0, function* () { }));
