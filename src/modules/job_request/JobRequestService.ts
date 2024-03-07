@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { sendError } from "../../helper/error";
 import Job from "../job/JobModel";
 import User from "../user/UserModel";
-import { generateRandomNumber, getCharges, getUser } from "../../helper/methods";
+import { generateRandomNumber, generateReferralCode, getCharges, getUser } from "../../helper/methods";
 import JobRequest from "./JobRequestModel";
 import slugify from "slugify";
 import { log } from "console";
@@ -53,7 +53,6 @@ export class JobRequestService {
             
             // check if you haven't applied before
             let my_job_request = await JobRequest.findOne({
-                where:{slug},
                 include: [
                     {
                         model:User,
@@ -62,6 +61,7 @@ export class JobRequestService {
                     },
                     {
                         model: Job,
+                        where:{slug},
                         include: [{
                             model:User,
                             attributes: {exclude:["password", "verification_code", "token"]},
@@ -73,7 +73,7 @@ export class JobRequestService {
             if (my_job_request) {console.log("Already applied"); return my_job_request;}
 
             // apply for job
-            let job_req_slug = slugify((job.title + " " + generateRandomNumber()), {lower:true})
+            let job_req_slug = slugify((generateReferralCode()), {lower:true})
             let my_job_application:any = await JobRequest.create({slug:job_req_slug})
             await my_job_application.setUser(user.id)
             await my_job_application.setJob(job.id)
@@ -181,7 +181,7 @@ export class JobRequestService {
                     },
                     {model:Job, where:{
                         [Op.or]: [
-                            { title: { [Op.like]: `%${q_}%` } },
+                            // { title: { [Op.like]: `%${q_}%` } },
                             { description: { [Op.like]: `%${q_}%` } },
                           ]
                     }, include: [{model:User, where:{email}, attributes:{exclude:["password", "verification_code", "token"]}}]}
@@ -238,7 +238,7 @@ export class JobRequestService {
                     },
                     {model:Job, where:{
                         [Op.or]: [
-                            { title: { [Op.like]: `%${q_}%` } },
+                            // { title: { [Op.like]: `%${q_}%` } },
                             { description: { [Op.like]: `%${q_}%` } },
                           ]
                     }, include: [{model:User, attributes:{exclude:["password", "verification_code", "token"]}}]}

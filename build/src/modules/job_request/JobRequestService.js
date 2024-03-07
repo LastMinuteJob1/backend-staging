@@ -58,7 +58,6 @@ class JobRequestService {
                 }
                 // check if you haven't applied before
                 let my_job_request = yield JobRequestModel_1.default.findOne({
-                    where: { slug },
                     include: [
                         {
                             model: UserModel_1.default,
@@ -67,6 +66,7 @@ class JobRequestService {
                         },
                         {
                             model: JobModel_1.default,
+                            where: { slug },
                             include: [{
                                     model: UserModel_1.default,
                                     attributes: { exclude: ["password", "verification_code", "token"] },
@@ -79,7 +79,7 @@ class JobRequestService {
                     return my_job_request;
                 }
                 // apply for job
-                let job_req_slug = (0, slugify_1.default)((job.title + " " + (0, methods_1.generateRandomNumber)()), { lower: true });
+                let job_req_slug = (0, slugify_1.default)(((0, methods_1.generateReferralCode)()), { lower: true });
                 let my_job_application = yield JobRequestModel_1.default.create({ slug: job_req_slug });
                 yield my_job_application.setUser(user.id);
                 yield my_job_application.setJob(job.id);
@@ -166,7 +166,7 @@ class JobRequestService {
                         },
                         { model: JobModel_1.default, where: {
                                 [sequelize_1.Op.or]: [
-                                    { title: { [sequelize_1.Op.like]: `%${q_}%` } },
+                                    // { title: { [Op.like]: `%${q_}%` } },
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
                             }, include: [{ model: UserModel_1.default, where: { email }, attributes: { exclude: ["password", "verification_code", "token"] } }] }
@@ -212,7 +212,7 @@ class JobRequestService {
                         },
                         { model: JobModel_1.default, where: {
                                 [sequelize_1.Op.or]: [
-                                    { title: { [sequelize_1.Op.like]: `%${q_}%` } },
+                                    // { title: { [Op.like]: `%${q_}%` } },
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
                             }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }

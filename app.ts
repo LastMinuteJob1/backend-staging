@@ -37,7 +37,7 @@ app.use("/storage", storageRoute)
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
-    // await Job.drop();
+    // await JobRequest.drop();
     console.log('Connection to database established successfully.\n');
     // syncing models 
     await User.sync()
