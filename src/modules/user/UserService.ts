@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { SignupRequest } from "./UserInterface";
+import { IUserAccountStatus, SignupRequest } from "./UserInterface";
 import User from "./UserModel";
 import { /*AppError,*/ sendError } from "../../helper/error";
 import { generateRandomNumber, generateToken, hashPassword, sendResponse } from "../../helper/methods";
@@ -187,6 +187,11 @@ export class UserService {
 
             if (!user.is_verified) {
                 response.send(sendError("Please verify your email"))
+                return null
+            }
+
+            if (user.active != IUserAccountStatus.ACTIVE) {
+                response.send(sendError("Your account is no longer active"))
                 return null
             }
 

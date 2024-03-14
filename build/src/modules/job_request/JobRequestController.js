@@ -47,15 +47,15 @@ class JobRequestController {
         });
         // submit accepted job application for completion
         this.submit_accepted_job_request_for_review = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            let data = yield this.jobRequestService.submit_accepted_job_request_for_review(req, res);
-            if (data != null)
-                res.send((0, methods_1.sendResponse)(data));
+            // let data = await this.jobRequestService.submit_accepted_job_request_for_review(req, res)
+            // if (data != null)
+            //     res.send(sendResponse(data))
         });
         // accept or reject the job application completion request
         this.toggle_accepted_job_request_for_review = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            let data = yield this.jobRequestService.toggle_accepted_job_request_for_review(req, res);
-            if (data != null)
-                res.send((0, methods_1.sendResponse)(data));
+            // let data = await this.jobRequestService.toggle_accepted_job_request_for_review(req, res)
+            // if (data != null)
+            //     res.send(sendResponse(data))
         });
     }
 }

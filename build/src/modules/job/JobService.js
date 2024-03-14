@@ -21,12 +21,20 @@ const BlobController_1 = require("../../third-party/azure-blob-storage/BlobContr
 const slugify_1 = __importDefault(require("slugify"));
 const sequelize_1 = require("sequelize");
 const NotificationController_1 = require("../notification/NotificationController");
+const NotificationInterface_1 = require("../notification/NotificationInterface");
 const console_1 = require("console");
 const JobPics_1 = __importDefault(require("./JobPics"));
+const JobRequestModel_1 = __importDefault(require("../job_request/JobRequestModel"));
+const JobRequestInterface_1 = require("../job_request/JobRequestInterface");
+const env_1 = require("../../config/env");
+const NotificationService_1 = require("../notification/NotificationService");
+const MailService_1 = require("../mailer/MailService");
 class JobService {
     constructor() {
         this.blobController = new BlobController_1.BlobController();
         this.notificationController = new NotificationController_1.NotificationController();
+        this.notificationService = new NotificationService_1.NotificationService();
+        this.emailService = new MailService_1.MailService();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { description, price, location, date, pricing, time, } = req.body;
@@ -459,6 +467,100 @@ class JobService {
                     return null;
                 }
                 yield job.update({ published: true });
+                return job;
+            }
+            catch (error) {
+                res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.ongoing_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { page, limit, desc, q, status //,type, from_date, to_date, job_date, job_time
+                 } = req.query;
+                let page_ = page ? parseInt(page) : 1;
+                let limit_ = limit ? parseInt(limit) : 10;
+                let desc_ = desc ? parseInt(desc) : 1;
+                let q_ = q ? q : "";
+                let status_ = status ? status : JobRequestInterface_1.JobRequestStatus.ACCEPT;
+                // let type_ = type ? type : ""
+                let user = yield (0, methods_1.getUser)(req);
+                if (!user) {
+                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                return yield JobModel_1.default.paginate({
+                    page: page_, paginate: limit_,
+                    order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where: { published: true, description: { [sequelize_1.Op.like]: `%${q_}%` } },
+                    include: [
+                        { model: JobPics_1.default },
+                        { model: JobRequestModel_1.default, where: { status: status_ }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] },
+                        {
+                            where: {
+                                [sequelize_1.Op.or]: [
+                                    { fullname: { [sequelize_1.Op.like]: `%${q_}%` } },
+                                    { email: { [sequelize_1.Op.like]: `%${q_}%` } },
+                                ]
+                            },
+                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                        }
+                    ]
+                });
+            }
+            catch (error) {
+                res.send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.submit_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { slug } = req.params;
+                // find the job
+                let job = yield JobModel_1.default.findOne({
+                    where: { slug },
+                    include: [
+                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: JobRequestModel_1.default, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }], where: { status: JobRequestInterface_1.JobRequestStatus.ACCEPT } }
+                    ]
+                });
+                if (!job) {
+                    res.send((0, error_1.sendError)("Unable to submit this job"));
+                    return null;
+                }
+                // check if user owns the job
+                let user = yield (0, methods_1.getUser)(req);
+                if (!user) {
+                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                // extract the request
+                let requests = job["JobRequests"];
+                for (let job_request of requests) {
+                    // update the request
+                    yield job_request.update({ status: JobRequestInterface_1.JobRequestStatus.COMPLETED });
+                    // notifiy the user
+                    let user = job_request["User"];
+                    let { email } = user;
+                    (0, console_1.log)({ email, user });
+                    this.emailService.send({
+                        from: env_1.EMAIL_USERNAME, to: email,
+                        text: `Dear ${user.fullname} 
+                    <br> Your job have successfuly been accepted, you'll receive your fund in 5 minutes
+                    <br>Best regards`,
+                        subject: "Job Application Update"
+                    });
+                    this.notificationService.add_notification({
+                        from: "Last Minute Job", user: user,
+                        title: `Job Application Update`,
+                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_COMPLETE_NOTIFICATION,
+                        content: `Congratulations on completing your job`
+                    });
+                    // initiate the transaction
+                }
+                // return the job
                 return job;
             }
             catch (error) {

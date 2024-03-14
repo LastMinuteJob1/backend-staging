@@ -32,6 +32,7 @@ const console_1 = require("console");
 const JobPics_1 = __importDefault(require("./src/modules/job/JobPics"));
 const path_1 = __importDefault(require("path"));
 const StorageRoute_1 = __importDefault(require("./storage/StorageRoute"));
+// import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
@@ -58,6 +59,7 @@ db_1.default.sync({ alter: false, force: false })
     yield ProfileModel_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
+    // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models");
     // preparing mailing service

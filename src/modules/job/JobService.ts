@@ -10,10 +10,18 @@ import { NotificationController } from "../notification/NotificationController";
 import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
 import { log } from "console";
 import JobPics from "./JobPics";
+import JobRequest from "../job_request/JobRequestModel";
+import { JobRequestStatus } from "../job_request/JobRequestInterface";
+import { EMAIL_USERNAME } from "../../config/env";
+import { NotificationService } from "../notification/NotificationService";
+import { MailService } from "../mailer/MailService";
+
 export class JobService {
 
     private blobController = new BlobController()
     private notificationController = new NotificationController()
+    private notificationService = new NotificationService()
+    private emailService = new MailService()
    
     public create_job = async (req:Request, res:Response) => {
         try {
@@ -553,5 +561,116 @@ export class JobService {
             return null
         }
     }
+
+    public ongoing_job = async (req:Request, res:Response) => {
+        try {
+
+            let {
+                page, limit, desc, q, status //,type, from_date, to_date, job_date, job_time
+            } = req.query 
+
+            let page_ = page ? parseInt(page as string) : 1;
+            let limit_ = limit ? parseInt(limit as string) : 10
+            let desc_ = desc ? parseInt(desc as string) : 1
+            let q_ = q ? q : ""
+            let status_ = status ? status : JobRequestStatus.ACCEPT;
+            // let type_ = type ? type : ""
+
+            let user:User = await getUser(req)
+
+            if (!user) {
+                res.send(sendError("Something went wrong, please login"))
+                return null
+            }
+
+            return await (<any> Job).paginate({
+                page:page_, paginate:limit_,
+                order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                where: { published:true, description: { [Op.like]: `%${q_}%` } },
+                include: [
+                    { model: JobPics },
+                    { model: JobRequest, where: {status:status_}, include: [{model: User, attributes:{exclude:["password", "verification_code", "token"]}}] },
+                    {
+                    where: {
+                        [Op.or]: [ 
+                            { fullname: { [Op.like]: `%${q_}%` } },
+                            { email: { [Op.like]: `%${q_}%` } },
+                        ]
+                    },
+                    model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                }]
+            });
+ 
+        } catch (error:any) {
+            res.send(sendError(error))
+            log({error})
+            return null
+        }
+    }
+
+    public submit_job = async (req:Request, res:Response) => {
+        try {
+
+            let {slug} = req.params;
+
+            // find the job
+
+            let job = await Job.findOne({
+                where:{slug},
+                include: [
+                    {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
+                    {model: JobRequest, include: [{model: User, attributes: {exclude:["password", "verification_code", "token"]}}], where:{status:JobRequestStatus.ACCEPT}}
+                ]
+            })
+
+            if (!job) {
+                res.send(sendError("Unable to submit this job"))
+                return null;
+            }
+
+            // check if user owns the job
+
+            let user:User = await getUser(req)
+
+            if (!user) {
+                res.send(sendError("Something went wrong, please login"))
+                return null
+            }
+
+            // extract the request
+            let requests:JobRequest[] = (<any>job)["JobRequests"];
+            for (let job_request of requests) {
+                // update the request
+                await (<JobRequest>job_request).update({status: JobRequestStatus.COMPLETED});
+                // notifiy the user
+                let user:User = (<any>job_request)["User"];
+                let {email} = user;
+                log({email, user});
+                this.emailService.send({
+                    from: EMAIL_USERNAME, to: email,
+                    text: `Dear ${user.fullname} 
+                    <br> Your job have successfuly been accepted, you'll receive your fund in 5 minutes
+                    <br>Best regards`,
+                    subject: "Job Application Update"
+                })
+                this.notificationService.add_notification({ 
+                    from: "Last Minute Job", user: user,
+                    title: `Job Application Update`,
+                    type: NOTIFICATION_TYPE.JOB_COMPLETE_NOTIFICATION,
+                    content:  `Congratulations on completing your job`
+                })
+                // initiate the transaction
+            }
+
+            // return the job
+            return job;
+
+        } catch (error:any) {
+            res.send(sendError(error))
+            log({error})
+            return null
+        } 
+    }
+
 
 }

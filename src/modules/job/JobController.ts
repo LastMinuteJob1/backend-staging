@@ -60,4 +60,16 @@ export class JobController {
             res.send(sendResponse(data))
     }
 
+    public submit_job = async (req:Request, res:Response) => {
+        let data = await this.jobService.submit_job(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
+    public ongoing_job = async (req:Request, res:Response) => {
+        let data = await this.jobService.ongoing_job(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
 }

@@ -23,7 +23,7 @@ function sendResponse(data, message = "OK", status = 200) {
     };
 }
 exports.sendResponse = sendResponse;
-const jwt = new authorization_1.JWTToken('HS256', env_1.JWT_SECRET_KEY, '1h');
+const jwt = new authorization_1.JWTToken('HS256', env_1.JWT_SECRET_KEY, '24h');
 function generateToken(user) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield jwt.generateToken({ email: user.email, name: user.fullname });

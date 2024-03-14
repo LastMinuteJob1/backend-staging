@@ -43,4 +43,7 @@ jobRoute.delete("/:slug", jobController.delete_job)
 jobRoute.get("/", jobController.list_all_jobs)
 jobRoute.get("/user/:email", jobController.list_my_jobs)
 
+jobRoute.get("/ongoing/task", jobController.ongoing_job)
+jobRoute.put("/submit/task/:slug", jobController.submit_job)
+
 export default jobRoute 

@@ -24,4 +24,6 @@ const upload = multer({ storage });
 profileRoute.get("/", profileCotroller.viewProfile);
 profileRoute.post("/", profileCotroller.addProfile);
 profileRoute.put("/", upload.single("file"), profileCotroller.upload);
+profileRoute.put("/update/fullname-and-password", profileCotroller.update_username_and_password);
+profileRoute.put("/account/toggle", profileCotroller.deactivate_or_delete_account);
 exports.default = profileRoute;

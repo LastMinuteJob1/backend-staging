@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+const UserInterface_1 = require("./UserInterface");
 const UserModel_1 = __importDefault(require("./UserModel"));
 const error_1 = require("../../helper/error");
 const methods_1 = require("../../helper/methods");
@@ -167,6 +168,10 @@ class UserService {
                 }
                 if (!user.is_verified) {
                     response.send((0, error_1.sendError)("Please verify your email"));
+                    return null;
+                }
+                if (user.active != UserInterface_1.IUserAccountStatus.ACTIVE) {
+                    response.send((0, error_1.sendError)("Your account is no longer active"));
                     return null;
                 }
                 let token = yield (0, methods_1.generateToken)({

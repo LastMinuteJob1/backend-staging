@@ -93,7 +93,7 @@ class JobRequestService {
                 });
                 this.emailService.send({
                     from: env_1.EMAIL_USERNAME, to: job.dataValues.User.email,
-                    text: `Dear ${job.dataValues.User["fullname"].split(" ")[0]} <br> ${user["fullname"]} just sent a proposal regarding your job ${job.title}`,
+                    text: `Dear ${job.dataValues.User["fullname"].split(" ")[0]} <br> ${user["fullname"]} just sent a proposal regarding your job`,
                     subject: "Job Application"
                 });
                 return yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
@@ -309,11 +309,11 @@ class JobRequestService {
                         });
                     }).finally(() => {
                         // disbuse rejection email
-                        rejected_emails.forEach((rejected_email) => {
-                            // forward in app rejection and email rejection
-                            // updating the exact jpb request
-                            job_req.update({ status });
-                        });
+                        // rejected_emails.forEach((rejected_email:string) => {
+                        // forward in app rejection and email rejection
+                        // updating the exact jpb request
+                        // job_req.update({status})
+                        // })
                     });
                 }
                 let accepted_job_req = yield job_req.update({ status });
@@ -344,156 +344,153 @@ class JobRequestService {
                 return null;
             }
         });
-        this.submit_accepted_job_request_for_review = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                // get user
-                const user = yield (0, methods_1.getUser)(req);
-                if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
-                    return null;
-                }
-                const job_req_slug = req.params.slug;
-                // finding the job request
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.ACCEPT }, include: [
-                        // the applicant
-                        {
-                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        },
-                        {
-                            // job and owner of the job
-                            model: JobModel_1.default, include: [{
-                                    model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                                }]
-                        }
-                    ] });
-                if (job_req == null) {
-                    res.send((0, error_1.sendError)("This job hasn't been assigned to a last minute app user"));
-                    return null;
-                }
-                // check if the job was assigned to me
-                if (job_req.User.id != user.id) {
-                    res.send((0, error_1.sendError)("Unauthorized for this action, job wasn't assigned to you"));
-                    return null;
-                }
-                // update the job
-                yield job_req.update({ status: JobRequestInterface_1.JobRequestStatus.COMPLETED_PENDING });
-                // forward email and in-app notification
-                let job = job_req.Job;
-                let job_owner = job.dataValues.User, { email } = job_owner;
-                // parallel operations
-                this.notificationService.add_notification({
-                    from: "Last Minute Job", user: job_req.dataValues.User,
-                    title: `Ongoing Job Update`,
-                    type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
-                    content: `${user.fullname} has submitted your job for review`
-                });
-                this.emailService.send({
-                    from: env_1.EMAIL_USERNAME, to: email,
-                    text: `Dear ${job_owner["fullname"].split(" ")[0]} <br> your on-going job '${job.title}' has been submitted for review. kindly review the submission`,
-                    subject: "Job Submission"
-                });
-                return yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
-                        // the applicant
-                        {
-                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        },
-                        {
-                            // job and owner of the job
-                            model: JobModel_1.default, include: [{
-                                    model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                                }]
-                        }
-                    ] });
-            }
-            catch (error) {
-                res.send((0, error_1.sendError)(error));
-                return null;
-            }
-        });
-        this.toggle_accepted_job_request_for_review = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                // get user
-                const user = yield (0, methods_1.getUser)(req);
-                if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
-                    return null;
-                }
-                const job_req_slug = req.params.slug;
-                let { status } = req.body;
-                if (!status) {
-                    res.send((0, error_1.sendError)("Please provide a status for this action"));
-                    return null;
-                }
-                status = parseInt(status);
-                // verify if the job belongs to the user
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.COMPLETED_PENDING }, include: [
-                        {
-                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                        },
-                        {
-                            model: JobModel_1.default, include: [{
-                                    model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
-                                }]
-                        }
-                    ] });
-                if (job_req == null) {
-                    res.send((0, error_1.sendError)("This job hasn't been submitted for review yet"));
-                    return null;
-                }
-                if (job_req.dataValues.Job.dataValues.User.id != user.id) {
-                    res.send((0, error_1.sendError)("Unauthorized to perform this action"));
-                    return null;
-                }
-                let worker = job_req.User, { email } = worker, job = job_req.Job;
-                if (status == JobRequestInterface_1.JobRequestStatus.COMPLETED) {
-                    yield job_req.update({ status, completed: true });
-                    // parallel operations
-                    this.notificationService.add_notification({
-                        from: "Last Minute Job", user: job_req.dataValues.User,
-                        title: `Job Submission Update`,
-                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
-                        content: `${worker.fullname} your job has been marked as completed`
-                    });
-                    this.emailService.send({
-                        from: env_1.EMAIL_USERNAME, to: email,
-                        text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations '${job.title}' has been approved, keep the good work on `,
-                        subject: "Job Accepted"
-                    });
-                    // process stripe payment
-                    return yield this.stripeService.disburse_payment({
-                        amount: job.price,
-                        from: user,
-                        to: worker,
-                        narration: `Payment fot ${job.title}`,
-                        charges: (0, methods_1.getCharges)(job.price)
-                    });
-                }
-                else if (status == JobRequestInterface_1.JobRequestStatus.COMPLETED_REJECTED) {
-                    yield job_req.update({ status });
-                    // parallel operations
-                    this.notificationService.add_notification({
-                        from: "Last Minute Job", user: job_req.dataValues.User,
-                        title: `Job Submission Update`,
-                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
-                        content: `${worker.fullname} your job was rejected, we will appreciate you try as much as possible to improve the service provided`
-                    });
-                    this.emailService.send({
-                        from: env_1.EMAIL_USERNAME, to: email,
-                        text: `Dear ${worker["fullname"].split(" ")[0]} <br> Unfortunately '${job.title}' has been rejected, try as much as possible to improve the service provided `,
-                        subject: "Job Rejected"
-                    });
-                    return job_req;
-                }
-                else {
-                    res.send((0, error_1.sendError)("You either can accept or reject this submission"));
-                    return null;
-                }
-            }
-            catch (error) {
-                res.send((0, error_1.sendError)(error));
-                return null;
-            }
-        });
+        // public submit_accepted_job_request_for_review = async (req:Request, res:Response) => {
+        //     try {
+        //           // get user
+        //           const user = await getUser(req)
+        //           if (user == null) {
+        //               res.send(sendError("Authentication failed, please login again"))
+        //               return null
+        //           }
+        //           const job_req_slug = req.params.slug
+        //         // finding the job request
+        //         let job_req:any = await JobRequest.findOne({where:{slug:job_req_slug, status:JobRequestStatus.ACCEPT}, include:[
+        //             // the applicant
+        //             { 
+        //                 model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //             },
+        //             {
+        //                 // job and owner of the job
+        //                 model: Job, include:[{
+        //                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //                 }]
+        //             }
+        //         ]})
+        //         if (job_req == null) {
+        //             res.send(sendError("This job hasn't been assigned to a last minute app user"))
+        //             return null
+        //         }
+        //         // check if the job was assigned to me
+        //         if (job_req.User.id !=  user.id) {
+        //             res.send(sendError("Unauthorized for this action, job wasn't assigned to you"))
+        //             return null
+        //         }
+        //         // update the job
+        //         await job_req.update({status:JobRequestStatus.COMPLETED_PENDING})
+        //         // forward email and in-app notification
+        //         let job:Job = job_req.Job;
+        //         let job_owner:User =  job.dataValues.User, {email} = job_owner;
+        //         // parallel operations
+        //         this.notificationService.add_notification({
+        //             from: "Last Minute Job", user: job_req.dataValues.User,
+        //             title: `Ongoing Job Update`,
+        //             type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+        //             content:  `${user.fullname} has submitted your job for review`
+        //         })
+        //         this.emailService.send({
+        //             from: EMAIL_USERNAME, to: email,
+        //             text: `Dear ${job_owner["fullname"].split(" ")[0]} <br> your on-going job '${job.title}' has been submitted for review. kindly review the submission`,
+        //             subject: "Job Submission"
+        //         })
+        //         return await JobRequest.findOne({where:{slug:job_req_slug}, include:[
+        //             // the applicant
+        //             { 
+        //                 model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //             },
+        //             {
+        //                 // job and owner of the job
+        //                 model: Job, include:[{
+        //                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //                 }]
+        //             }
+        //         ]})
+        //     } catch (error:any) {
+        //         res.send(sendError(error))
+        //         return null
+        //     }
+        // }
+        // public toggle_accepted_job_request_for_review = async (req:Request, res:Response) => {
+        //     try {
+        //         // get user
+        //         const user = await getUser(req)
+        //         if (user == null) {
+        //             res.send(sendError("Authentication failed, please login again"))
+        //             return null
+        //         }
+        //         const job_req_slug = req.params.slug
+        //         let {status} = req.body;
+        //         if (!status) {
+        //             res.send(sendError("Please provide a status for this action"))
+        //             return null
+        //         }
+        //         status  = parseInt(status as string);
+        //         // verify if the job belongs to the user
+        //         let job_req:any = await JobRequest.findOne({where:{slug:job_req_slug, status:JobRequestStatus.COMPLETED_PENDING}, include:[
+        //             { 
+        //                 model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //             },
+        //             {
+        //                 model: Job, include:[{
+        //                     model: User, attributes:{exclude:["password", "verification_code", "token"]}
+        //                 }]
+        //             }
+        //         ]})
+        //         if (job_req == null) {
+        //             res.send(sendError("This job hasn't been submitted for review yet"))
+        //             return null
+        //         }
+        //         if (job_req.dataValues.Job.dataValues.User.id != user.id) {
+        //             res.send(sendError("Unauthorized to perform this action"))
+        //             return null
+        //         }
+        //         let worker:User = job_req.User, {email} = worker,
+        //             job:Job = job_req.Job;
+        //         if (status == JobRequestStatus.COMPLETED) {
+        //             await job_req.update({status, completed:true})
+        //              // parallel operations
+        //             this.notificationService.add_notification({
+        //                 from: "Last Minute Job", user: job_req.dataValues.User,
+        //                 title: `Job Submission Update`,
+        //                 type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+        //                 content:  `${worker.fullname} your job has been marked as completed`
+        //             })
+        //             this.emailService.send({
+        //                 from: EMAIL_USERNAME, to: email,
+        //                 text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations '${job.title}' has been approved, keep the good work on `,
+        //                 subject: "Job Accepted"
+        //             })
+        //             // process stripe payment
+        //             return await this.stripeService.disburse_payment({
+        //                 amount: job.price,
+        //                 from: user,
+        //                 to: worker,
+        //                 narration: `Payment fot ${job.title}`,
+        //                 charges: getCharges(job.price)
+        //             })
+        //         } else if (status == JobRequestStatus.COMPLETED_REJECTED) {
+        //             await job_req.update({status})
+        //              // parallel operations
+        //              this.notificationService.add_notification({
+        //                 from: "Last Minute Job", user: job_req.dataValues.User,
+        //                 title: `Job Submission Update`,
+        //                 type: NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+        //                 content:  `${worker.fullname} your job was rejected, we will appreciate you try as much as possible to improve the service provided`
+        //             })
+        //             this.emailService.send({
+        //                 from: EMAIL_USERNAME, to: email,
+        //                 text: `Dear ${worker["fullname"].split(" ")[0]} <br> Unfortunately '${job.title}' has been rejected, try as much as possible to improve the service provided `,
+        //                 subject: "Job Rejected"
+        //             })
+        //             return job_req
+        //         } else {
+        //             res.send(sendError("You either can accept or reject this submission"))
+        //             return null
+        //         }
+        //     } catch (error:any) {
+        //         res.send(sendError(error))
+        //         return null
+        //     }
+        // }
     }
 }
 exports.JobRequestService = JobRequestService;

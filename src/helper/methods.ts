@@ -13,7 +13,7 @@ export function sendResponse (data:any, message:string = "OK", status:number = 2
     }
 }
 
-const jwt = new JWTToken('HS256', JWT_SECRET_KEY, '1h');
+const jwt = new JWTToken('HS256', JWT_SECRET_KEY, '24h');
 
 export async function generateToken (user:any) {
     return await jwt.generateToken({ email: user.email, name: user.fullname });

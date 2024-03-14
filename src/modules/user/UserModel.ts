@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/db";
+import { IUserAccountStatus } from "./UserInterface";
 
 class User extends Model {
   declare id:number;
@@ -14,6 +15,8 @@ class User extends Model {
   declare is_verified: boolean;
   declare verification_code: string;
   declare token: string;
+  declare active: string;
+  declare reason: string;
 }
 
 User.init({
@@ -67,6 +70,14 @@ User.init({
   token: {
     type: DataTypes.STRING
   },
+  active: {
+    type: DataTypes.ENUM,
+    values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
+    defaultValue: IUserAccountStatus.ACTIVE
+  },
+  reason: {
+    type: DataTypes.STRING
+  }
 }, { sequelize, tableName: "users" });
 
 export default User

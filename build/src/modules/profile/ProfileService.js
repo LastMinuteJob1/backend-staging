@@ -18,6 +18,7 @@ const methods_1 = require("../../helper/methods");
 const UserModel_1 = __importDefault(require("../user/UserModel"));
 const ProfileModel_1 = __importDefault(require("./ProfileModel"));
 const console_1 = require("console");
+const UserInterface_1 = require("../user/UserInterface");
 class ProfileService {
     constructor() {
         this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -97,6 +98,47 @@ class ProfileService {
                 let profile = new_user["Profile"];
                 yield yield profile.update(data);
                 return yield this.viewProfile(req, res);
+            }
+            catch (err) {
+                res.send((0, error_1.sendError)(err));
+                (0, console_1.log)(err);
+                return null;
+            }
+        });
+        this.update_username_and_password = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let user = yield this.viewProfile(req, res);
+                if (!user) {
+                    res.send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    return null;
+                }
+                let { fullname, password } = req.body;
+                yield user.update({
+                    fullname: fullname ? fullname : user.fullname,
+                    password: password ? (0, methods_1.hashPassword)(password) : user.password
+                });
+                return user;
+            }
+            catch (err) {
+                res.send((0, error_1.sendError)(err));
+                (0, console_1.log)(err);
+                return null;
+            }
+        });
+        this.deactivate_or_delete_account = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let user = yield this.viewProfile(req, res);
+                if (!user) {
+                    res.send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    return null;
+                }
+                let { status, reason } = req.body;
+                if (status != UserInterface_1.IUserAccountStatus.ACTIVE && status != UserInterface_1.IUserAccountStatus.IN_ACTIVE) {
+                    res.send((0, error_1.sendError)("You can only de-activate or activate account"));
+                    return null;
+                }
+                yield user.update({ active: status, reason: reason || "" });
+                return user;
             }
             catch (err) {
                 res.send((0, error_1.sendError)(err));

@@ -3,6 +3,7 @@ import { AppError, sendError } from "./error";
 import { jobSchema, userSchema } from "./schema";
 import { validateToken } from "./methods";
 import User from "../modules/user/UserModel";
+import { IUserAccountStatus } from "../modules/user/UserInterface";
 
 export const ErrorWatcher = (err: any, req: Request, res: Response, next: (err?: any) => void) => {
     if (err instanceof AppError) {
@@ -37,6 +38,11 @@ export async function authorization (req:Request, res:Response, next: NextFuncti
     let user = await User.findOne({where:{token}})
     if (user == null) {
       let err = sendError("No user with this Auth token", 401)
+      res.send(err)
+      return
+    }
+    if (user.active != IUserAccountStatus.ACTIVE) {
+      let err = sendError("This account is no longer active", 401)
       res.send(err)
       return
     }

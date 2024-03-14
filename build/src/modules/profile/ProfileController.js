@@ -30,6 +30,16 @@ class ProfileController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.update_username_and_password = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.profileService.update_username_and_password(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.deactivate_or_delete_account = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.profileService.deactivate_or_delete_account(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.ProfileController = ProfileController;

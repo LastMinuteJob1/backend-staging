@@ -60,6 +60,16 @@ class JobController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.submit_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.jobService.submit_job(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.ongoing_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.jobService.ongoing_job(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.JobController = JobController;

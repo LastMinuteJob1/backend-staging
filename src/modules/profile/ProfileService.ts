@@ -1,9 +1,10 @@
 import { Request, Response } from "express"
 import { sendError } from "../../helper/error"
-import { generateReferralCode, getUser } from "../../helper/methods"
+import { generateReferralCode, getUser, hashPassword } from "../../helper/methods"
 import User from "../user/UserModel"
 import Profile from "./ProfileModel"
 import { log } from "console"
+import { IUserAccountStatus } from "../user/UserInterface"
 
 export class ProfileService {
     public viewProfile = async(req:Request, res:Response) => {
@@ -112,6 +113,58 @@ export class ProfileService {
             await await profile.update(data);
 
             return await this.viewProfile(req, res);
+
+        } catch (err:any) {
+            res.send(sendError(err))
+            log(err)
+            return null
+        }
+    }
+    public update_username_and_password = async (req: any, res: Response) => {
+        try {
+
+            let user = await this.viewProfile(req, res)
+
+            if (!user) {
+                res.send(sendError("Unfortunately something went wrong"))
+                return null;
+            }
+
+            let {fullname, password} = req.body;
+
+            await user.update({
+                fullname:  fullname ? fullname : user.fullname,
+                password: password ? hashPassword(password) : user.password
+            }); 
+
+            return user;
+
+        } catch (err:any) {
+            res.send(sendError(err))
+            log(err)
+            return null
+        }
+    }
+    public deactivate_or_delete_account = async (req: any, res: Response) => {
+        try {
+
+            let user = await this.viewProfile(req, res)
+
+            if (!user) {
+                res.send(sendError("Unfortunately something went wrong"))
+                return null;
+            }
+
+            let {status, reason} = req.body;
+
+            if (status != IUserAccountStatus.ACTIVE && status != IUserAccountStatus.IN_ACTIVE) {
+                res.send(sendError("You can only de-activate or activate account"))
+                return null;
+            }
+
+            await user.update({active:status, reason:reason||""});
+
+            return user; 
 
         } catch (err:any) {
             res.send(sendError(err))

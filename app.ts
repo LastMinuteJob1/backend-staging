@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { APP_VERSION, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME } from './src/config/env';
+import { APP_VERSION/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ } from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';
 import { MailController } from './src/modules/mailer/MailController';
@@ -17,6 +17,7 @@ import { log } from 'console';
 import JobPics from './src/modules/job/JobPics';
 import path from 'path';
 import storageRoute from './storage/StorageRoute';
+// import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
 const port = 3000 || process.env.PORT;
@@ -51,7 +52,8 @@ sequelize.sync({alter:false, force:false})
  
     User.hasMany(Job) 
     Job.belongsTo(User)
-
+ 
+    // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models") 
     // preparing mailing service

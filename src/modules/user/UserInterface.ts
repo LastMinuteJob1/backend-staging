@@ -10,3 +10,7 @@ export interface SignupRequest {
     city:string, 
     postal_code:number,
 }
+
+export enum IUserAccountStatus {
+    IN_ACTIVE = 'in-active', ACTIVE = 'active', DELETED = 'deleted'
+}
