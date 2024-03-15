@@ -9,7 +9,7 @@ class User extends Model {
   declare pronoun: string;
   // declare phone_number: number;
   declare address: string;
-  declare postal_code: number;
+  declare postal_code: string;
   declare city: string;
   declare password: string;
   declare is_verified: boolean;
@@ -45,7 +45,7 @@ User.init({
   city: {
     type: DataTypes.STRING,
     allowNull: false
-  },
+  }, 
   // phone_number: {
   //   type: DataTypes.STRING,
   //   unique: true,

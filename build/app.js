@@ -46,7 +46,7 @@ app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
 app.use("/storage", StorageRoute_1.default);
-db_1.default.sync({ alter: false, force: false })
+db_1.default.sync({ alter: true, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // await JobRequest.drop();
     console.log('Connection to database established successfully.\n');

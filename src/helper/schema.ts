@@ -8,7 +8,7 @@ export const userSchema = Joi.object({
     address:  Joi.string().min(10).required(),
     pronoun:  Joi.string().min(2).required(),
     city:  Joi.string().min(2).required(),
-    postal_code:  Joi.number().required(),
+    postal_code:  Joi.string().required(),
     isGmail: Joi.bool().required()
 });
 
