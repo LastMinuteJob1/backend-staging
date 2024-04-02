@@ -36,7 +36,7 @@ app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute)
 app.use("/storage", storageRoute) 
 
-sequelize.sync({alter:true, force:false}) 
+sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
     // await JobRequest.drop();
     console.log('Connection to database established successfully.\n');
@@ -51,7 +51,7 @@ sequelize.sync({alter:true, force:false})
     await Profile.sync()
  
     User.hasMany(Job) 
-    Job.belongsTo(User)
+    Job.belongsTo(User) 
  
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))

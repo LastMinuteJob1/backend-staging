@@ -13,7 +13,7 @@ export class UserService {
         try {
             let payload:SignupRequest = request.body;
             let {
-                fullname, email, /*phone_number*/ pronoun, city, postal_code,
+                fullname, email, phone_number, pronoun, city, postal_code,
                 address, password, isGmail, 
             } = payload
             let token = await generateToken(payload)
@@ -21,7 +21,7 @@ export class UserService {
             // console.log({verification_code});
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
             let data = {
-                fullname, email, /*phone_number*/ address, verification_code,
+                fullname, email, phone_number, address, verification_code,
                 password: hashPassword(password), pronoun, city, postal_code,
                 is_verified: isGmail, token: isGmail ? token : null
             };

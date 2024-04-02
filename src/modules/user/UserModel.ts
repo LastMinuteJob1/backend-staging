@@ -7,7 +7,7 @@ class User extends Model {
   declare email: string;
   declare fullname: string;
   declare pronoun: string;
-  // declare phone_number: number;
+  declare phone_number: number;
   declare address: string;
   declare postal_code: string;
   declare city: string;
@@ -46,11 +46,11 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false
   }, 
-  // phone_number: {
-  //   type: DataTypes.STRING,
-  //   unique: true,
-  //   // allowNull: false,
-  // },
+  phone_number: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
+  },
   address: {
     type: DataTypes.STRING,
     allowNull: false,
