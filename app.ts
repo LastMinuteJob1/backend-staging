@@ -1,7 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { APP_VERSION/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ } from './src/config/env';
+import { ACCESS_KEY, APP_VERSION,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
+SECRET_KEY} from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';
 import { MailController } from './src/modules/mailer/MailController';
@@ -59,6 +60,7 @@ sequelize.sync({alter:false, force:false})
     // preparing mailing service
     mailController = new MailController()
     console.log("Email service ready"); 
+
     app.listen(port, () => {
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
         setInterval(() => {

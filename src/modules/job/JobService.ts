@@ -15,13 +15,16 @@ import { JobRequestStatus } from "../job_request/JobRequestInterface";
 import { EMAIL_USERNAME } from "../../config/env";
 import { NotificationService } from "../notification/NotificationService";
 import { MailService } from "../mailer/MailService";
+import { StorageService } from "../../../storage/StorageService";
+import fs from "fs";
 
 export class JobService {
 
-    private blobController = new BlobController()
-    private notificationController = new NotificationController()
-    private notificationService = new NotificationService()
-    private emailService = new MailService()
+    // private blobController = new BlobController()
+    // private notificationController = new NotificationController()
+    private notificationService = new NotificationService();
+    private storageService = new StorageService();
+    private emailService = new MailService();
    
     public create_job = async (req:Request, res:Response) => {
         try {
@@ -490,6 +493,8 @@ export class JobService {
 
             let {slug} = req.params
 
+            log("upload", req.files)
+
             let job = await Job.findOne({
                 where:{slug},
                 include: [
@@ -507,7 +512,19 @@ export class JobService {
 
             for (let file of files) {
                 let {filename} = file;
-                let pics = await JobPics.create({url:filename});
+                // get signed URL
+                // let url = await this.storageService.signedUploadURL(filename);
+                // upload pics
+                log({type: typeof file, file});
+                let {status, data} = await this.storageService.uploadPicture(file, filename);
+                console.log({data});
+                if (!status) {
+                    log("Error uploading");
+                    continue;
+                }
+                let file_name = data?.Location;
+                log(file_name)
+                let pics = await JobPics.create({url:file_name});
                 await (<any>pics).setJob(job);
             }
         

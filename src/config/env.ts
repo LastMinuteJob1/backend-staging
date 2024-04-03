@@ -22,3 +22,7 @@ export const EMAIL_SERVICE = process.env.EMAIL_SERVICE || ""
 export const SMTP_HOST = process.env.SMTP_HOST || ""
 export const SMTP_PORT = process.env.SMTP_PORT || ""
 export const SECURE_SMTP = process.env.EMAIL_SERVICE || ""
+
+// STORAGE
+export const ACCESS_KEY = process.env.ACCESS_KEY || ""
+export const SECRET_KEY = process.env.SECRET_KEY || ""

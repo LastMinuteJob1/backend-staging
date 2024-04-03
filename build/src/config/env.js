@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SECURE_SMTP = exports.SMTP_PORT = exports.SMTP_HOST = exports.EMAIL_SERVICE = exports.EMAIL_PASSWORD = exports.EMAIL_USERNAME = exports.JWT_SECRET_KEY = exports.MYSQL_PORT = exports.MYSQL_HOST = exports.MYSQL_USERNAME = exports.MYSQL_PASSWORD = exports.MYSQL_DATABASE = exports.ENVIROMENT = exports.APP_VERSION = void 0;
+exports.SECRET_KEY = exports.ACCESS_KEY = exports.SECURE_SMTP = exports.SMTP_PORT = exports.SMTP_HOST = exports.EMAIL_SERVICE = exports.EMAIL_PASSWORD = exports.EMAIL_USERNAME = exports.JWT_SECRET_KEY = exports.MYSQL_PORT = exports.MYSQL_HOST = exports.MYSQL_USERNAME = exports.MYSQL_PASSWORD = exports.MYSQL_DATABASE = exports.ENVIROMENT = exports.APP_VERSION = void 0;
 require('dotenv').config();
 exports.APP_VERSION = process.env.APP_VERSION || "";
 // enviroment
@@ -20,3 +20,6 @@ exports.EMAIL_SERVICE = process.env.EMAIL_SERVICE || "";
 exports.SMTP_HOST = process.env.SMTP_HOST || "";
 exports.SMTP_PORT = process.env.SMTP_PORT || "";
 exports.SECURE_SMTP = process.env.EMAIL_SERVICE || "";
+// STORAGE
+exports.ACCESS_KEY = process.env.ACCESS_KEY || "";
+exports.SECRET_KEY = process.env.SECRET_KEY || "";

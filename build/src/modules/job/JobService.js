@@ -17,10 +17,8 @@ const error_1 = require("../../helper/error");
 const methods_1 = require("../../helper/methods");
 const JobModel_1 = __importDefault(require("./JobModel"));
 const UserModel_1 = __importDefault(require("../user/UserModel"));
-const BlobController_1 = require("../../third-party/azure-blob-storage/BlobController");
 const slugify_1 = __importDefault(require("slugify"));
 const sequelize_1 = require("sequelize");
-const NotificationController_1 = require("../notification/NotificationController");
 const NotificationInterface_1 = require("../notification/NotificationInterface");
 const console_1 = require("console");
 const JobPics_1 = __importDefault(require("./JobPics"));
@@ -29,11 +27,13 @@ const JobRequestInterface_1 = require("../job_request/JobRequestInterface");
 const env_1 = require("../../config/env");
 const NotificationService_1 = require("../notification/NotificationService");
 const MailService_1 = require("../mailer/MailService");
+const StorageService_1 = require("../../../storage/StorageService");
 class JobService {
     constructor() {
-        this.blobController = new BlobController_1.BlobController();
-        this.notificationController = new NotificationController_1.NotificationController();
+        // private blobController = new BlobController()
+        // private notificationController = new NotificationController()
         this.notificationService = new NotificationService_1.NotificationService();
+        this.storageService = new StorageService_1.StorageService();
         this.emailService = new MailService_1.MailService();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -417,6 +417,7 @@ class JobService {
             try {
                 // res.send("Under maintainace");
                 let { slug } = req.params;
+                (0, console_1.log)("upload", req.files);
                 let job = yield JobModel_1.default.findOne({
                     where: { slug },
                     include: [
@@ -431,7 +432,19 @@ class JobService {
                 let { files } = req;
                 for (let file of files) {
                     let { filename } = file;
-                    let pics = yield JobPics_1.default.create({ url: filename });
+                    // get signed URL
+                    // let url = await this.storageService.signedUploadURL(filename);
+                    // upload pics
+                    (0, console_1.log)({ type: typeof file, file });
+                    let { status, data } = yield this.storageService.uploadPicture(file, filename);
+                    console.log({ data });
+                    if (!status) {
+                        (0, console_1.log)("Error uploading");
+                        continue;
+                    }
+                    let file_name = data === null || data === void 0 ? void 0 : data.Location;
+                    (0, console_1.log)(file_name);
+                    let pics = yield JobPics_1.default.create({ url: file_name });
                     yield pics.setJob(job);
                 }
                 return yield JobModel_1.default.findOne({
