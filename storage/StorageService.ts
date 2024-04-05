@@ -5,6 +5,7 @@ import { ACCESS_KEY, SECRET_KEY } from "../src/config/env";
 import { log } from "console";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { Boolean } from "aws-sdk/clients/batch";
 
 const fs = require("fs");
 
@@ -13,7 +14,12 @@ export class StorageService {
     private accessKeyId = ACCESS_KEY;
     private secretAccessKey = SECRET_KEY;
     private endpoint = 'https://us-sea-1.linodeobjects.com/';
-    private bucketName = 'job-pics';
+    private bucketName:any = 'job-pics';
+
+    constructor (bucket:any, /*isProfile:Boolean = false*/) {
+      this.bucketName = bucket;
+      // this.endpoint = isProfile ? 'https://profile-uploads.us-sea-1.linodeobjects.com/' : this.endpoint;
+    }
 
     private s3Client = new S3Client({
       credentials: {

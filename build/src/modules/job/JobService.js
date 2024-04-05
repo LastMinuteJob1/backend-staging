@@ -33,7 +33,7 @@ class JobService {
         // private blobController = new BlobController()
         // private notificationController = new NotificationController()
         this.notificationService = new NotificationService_1.NotificationService();
-        this.storageService = new StorageService_1.StorageService();
+        this.storageService = new StorageService_1.StorageService("job-pics");
         this.emailService = new MailService_1.MailService();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {

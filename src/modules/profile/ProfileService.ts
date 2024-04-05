@@ -5,8 +5,12 @@ import User from "../user/UserModel"
 import Profile from "./ProfileModel"
 import { log } from "console"
 import { IUserAccountStatus } from "../user/UserInterface"
+import { StorageService } from "../../../storage/StorageService"
 
 export class ProfileService {
+
+    private storageService = new StorageService("profile-uploads")
+
     public viewProfile = async(req:Request, res:Response) => {
         try {
 
@@ -68,11 +72,12 @@ export class ProfileService {
                 other_jobs = other_jobs || profile.other_jobs;
                 description = description || profile.description;
                 other_info = other_info || profile.other_info
+                referal_code = profile.referal_code || generateReferralCode();
 
                 await profile.update({
                     job_title, job_description, years_of_experience,
                     certifications, other_jobs, description,
-                    other_info
+                    other_info, referal_code
                 })
 
             }
@@ -89,7 +94,7 @@ export class ProfileService {
 
             log(">>>>>>>>>>>>>>>>>>>>>>>>UPLOAD>>>>>>>>>>>>>>>>>>>>>>>>")
 
-            const {filename} = req.file;
+            const file = req.file,  {filename} = file;
 
             let {type} = req.body;
 
@@ -100,17 +105,30 @@ export class ProfileService {
                 return null;
             }
 
-            let data = type == "pics" ? {
-                profile_pics:filename
+            let {status, data} = await this.storageService.uploadPicture(file, filename);
+                console.log({data});
+                if (!status) {
+                    log("Error uploading");
+                }
+                let file_name = data?.Location;
+
+            let data_ = type == "pics" ? {
+                profile_pics:file_name
             } : {
-                prove_of_location:filename
+                prove_of_location:file_name
             };
 
             let user = await getUser(req), email = user.email;
-            let new_user:any = await User.findOne({where:{email}, include:[{model:Profile}]})
+            let new_user:any = await User.findOne({where:{email}, include:[{model:Profile}]});
+
             let profile:Profile = new_user["Profile"];
 
-            await await profile.update(data);
+            if (!profile) {
+                profile = await Profile.create();
+                await new_user.setProfile(profile);
+            }
+
+            await profile.update(data_);
 
             return await this.viewProfile(req, res);
 

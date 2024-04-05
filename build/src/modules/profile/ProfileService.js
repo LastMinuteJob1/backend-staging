@@ -19,8 +19,10 @@ const UserModel_1 = __importDefault(require("../user/UserModel"));
 const ProfileModel_1 = __importDefault(require("./ProfileModel"));
 const console_1 = require("console");
 const UserInterface_1 = require("../user/UserInterface");
+const StorageService_1 = require("../../../storage/StorageService");
 class ProfileService {
     constructor() {
+        this.storageService = new StorageService_1.StorageService("profile-uploads");
         this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let user = yield (0, methods_1.getUser)(req), uid = UserModel_1.default.findOne({ where: { email: user.email }, include: [{
@@ -65,10 +67,11 @@ class ProfileService {
                     other_jobs = other_jobs || profile.other_jobs;
                     description = description || profile.description;
                     other_info = other_info || profile.other_info;
+                    referal_code = profile.referal_code || (0, methods_1.generateReferralCode)();
                     yield profile.update({
                         job_title, job_description, years_of_experience,
                         certifications, other_jobs, description,
-                        other_info
+                        other_info, referal_code
                     });
                 }
                 return yield this.viewProfile(req, res);
@@ -81,22 +84,32 @@ class ProfileService {
         this.upload = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>>UPLOAD>>>>>>>>>>>>>>>>>>>>>>>>");
-                const { filename } = req.file;
+                const file = req.file, { filename } = file;
                 let { type } = req.body;
                 (0, console_1.log)({ body: req.body }, { type });
                 if (type != "pics" && type != "prove") {
                     res.send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
                     return null;
                 }
-                let data = type == "pics" ? {
-                    profile_pics: filename
+                let { status, data } = yield this.storageService.uploadPicture(file, filename);
+                console.log({ data });
+                if (!status) {
+                    (0, console_1.log)("Error uploading");
+                }
+                let file_name = data === null || data === void 0 ? void 0 : data.Location;
+                let data_ = type == "pics" ? {
+                    profile_pics: file_name
                 } : {
-                    prove_of_location: filename
+                    prove_of_location: file_name
                 };
                 let user = yield (0, methods_1.getUser)(req), email = user.email;
                 let new_user = yield UserModel_1.default.findOne({ where: { email }, include: [{ model: ProfileModel_1.default }] });
                 let profile = new_user["Profile"];
-                yield yield profile.update(data);
+                if (!profile) {
+                    profile = yield ProfileModel_1.default.create();
+                    yield new_user.setProfile(profile);
+                }
+                yield profile.update(data_);
                 return yield this.viewProfile(req, res);
             }
             catch (err) {

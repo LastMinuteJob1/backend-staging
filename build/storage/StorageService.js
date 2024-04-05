@@ -20,7 +20,7 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const lib_storage_1 = require("@aws-sdk/lib-storage");
 const fs = require("fs");
 class StorageService {
-    constructor() {
+    constructor(bucket) {
         this.accessKeyId = env_1.ACCESS_KEY;
         this.secretAccessKey = env_1.SECRET_KEY;
         this.endpoint = 'https://us-sea-1.linodeobjects.com/';
@@ -87,6 +87,8 @@ class StorageService {
                 res.status(500).send('Internal server error');
             }
         });
+        this.bucketName = bucket;
+        // this.endpoint = isProfile ? 'https://profile-uploads.us-sea-1.linodeobjects.com/' : this.endpoint;
     }
 }
 exports.StorageService = StorageService;

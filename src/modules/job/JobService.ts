@@ -23,7 +23,7 @@ export class JobService {
     // private blobController = new BlobController()
     // private notificationController = new NotificationController()
     private notificationService = new NotificationService();
-    private storageService = new StorageService();
+    private storageService = new StorageService("job-pics");
     private emailService = new MailService();
    
     public create_job = async (req:Request, res:Response) => {
