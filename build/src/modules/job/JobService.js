@@ -42,7 +42,7 @@ class JobService {
                 // performing upload using azure-blob-storage third party
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 let slug = (0, slugify_1.default)(description.substring(0, 10) + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
@@ -53,7 +53,7 @@ class JobService {
                 // log({obj})
                 const job = yield JobModel_1.default.create(obj);
                 if (!job) {
-                    res.send((0, error_1.sendError)("Error creating job"));
+                    res.status(400).send((0, error_1.sendError)("Error creating job"));
                     return null;
                 }
                 yield job.setUser(user.id);
@@ -76,7 +76,7 @@ class JobService {
                 });
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -92,13 +92,13 @@ class JobService {
                     ]
                 });
                 if (job == null) {
-                    res.send((0, error_1.sendError)("Job not found"));
+                    res.status(400).send((0, error_1.sendError)("Job not found"));
                     return null;
                 }
                 return job;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -108,7 +108,7 @@ class JobService {
                 let { slug } = req.params;
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 // include in the where clause where current user is the owner of the job
@@ -125,7 +125,7 @@ class JobService {
                     ]
                 });
                 if (!job) {
-                    res.send((0, error_1.sendError)("You can't update this job"));
+                    res.status(400).send((0, error_1.sendError)("You can't update this job"));
                     return null;
                 }
                 yield job.update({
@@ -144,7 +144,7 @@ class JobService {
                 return yield this.view_job(req, res);
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -153,7 +153,7 @@ class JobService {
                 let { slug } = req.params;
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 // include in the where clause where current user is the owner of the job
@@ -165,13 +165,13 @@ class JobService {
                         }]
                 });
                 if (!job) {
-                    res.send((0, error_1.sendError)("You can not delete this job"));
+                    res.status(400).send((0, error_1.sendError)("You can not delete this job"));
                     return null;
                 }
                 return yield job.destroy();
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -183,7 +183,7 @@ class JobService {
                     where: { email }
                 });
                 if (!user) {
-                    res.send((0, error_1.sendError)(`user with email ${email} does not exist`));
+                    res.status(400).send((0, error_1.sendError)(`user with email ${email} does not exist`));
                     return null;
                 }
                 let page_ = page ? parseInt(page) : 1;
@@ -271,7 +271,7 @@ class JobService {
                 return { docs, pages, total };
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -408,7 +408,7 @@ class JobService {
                 return { docs, pages, total };
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -426,7 +426,7 @@ class JobService {
                     ]
                 });
                 if (!job) {
-                    res.send((0, error_1.sendError)("Unable to find job"));
+                    res.status(400).send((0, error_1.sendError)("Unable to find job"));
                     return null;
                 }
                 let { files } = req;
@@ -456,7 +456,7 @@ class JobService {
                 });
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -467,7 +467,7 @@ class JobService {
                 return yield JobPics_1.default.destroy({ where: { id } });
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -476,14 +476,14 @@ class JobService {
             try {
                 let slug = req.params.slug, job = yield JobModel_1.default.findOne({ where: { slug } });
                 if (!job) {
-                    res.send((0, error_1.sendError)("Unable to find job"));
+                    res.status(400).send((0, error_1.sendError)("Unable to find job"));
                     return null;
                 }
                 yield job.update({ published: true });
                 return job;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -500,7 +500,7 @@ class JobService {
                 // let type_ = type ? type : ""
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 return yield JobModel_1.default.paginate({
@@ -523,7 +523,7 @@ class JobService {
                 });
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }
@@ -540,13 +540,13 @@ class JobService {
                     ]
                 });
                 if (!job) {
-                    res.send((0, error_1.sendError)("Unable to submit this job"));
+                    res.status(400).send((0, error_1.sendError)("Unable to submit this job"));
                     return null;
                 }
                 // check if user owns the job
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 // extract the request
@@ -577,7 +577,7 @@ class JobService {
                 return job;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 (0, console_1.log)({ error });
                 return null;
             }

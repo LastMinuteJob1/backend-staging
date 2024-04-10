@@ -25,7 +25,7 @@ class NotificationService {
             try {
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 let { page, limit, desc, q } = req.query;
@@ -55,7 +55,7 @@ class NotificationService {
                 return { docs, pages, total };
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });

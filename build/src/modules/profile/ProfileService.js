@@ -32,7 +32,7 @@ class ProfileService {
                 return uid;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -40,7 +40,7 @@ class ProfileService {
             try {
                 let user = yield this.viewProfile(req, res);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    res.status(400).send((0, error_1.sendError)("Unfortunately something went wrong"));
                     return null;
                 }
                 let profile = user["dataValues"]["Profile"];
@@ -54,7 +54,7 @@ class ProfileService {
                         other_info, prove_of_location, referal_code
                     });
                     if (!new_profile) {
-                        res.send((0, error_1.sendError)("Unable to create profile"));
+                        res.status(500).send((0, error_1.sendError)("Unable to create profile"));
                         return null;
                     }
                     yield new_profile.setUser(user);
@@ -77,7 +77,7 @@ class ProfileService {
                 return yield this.viewProfile(req, res);
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -88,7 +88,7 @@ class ProfileService {
                 let { type } = req.body;
                 (0, console_1.log)({ body: req.body }, { type });
                 if (type != "pics" && type != "prove") {
-                    res.send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
+                    res.status(400).send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
                     return null;
                 }
                 let { status, data } = yield this.storageService.uploadPicture(file, filename);
@@ -113,7 +113,7 @@ class ProfileService {
                 return yield this.viewProfile(req, res);
             }
             catch (err) {
-                res.send((0, error_1.sendError)(err));
+                res.status(500).send((0, error_1.sendError)(err));
                 (0, console_1.log)(err);
                 return null;
             }
@@ -122,7 +122,7 @@ class ProfileService {
             try {
                 let user = yield this.viewProfile(req, res);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    res.status(400).send((0, error_1.sendError)("Unfortunately something went wrong"));
                     return null;
                 }
                 let { fullname, password } = req.body;
@@ -133,7 +133,7 @@ class ProfileService {
                 return user;
             }
             catch (err) {
-                res.send((0, error_1.sendError)(err));
+                res.status(500).send((0, error_1.sendError)(err));
                 (0, console_1.log)(err);
                 return null;
             }
@@ -142,19 +142,19 @@ class ProfileService {
             try {
                 let user = yield this.viewProfile(req, res);
                 if (!user) {
-                    res.send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    res.status(400).send((0, error_1.sendError)("Unfortunately something went wrong"));
                     return null;
                 }
                 let { status, reason } = req.body;
                 if (status != UserInterface_1.IUserAccountStatus.ACTIVE && status != UserInterface_1.IUserAccountStatus.IN_ACTIVE) {
-                    res.send((0, error_1.sendError)("You can only de-activate or activate account"));
+                    res.status(400).send((0, error_1.sendError)("You can only de-activate or activate account"));
                     return null;
                 }
                 yield user.update({ active: status, reason: reason || "" });
                 return user;
             }
             catch (err) {
-                res.send((0, error_1.sendError)(err));
+                res.status(500).send((0, error_1.sendError)(err));
                 (0, console_1.log)(err);
                 return null;
             }

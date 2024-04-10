@@ -23,7 +23,7 @@ export class ProfileService {
             return uid;
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -33,7 +33,7 @@ export class ProfileService {
             let user = await this.viewProfile(req, res)
 
             if (!user) {
-                res.send(sendError("Unfortunately something went wrong"))
+                res.status(400).send(sendError("Unfortunately something went wrong"));
                 return null;
             }
 
@@ -57,7 +57,7 @@ export class ProfileService {
                     other_info, prove_of_location, referal_code
                 })
                 if (!new_profile) {
-                    res.send(sendError("Unable to create profile"))
+                    res.status(500).send(sendError("Unable to create profile"));
                     return null
                 }
 
@@ -72,7 +72,7 @@ export class ProfileService {
                 other_jobs = other_jobs || profile.other_jobs;
                 description = description || profile.description;
                 other_info = other_info || profile.other_info
-                referal_code = profile.referal_code || generateReferralCode();
+                referal_code = profile.referal_code || generateReferralCode(); 
 
                 await profile.update({
                     job_title, job_description, years_of_experience,
@@ -85,7 +85,7 @@ export class ProfileService {
             return await this.viewProfile(req, res);
 
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -101,7 +101,7 @@ export class ProfileService {
             log({body:req.body}, {type})
 
             if (type != "pics" && type != "prove") {
-                res.send(sendError("upload type must either be 'pics' or 'prove'"))
+                res.status(400).send(sendError("upload type must either be 'pics' or 'prove'"));
                 return null;
             }
 
@@ -133,7 +133,7 @@ export class ProfileService {
             return await this.viewProfile(req, res);
 
         } catch (err:any) {
-            res.send(sendError(err))
+            res.status(500).send(sendError(err));
             log(err)
             return null
         }
@@ -144,7 +144,7 @@ export class ProfileService {
             let user = await this.viewProfile(req, res)
 
             if (!user) {
-                res.send(sendError("Unfortunately something went wrong"))
+                res.status(400).send(sendError("Unfortunately something went wrong"));
                 return null;
             }
 
@@ -158,7 +158,7 @@ export class ProfileService {
             return user;
 
         } catch (err:any) {
-            res.send(sendError(err))
+            res.status(500).send(sendError(err));
             log(err)
             return null
         }
@@ -169,14 +169,14 @@ export class ProfileService {
             let user = await this.viewProfile(req, res)
 
             if (!user) {
-                res.send(sendError("Unfortunately something went wrong"))
+                res.status(400).send(sendError("Unfortunately something went wrong"));
                 return null;
             }
 
             let {status, reason} = req.body;
 
             if (status != IUserAccountStatus.ACTIVE && status != IUserAccountStatus.IN_ACTIVE) {
-                res.send(sendError("You can only de-activate or activate account"))
+                res.status(400).send(sendError("You can only de-activate or activate account"));
                 return null;
             }
 
@@ -185,7 +185,7 @@ export class ProfileService {
             return user; 
 
         } catch (err:any) {
-            res.send(sendError(err))
+            res.status(500).send(sendError(err));
             log(err)
             return null
         }

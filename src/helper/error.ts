@@ -10,6 +10,6 @@ export class AppError extends Error {
 export function sendError(message:string, status:any = 500) {
   // setTimeout(() => {throw new AppError(message)}, 500)
   return {
-    message, result:[], status
+    message, result:[]
   }
 }

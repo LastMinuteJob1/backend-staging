@@ -42,7 +42,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.send(sendError("Something went wrong, please login"))
+                res.status(400).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -56,7 +56,7 @@ export class JobService {
             const job:any = await Job.create(obj)
 
             if (!job) { 
-                res.send(sendError("Error creating job"))
+                res.status(400).send(sendError("Error creating job"));
                 return null
             }
 
@@ -83,7 +83,7 @@ export class JobService {
             })
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -103,14 +103,14 @@ export class JobService {
             })
 
             if (job == null) {
-                res.send(sendError("Job not found"))
+                res.status(400).send(sendError("Job not found"));
                 return null
             }
 
             return job
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -128,7 +128,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.send(sendError("Something went wrong, please login"))
+                res.status(400).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -147,7 +147,7 @@ export class JobService {
             })
 
             if (!job) {
-                res.send(sendError("You can't update this job"))
+                res.status(400).send(sendError("You can't update this job"));
                 return null
             }
 
@@ -168,7 +168,7 @@ export class JobService {
             return await this.view_job(req, res)
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -181,7 +181,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.send(sendError("Something went wrong, please login"))
+                res.status(400).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -195,14 +195,14 @@ export class JobService {
             })
 
             if (!job) {
-                res.send(sendError("You can not delete this job"))
+                res.status(400).send(sendError("You can not delete this job"));
                 return null
             }
 
             return await job.destroy()
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -221,7 +221,7 @@ export class JobService {
             })
 
             if (!user) {
-                res.send(sendError(`user with email ${email} does not exist`))
+                res.status(400).send(sendError(`user with email ${email} does not exist`));
                 return null
             }
 
@@ -325,7 +325,7 @@ export class JobService {
             return {docs, pages, total}
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -480,7 +480,7 @@ export class JobService {
             return {docs, pages, total}
              
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -504,7 +504,7 @@ export class JobService {
             })
 
             if (!job) {
-                res.send(sendError("Unable to find job"))
+                res.status(400).send(sendError("Unable to find job"));
                 return null;
             }
 
@@ -537,7 +537,7 @@ export class JobService {
             })
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -551,7 +551,7 @@ export class JobService {
             return await JobPics.destroy({where:{id}});
 
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         } 
@@ -564,7 +564,7 @@ export class JobService {
                 job = await Job.findOne({where:{slug}});
 
             if (!job) {
-                res.send(sendError("Unable to find job"))
+                res.status(400).send(sendError("Unable to find job"));
                 return null
             }
 
@@ -573,7 +573,7 @@ export class JobService {
             return job;
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -596,7 +596,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.send(sendError("Something went wrong, please login"))
+                res.status(400).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -619,7 +619,7 @@ export class JobService {
             });
  
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         }
@@ -641,7 +641,7 @@ export class JobService {
             })
 
             if (!job) {
-                res.send(sendError("Unable to submit this job"))
+                res.status(400).send(sendError("Unable to submit this job"));
                 return null;
             }
 
@@ -650,7 +650,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.send(sendError("Something went wrong, please login"))
+                res.status(400).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -683,7 +683,7 @@ export class JobService {
             return job;
 
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             log({error})
             return null
         } 

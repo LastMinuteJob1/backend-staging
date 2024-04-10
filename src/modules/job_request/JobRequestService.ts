@@ -27,7 +27,7 @@ export class JobRequestService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(400).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
@@ -35,19 +35,19 @@ export class JobRequestService {
             const {slug} = req.params
             let job = await Job.findOne({where:{slug}, include:[{model:User, attributes:{exclude:["password", "verification_code", "token"]}}]})
             if (!job) {
-                res.send(sendError("This job no longer exist"))
+                res.status(404).send(sendError("This job no longer exist"));
                 return null
             }
 
             // check if you are not the owner of the job
             if (job.dataValues.User.id == user.id) {
-                res.send(sendError("You can not apply to a job you posted"))
+                res.status(400).send(sendError("You can not apply to a job you posted"));
                 return null
             }
 
             // check if job is active
             if (!job.active) {
-                res.send(sendError("This job no longer taking application"))
+                res.status(401).send(sendError("This job no longer taking application"));
                 return null
             }
             
@@ -109,7 +109,7 @@ export class JobRequestService {
             ]})
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -121,7 +121,7 @@ export class JobRequestService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(401).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
@@ -131,14 +131,14 @@ export class JobRequestService {
             const job_request = await JobRequest.findOne({where:{slug}, include:[{model:Job, include: [{model:User, attributes:{exclude:["password", "verification_code", "token"]}}]}]})
 
             if (!job_request) {
-                res.send(sendError("The request you are trying to open doen't exist"))
+                res.status(404).send(sendError("The request you are trying to open doen't exist"));
                 return null
             }
             
             return job_request
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -150,14 +150,14 @@ export class JobRequestService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(400).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
             const {email} = req.params
 
             if (email != user.email) {
-                res.send(sendError("Unauthorized for this action, please use your email"))
+                res.status(400).send(sendError("Unauthorized for this action, please use your email"));
                 return null
             }
 
@@ -195,7 +195,7 @@ export class JobRequestService {
             return job_request
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -207,14 +207,14 @@ export class JobRequestService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(400).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
             const {email} = req.params
 
             if (email != user.email) {
-                res.send(sendError("Unauthorized for this action, please use your email"))
+                res.status(400).send(sendError("Unauthorized for this action, please use your email"));
                 return null
             }
 
@@ -253,7 +253,7 @@ export class JobRequestService {
             return job_request
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }
@@ -265,7 +265,7 @@ export class JobRequestService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(400).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
@@ -286,12 +286,12 @@ export class JobRequestService {
             ]})
 
             if (job_req == null) {
-                res.send(sendError("This job request doen't exist"))
+                res.status(404).send(sendError("This job request doen't exist"));
                 return null
             }
 
             if (job_req.dataValues.Job.dataValues.User.id != user.id) {
-                res.send(sendError("Unauthorized to perform this action"))
+                res.status(400).send(sendError("Unauthorized to perform this action"));
                 return null
             }
 
@@ -301,7 +301,7 @@ export class JobRequestService {
             const job:Job = job_req.dataValues.Job
             if (status == JobRequestStatus.ACCEPT) {
                 if (!job.active) {
-                    res.send(sendError("The current job request has been assigned to a user already"))
+                    res.status(404).send(sendError("The current job request has been assigned to a user already"));
                     return null
                 } 
                 // update job to false
@@ -380,7 +380,7 @@ export class JobRequestService {
             return accepted_job_req
 
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }

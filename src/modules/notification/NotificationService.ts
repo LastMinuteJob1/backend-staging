@@ -16,7 +16,7 @@ export class NotificationService {
             const user = await getUser(req)
 
             if (user == null) {
-                res.send(sendError("Authentication failed, please login again"))
+                res.status(400).send(sendError("Authentication failed, please login again"));
                 return null
             }
 
@@ -59,7 +59,7 @@ export class NotificationService {
             return {docs, pages, total}
             
         } catch (error:any) {
-            res.send(sendError(error))
+            res.status(500).send(sendError(error));
             return null
         }
     }

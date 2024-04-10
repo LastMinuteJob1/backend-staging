@@ -36,24 +36,24 @@ class JobRequestService {
                 // get the current user
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 // fetch the job
                 const { slug } = req.params;
                 let job = yield JobModel_1.default.findOne({ where: { slug }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] });
                 if (!job) {
-                    res.send((0, error_1.sendError)("This job no longer exist"));
+                    res.status(404).send((0, error_1.sendError)("This job no longer exist"));
                     return null;
                 }
                 // check if you are not the owner of the job
                 if (job.dataValues.User.id == user.id) {
-                    res.send((0, error_1.sendError)("You can not apply to a job you posted"));
+                    res.status(400).send((0, error_1.sendError)("You can not apply to a job you posted"));
                     return null;
                 }
                 // check if job is active
                 if (!job.active) {
-                    res.send((0, error_1.sendError)("This job no longer taking application"));
+                    res.status(401).send((0, error_1.sendError)("This job no longer taking application"));
                     return null;
                 }
                 // check if you haven't applied before
@@ -111,7 +111,7 @@ class JobRequestService {
                     ] });
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -120,20 +120,20 @@ class JobRequestService {
                 // get the current user
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(401).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 const { slug } = req.params;
                 // view request
                 const job_request = yield JobRequestModel_1.default.findOne({ where: { slug }, include: [{ model: JobModel_1.default, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }] });
                 if (!job_request) {
-                    res.send((0, error_1.sendError)("The request you are trying to open doen't exist"));
+                    res.status(404).send((0, error_1.sendError)("The request you are trying to open doen't exist"));
                     return null;
                 }
                 return job_request;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -142,12 +142,12 @@ class JobRequestService {
                 // get the current user
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 const { email } = req.params;
                 if (email != user.email) {
-                    res.send((0, error_1.sendError)("Unauthorized for this action, please use your email"));
+                    res.status(400).send((0, error_1.sendError)("Unauthorized for this action, please use your email"));
                     return null;
                 }
                 let { page, limit, desc, q, status } = req.query;
@@ -179,7 +179,7 @@ class JobRequestService {
                 return job_request;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -188,12 +188,12 @@ class JobRequestService {
                 // get the current user
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 const { email } = req.params;
                 if (email != user.email) {
-                    res.send((0, error_1.sendError)("Unauthorized for this action, please use your email"));
+                    res.status(400).send((0, error_1.sendError)("Unauthorized for this action, please use your email"));
                     return null;
                 }
                 let { page, limit, desc, q, status } = req.query;
@@ -225,7 +225,7 @@ class JobRequestService {
                 return job_request;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -234,7 +234,7 @@ class JobRequestService {
                 // get user
                 const user = yield (0, methods_1.getUser)(req);
                 if (user == null) {
-                    res.send((0, error_1.sendError)("Authentication failed, please login again"));
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
                     return null;
                 }
                 const job_req_slug = req.params.slug;
@@ -252,11 +252,11 @@ class JobRequestService {
                         }
                     ] });
                 if (job_req == null) {
-                    res.send((0, error_1.sendError)("This job request doen't exist"));
+                    res.status(404).send((0, error_1.sendError)("This job request doen't exist"));
                     return null;
                 }
                 if (job_req.dataValues.Job.dataValues.User.id != user.id) {
-                    res.send((0, error_1.sendError)("Unauthorized to perform this action"));
+                    res.status(400).send((0, error_1.sendError)("Unauthorized to perform this action"));
                     return null;
                 }
                 // toggle job request
@@ -264,7 +264,7 @@ class JobRequestService {
                 const job = job_req.dataValues.Job;
                 if (status == JobRequestInterface_1.JobRequestStatus.ACCEPT) {
                     if (!job.active) {
-                        res.send((0, error_1.sendError)("The current job request has been assigned to a user already"));
+                        res.status(404).send((0, error_1.sendError)("The current job request has been assigned to a user already"));
                         return null;
                     }
                     // update job to false
@@ -340,7 +340,7 @@ class JobRequestService {
                 return accepted_job_req;
             }
             catch (error) {
-                res.send((0, error_1.sendError)(error));
+                res.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });

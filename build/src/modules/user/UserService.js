@@ -48,14 +48,14 @@ class UserService {
                     (0, console_1.log)("found", { user });
                     if (user.is_verified) {
                         (0, console_1.log)("verified");
-                        response.send((0, error_1.sendError)("User already exists with email " + email));
+                        response.status(400).send((0, error_1.sendError)("User already exists with email " + email));
                         return null;
                     }
                 }
                 else
                     user = yield UserModel_1.default.create(data);
                 if (!user) {
-                    response.send((0, error_1.sendError)("Something went wrong " + email));
+                    response.status(500).send((0, error_1.sendError)("Something went wrong " + email));
                     return null;
                 }
                 yield app_1.mailController.send({
@@ -78,7 +78,26 @@ class UserService {
                 });
             }
             catch (error) {
-                response.send((0, error_1.sendError)(error));
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.check_otp_validity = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { email, verification_code } = request.body;
+                let user = yield UserModel_1.default.findOne({
+                    where: { email, verification_code }, attributes: {
+                        exclude: ["password", "verification_code"]
+                    }
+                });
+                if (user == null) {
+                    response.status(404).send((0, error_1.sendError)("Invalid verification code"));
+                    return null;
+                }
+                return user;
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -89,7 +108,7 @@ class UserService {
                     where: { email, verification_code }
                 });
                 if (user == null) {
-                    response.send((0, error_1.sendError)("Invalid verification code"));
+                    response.status(404).send((0, error_1.sendError)("Invalid verification code"));
                     return null;
                 }
                 let token = yield (0, methods_1.generateToken)({
@@ -109,7 +128,7 @@ class UserService {
                 });
             }
             catch (error) {
-                response.send((0, error_1.sendError)(error));
+                response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -120,7 +139,7 @@ class UserService {
                     where: { email }
                 });
                 if (user == null) {
-                    response.send((0, error_1.sendError)("Invalid email address"));
+                    response.status(404).send((0, error_1.sendError)("Invalid email address"));
                     return null;
                 }
                 let code = (0, methods_1.generateRandomNumber)();
@@ -149,7 +168,7 @@ class UserService {
                 });
             }
             catch (error) {
-                response.send((0, error_1.sendError)(error));
+                response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -163,15 +182,15 @@ class UserService {
                     where: { email, password }
                 });
                 if (user == null) {
-                    response.send((0, error_1.sendError)("Invalid email address or password"));
+                    response.status(404).send((0, error_1.sendError)("Invalid email address or password"));
                     return null;
                 }
                 if (!user.is_verified) {
-                    response.send((0, error_1.sendError)("Please verify your email"));
+                    response.status(400).send((0, error_1.sendError)("Please verify your email"));
                     return null;
                 }
                 if (user.active != UserInterface_1.IUserAccountStatus.ACTIVE) {
-                    response.send((0, error_1.sendError)("Your account is no longer active"));
+                    response.status(400).send((0, error_1.sendError)("Your account is no longer active"));
                     return null;
                 }
                 let token = yield (0, methods_1.generateToken)({
@@ -181,7 +200,7 @@ class UserService {
                 return yield UserModel_1.default.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password"] } });
             }
             catch (error) {
-                response.send((0, error_1.sendError)(error));
+                response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });
@@ -193,7 +212,7 @@ class UserService {
                     where: { email, verification_code }
                 });
                 if (user == null) {
-                    response.send((0, error_1.sendError)("Invalid verification code"));
+                    response.status(404).send((0, error_1.sendError)("Invalid verification code"));
                     return null;
                 }
                 yield user.update({
@@ -208,7 +227,7 @@ class UserService {
                 return yield UserModel_1.default.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password", "token"] } });
             }
             catch (error) {
-                response.send((0, error_1.sendError)(error));
+                response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }
         });

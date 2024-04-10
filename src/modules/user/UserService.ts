@@ -43,14 +43,14 @@ export class UserService {
                 log("found", {user})
                 if (user.is_verified) { 
                     log("verified")
-                    response.send(sendError("User already exists with email " + email))
+                    response.status(400).send(sendError("User already exists with email " + email));
                     return null;
                 }
 
             } else user = await User.create(data) 
 
             if (!user) {
-                response.send(sendError("Something went wrong " + email))
+                response.status(500).send(sendError("Something went wrong " + email));
                 return null;
             }
 
@@ -73,7 +73,31 @@ export class UserService {
                 }
             })
         } catch (error:any) {
-            response.send(sendError(error))
+            response.status(500).send(sendError(error));
+            return null
+        }
+    }
+
+    public check_otp_validity = async (request:Request, response:Response) => {
+        try {
+
+            let { email, verification_code } = request.body
+
+            let user = await User.findOne({
+                where: {email, verification_code}, attributes: {
+                    exclude: ["password", "verification_code"]
+                }
+            })
+
+            if (user == null) {
+                response.status(404).send(sendError("Invalid verification code"));
+                return null
+            }
+
+            return user;
+            
+        } catch (error:any) {
+            response.status(500).send(sendError(error));
             return null
         }
     }
@@ -88,7 +112,7 @@ export class UserService {
             })
 
             if (user == null) {
-                response.send(sendError("Invalid verification code"))
+                response.status(404).send(sendError("Invalid verification code"))
                 return null
             }
 
@@ -111,7 +135,7 @@ export class UserService {
             })
 
         } catch (error:any) {
-            response.send(sendError(error))
+            response.status(500).send(sendError(error))
             return null
         }
     }
@@ -126,7 +150,7 @@ export class UserService {
             })
 
             if (user == null) {
-                response.send(sendError("Invalid email address"))
+                response.status(404).send(sendError("Invalid email address"))
                 return null
             }
 
@@ -160,7 +184,7 @@ export class UserService {
             })
            
         } catch (error:any) {
-            response.send(sendError(error))
+            response.status(500).send(sendError(error))
             return null
         }
     }
@@ -181,17 +205,17 @@ export class UserService {
             })
 
             if (user == null) {
-                response.send(sendError("Invalid email address or password"))
+                response.status(404).send(sendError("Invalid email address or password"))
                 return null
             }
 
             if (!user.is_verified) {
-                response.send(sendError("Please verify your email"))
+                response.status(400).send(sendError("Please verify your email"))
                 return null
             }
 
             if (user.active != IUserAccountStatus.ACTIVE) {
-                response.send(sendError("Your account is no longer active"))
+                response.status(400).send(sendError("Your account is no longer active"))
                 return null
             }
 
@@ -204,7 +228,7 @@ export class UserService {
             return await User.findOne({where:{email}, attributes:{exclude:["verification_code", "password"]}})
 
         } catch (error:any) {
-            response.send(sendError(error))
+            response.status(500).send(sendError(error))
             return null
         }
     }
@@ -221,7 +245,7 @@ export class UserService {
             }) 
 
             if (user == null) {
-                response.send(sendError("Invalid verification code"))
+                response.status(404).send(sendError("Invalid verification code"))
                 return null
             }
 
@@ -239,7 +263,7 @@ export class UserService {
             return await User.findOne({where:{email}, attributes:{exclude:["verification_code", "password", "token"]}})
 
         } catch (error:any) {
-            response.send(sendError(error))
+            response.status(500).send(sendError(error))
             return null
         }
     }

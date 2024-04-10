@@ -12,7 +12,7 @@ exports.AppError = AppError;
 function sendError(message, status = 500) {
     // setTimeout(() => {throw new AppError(message)}, 500)
     return {
-        message, result: [], status
+        message, result: []
     };
 }
 exports.sendError = sendError;

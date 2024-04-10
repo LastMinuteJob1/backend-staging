@@ -10,6 +10,7 @@ userRouter.use(middlewares_1.ErrorWatcher);
 userRouter.post("/sign-up", middlewares_1.signup_middleware, userController.signup);
 userRouter.post("/verify-email", userController.verify_email);
 userRouter.post("/request-verify-code", userController.request_verification_code);
+userRouter.post("/validate-otp", userController.check_otp_validity);
 userRouter.post("/sign-in", userController.login);
 userRouter.post("/recover-password", userController.password_recovery);
 exports.default = userRouter;
