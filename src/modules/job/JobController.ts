@@ -72,4 +72,10 @@ export class JobController {
             res.send(sendResponse(data))
     }
 
+    public verify_transaction = async (req:Request, res:Response) => {
+        let data = await this.jobService.verify_transaction(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
 }

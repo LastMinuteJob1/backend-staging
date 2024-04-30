@@ -28,6 +28,8 @@ const env_1 = require("../../config/env");
 const NotificationService_1 = require("../notification/NotificationService");
 const MailService_1 = require("../mailer/MailService");
 const StorageService_1 = require("../../../storage/StorageService");
+const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
+const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeModel"));
 class JobService {
     constructor() {
         // private blobController = new BlobController()
@@ -35,6 +37,7 @@ class JobService {
         this.notificationService = new NotificationService_1.NotificationService();
         this.storageService = new StorageService_1.StorageService("job-pics");
         this.emailService = new MailService_1.MailService();
+        this.stripeService = new StripeService_1.StripeService();
         this.create_job = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { description, price, location, date, pricing, time, } = req.body;
@@ -476,7 +479,11 @@ class JobService {
             try {
                 let slug = req.params.slug, job = yield JobModel_1.default.findOne({ where: { slug } });
                 if (!job) {
-                    res.status(400).send((0, error_1.sendError)("Unable to find job"));
+                    res.status(404).send((0, error_1.sendError)("Unable to find job"));
+                    return null;
+                }
+                if (!job.paid) {
+                    res.status(401).send((0, error_1.sendError)("You have to publish pay for this job, before publishing"));
                     return null;
                 }
                 yield job.update({ published: true });
@@ -575,6 +582,53 @@ class JobService {
                 }
                 // return the job
                 return job;
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.verify_transaction = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { slug } = req.params;
+                let { ref, platform } = req.body;
+                let data = yield this.stripeService.verify_payment(ref);
+                (0, console_1.log)({ data });
+                if (data.hasOwnProperty("err")) {
+                    (0, console_1.log)(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>");
+                    return data;
+                }
+                let { amount, currency } = data;
+                if (currency.toLowerCase() != "cad") {
+                    res.status(402).send((0, error_1.sendError)("Payment are only to be made in CAD"));
+                    return null;
+                }
+                let job = yield JobModel_1.default.findOne({
+                    where: { slug },
+                });
+                if (!job) {
+                    res.status(404).send((0, error_1.sendError)("Unable to find job"));
+                    return null;
+                }
+                if (parseFloat(job.price) > parseFloat(amount)) {
+                    res.status(400).send((0, error_1.sendError)(`You have paid ${parseFloat(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                    return null;
+                }
+                if (yield StripeModel_1.default.findOne({ where: { ref } })) {
+                    res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
+                    return null;
+                }
+                let stripe = yield StripeModel_1.default.create({
+                    ref, data
+                });
+                if (!stripe) {
+                    res.status(500).send((0, error_1.sendError)(`Error creating transaction history`));
+                    return null;
+                }
+                yield stripe.setJob(job);
+                yield job.update({ paid: true });
+                return stripe;
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

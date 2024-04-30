@@ -16,6 +16,7 @@ class Job extends Model {
   declare published:boolean; 
   declare pricing:string; 
   declare active:boolean; 
+  declare paid:boolean; 
 }
 
 Job.init({
@@ -52,6 +53,10 @@ Job.init({
     type: DataTypes.STRING, // Change to DataTypes.DATE
     allowNull: true
   }, 
+  paid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   job_time: {
     type: DataTypes.STRING
   }, 

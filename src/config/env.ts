@@ -26,3 +26,6 @@ export const SECURE_SMTP = process.env.EMAIL_SERVICE || ""
 // STORAGE
 export const ACCESS_KEY = process.env.ACCESS_KEY || ""
 export const SECRET_KEY = process.env.SECRET_KEY || ""
+
+// STRIPE PAYMENT
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";

@@ -18,6 +18,7 @@ import { log } from 'console';
 import JobPics from './src/modules/job/JobPics';
 import path from 'path';
 import storageRoute from './storage/StorageRoute';
+import StripePayment from './src/third-party/stripe-payment/StripeModel';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -50,6 +51,8 @@ sequelize.sync({alter:false, force:false})
     await JobRequest.sync()
 
     await Profile.sync()
+
+    await StripePayment.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 

@@ -17,6 +17,8 @@ import { NotificationService } from "../notification/NotificationService";
 import { MailService } from "../mailer/MailService";
 import { StorageService } from "../../../storage/StorageService";
 import fs from "fs";
+import { StripeService } from "../../third-party/stripe-payment/StripeService";
+import StripePayment from "../../third-party/stripe-payment/StripeModel";
 
 export class JobService {
 
@@ -25,6 +27,7 @@ export class JobService {
     private notificationService = new NotificationService();
     private storageService = new StorageService("job-pics");
     private emailService = new MailService();
+    private stripeService = new StripeService();
    
     public create_job = async (req:Request, res:Response) => {
         try {
@@ -564,8 +567,13 @@ export class JobService {
                 job = await Job.findOne({where:{slug}});
 
             if (!job) {
-                res.status(400).send(sendError("Unable to find job"));
+                res.status(404).send(sendError("Unable to find job"));
                 return null
+            }
+
+            if (!job.paid) {
+                res.status(401).send(sendError("You have to publish pay for this job, before publishing"));
+                return null;
             }
 
             await job.update({published:true})
@@ -689,5 +697,68 @@ export class JobService {
         } 
     }
 
+    public verify_transaction = async (req:Request, res:Response) => {
+        try {
+
+            let {slug} = req.params;
+
+            let {ref, platform} = req.body;
+
+            let data = await this.stripeService.verify_payment(ref);
+
+            log({data})
+
+            if (data.hasOwnProperty("err")) {
+                log(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>")
+                return data;
+            }
+
+            let {amount, currency} = data;
+
+            if (currency.toLowerCase() != "cad") {
+                res.status(402).send(sendError("Payment are only to be made in CAD"));
+                return null;
+            }
+
+            let job = await Job.findOne({
+                where:{slug},
+            });
+
+            if (!job) {
+                res.status(404).send(sendError("Unable to find job"));
+                return null;
+            }
+
+            if (parseFloat(job.price) > parseFloat(amount)) {
+                res.status(400).send(sendError(`You have paid ${parseFloat(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                return null;
+            }
+
+            if (await StripePayment.findOne({where:{ref}})) {
+                res.status(401).send(sendError(`Duplicate transaction detected`));
+                return null;
+            }
+
+            let stripe = await StripePayment.create({
+                ref, data
+            });
+
+            if (!stripe) {
+                res.status(500).send(sendError(`Error creating transaction history`));
+                return null;
+            }
+
+            await (<any>stripe).setJob(job)
+
+            await job.update({paid: true});
+
+            return stripe 
+            
+        } catch (error:any) {
+            res.status(500).send(sendError(error));
+            log({error})
+            return null
+        }
+    }
 
 }

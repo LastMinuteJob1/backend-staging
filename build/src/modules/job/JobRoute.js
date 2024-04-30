@@ -40,4 +40,5 @@ jobRoute.get("/", jobController.list_all_jobs);
 jobRoute.get("/user/:email", jobController.list_my_jobs);
 jobRoute.get("/ongoing/task", jobController.ongoing_job);
 jobRoute.put("/submit/task/:slug", jobController.submit_job);
+jobRoute.post("/verify/payment/:slug", jobController.verify_transaction);
 exports.default = jobRoute;
