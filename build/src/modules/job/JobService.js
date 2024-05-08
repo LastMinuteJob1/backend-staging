@@ -30,6 +30,7 @@ const MailService_1 = require("../mailer/MailService");
 const StorageService_1 = require("../../../storage/StorageService");
 const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
 const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeModel"));
+const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 class JobService {
     constructor() {
         // private blobController = new BlobController()
@@ -302,7 +303,12 @@ class JobService {
                             {
                                 model: JobPics_1.default
                             }, {
-                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"], },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
                             }
                         ]
                     });
@@ -321,7 +327,12 @@ class JobService {
                             {
                                 model: JobPics_1.default
                             }, {
-                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
                             }
                         ]
                     });
@@ -345,7 +356,12 @@ class JobService {
                             {
                                 model: JobPics_1.default
                             }, {
-                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
                             }
                         ]
                     });
@@ -360,7 +376,12 @@ class JobService {
                             {
                                 model: JobPics_1.default
                             }, {
-                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
                             }
                         ]
                     });
@@ -380,7 +401,12 @@ class JobService {
                         {
                             model: JobPics_1.default
                         }, {
-                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                            include: [
+                                {
+                                    model: ProfileModel_1.default
+                                }
+                            ]
                         }
                     ]
                 });
@@ -402,7 +428,12 @@ class JobService {
                                         { email: { [sequelize_1.Op.like]: `%${q_}%` } },
                                     ]
                                 },
-                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
                             }
                         ]
                     });

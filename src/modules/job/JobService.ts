@@ -19,6 +19,7 @@ import { StorageService } from "../../../storage/StorageService";
 import fs from "fs";
 import { StripeService } from "../../third-party/stripe-payment/StripeService";
 import StripePayment from "../../third-party/stripe-payment/StripeModel";
+import Profile from "../profile/ProfileModel";
 
 export class JobService {
 
@@ -364,7 +365,12 @@ export class JobService {
                         {
                             model: JobPics
                         },{
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        model: User, attributes:{exclude:["password", "verification_code", "token"],},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
                     }] 
                 });
 
@@ -386,7 +392,12 @@ export class JobService {
                         {
                             model: JobPics
                         },{
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
                     }] 
                 });
 
@@ -414,7 +425,12 @@ export class JobService {
                             {
                                 model: JobPics
                             },{
-                            model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                            model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                            include: [
+                                {
+                                    model: Profile
+                                }
+                            ]
                         }] 
                     });
 
@@ -430,7 +446,12 @@ export class JobService {
                         {
                             model: JobPics
                         },{
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
                     }]
                 });
 
@@ -451,7 +472,12 @@ export class JobService {
                     {
                         model: JobPics
                     },{
-                    model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                    include: [
+                        {
+                            model: Profile
+                        }
+                    ]
                 }]
             })
 
@@ -474,7 +500,12 @@ export class JobService {
                                 { email: { [Op.like]: `%${q_}%` } },
                             ]
                         },
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
                     }]
                 })
                 return {docs_, pages_, total_}
