@@ -20,6 +20,7 @@ const methods_1 = require("../../helper/methods");
 const app_1 = require("../../../app");
 const env_1 = require("../../config/env");
 const console_1 = require("console");
+const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 class UserService {
     constructor() {
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
@@ -72,6 +73,9 @@ class UserService {
                 }), 1000 * 60 * 5);
                 return yield UserModel_1.default.findOne({
                     where: { email },
+                    include: [
+                        { model: ProfileModel_1.default }
+                    ],
                     attributes: {
                         exclude: ["password", "verification_code"]
                     }
@@ -197,7 +201,10 @@ class UserService {
                     email: user.email, name: user.fullname
                 });
                 yield user.update({ token, where: { email } });
-                return yield UserModel_1.default.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password"] } });
+                return yield UserModel_1.default.findOne({ where: { email },
+                    include: [
+                        { model: ProfileModel_1.default }
+                    ], attributes: { exclude: ["verification_code", "password"] } });
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));

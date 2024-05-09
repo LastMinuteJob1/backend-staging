@@ -6,6 +6,7 @@ import { generateRandomNumber, generateToken, hashPassword, sendResponse } from 
 import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
 import { log } from "console";
+import Profile from "../profile/ProfileModel";
 
 export class UserService {
 
@@ -68,6 +69,9 @@ export class UserService {
             }, 1000 * 60 * 5)
             return await User.findOne({
                 where: {email},
+                include: [
+                    {model: Profile}
+                ],
                 attributes: {
                     exclude: ["password", "verification_code"]
                 }
@@ -225,7 +229,10 @@ export class UserService {
 
             await user.update({token, where:{email}})
 
-            return await User.findOne({where:{email}, attributes:{exclude:["verification_code", "password"]}})
+            return await User.findOne({where:{email}, 
+                include: [
+                    {model: Profile}
+                ], attributes:{exclude:["verification_code", "password"]}})
 
         } catch (error:any) {
             response.status(500).send(sendError(error))
