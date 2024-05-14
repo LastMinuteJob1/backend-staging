@@ -15,7 +15,7 @@ class User extends Model {
   declare is_verified: boolean;
   declare verification_code: string;
   declare token: string;
-  declare active: string;
+  declare active: boolean;
   declare reason: string;
 }
 
@@ -71,9 +71,9 @@ User.init({
     type: DataTypes.STRING
   },
   active: {
-    type: DataTypes.ENUM,
-    values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
-    defaultValue: IUserAccountStatus.ACTIVE
+    type: DataTypes.BOOLEAN,
+    // values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
+    defaultValue: true//IUserAccountStatus.ACTIVE
   },
   reason: {
     type: DataTypes.STRING

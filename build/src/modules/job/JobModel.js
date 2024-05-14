@@ -36,8 +36,8 @@ Job.init({
         values: [JobInterface_1.ADTYPE.GOODS, JobInterface_1.ADTYPE.SERVICES]
     },
     price: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 10
     },
     job_date: {
         type: sequelize_1.DataTypes.STRING, // Change to DataTypes.DATE

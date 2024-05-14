@@ -41,7 +41,7 @@ export async function authorization (req:Request, res:Response, next: NextFuncti
       res.send(err)
       return
     }
-    if (user.active != IUserAccountStatus.ACTIVE) {
+    if (!user.active) {
       let err = sendError("This account is no longer active", 401)
       res.send(err)
       return

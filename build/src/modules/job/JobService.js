@@ -282,13 +282,39 @@ class JobService {
         });
         this.list_all_jobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { page, limit, desc, q, type, from_date, to_date, job_date, job_time } = req.query;
+                let { page, limit, desc, q, type, from_date, to_date, job_date, job_time, from_price, to_price, } = req.query;
                 let page_ = page ? parseInt(page) : 1;
                 let limit_ = limit ? parseInt(limit) : 10;
                 let desc_ = desc ? parseInt(desc) : 1;
                 let q_ = q ? q : "";
                 let type_ = type ? type : "";
                 //  pagination
+                if (from_price && to_price) {
+                    (0, console_1.log)("<<<-----------------Filtering by price--------------->>>");
+                    return yield JobModel_1.default.paginate({
+                        page: page_, paginate: limit_,
+                        order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                        where: {
+                            active: true,
+                            price: {
+                                [sequelize_1.Op.between]: [(parseFloat(from_price) - 0.00001), parseFloat(to_price)]
+                            },
+                            published: true
+                        },
+                        include: [
+                            {
+                                model: JobPics_1.default
+                            }, {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                                include: [
+                                    {
+                                        model: ProfileModel_1.default
+                                    }
+                                ]
+                            }
+                        ]
+                    });
+                }
                 if (job_date) {
                     (0, console_1.log)(">>>>>>>>>>>>>>>>>>Job Date>>>>>>>>>>>>>>>>>>>>");
                     return yield JobModel_1.default.paginate({
@@ -386,6 +412,7 @@ class JobService {
                         ]
                     });
                 // results by job search
+                (0, console_1.log)("----------------------Searchng by location and description------------------");
                 const { docs, pages, total } = yield JobModel_1.default.paginate({
                     page: page_, paginate: limit_,
                     order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
@@ -420,7 +447,8 @@ class JobService {
                         include: [
                             {
                                 model: JobPics_1.default
-                            }, {
+                            },
+                            {
                                 where: {
                                     active: true,
                                     [sequelize_1.Op.or]: [
@@ -642,8 +670,8 @@ class JobService {
                     res.status(404).send((0, error_1.sendError)("Unable to find job"));
                     return null;
                 }
-                if (parseFloat(job.price) > parseFloat(amount)) {
-                    res.status(400).send((0, error_1.sendError)(`You have paid ${parseFloat(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                if ((job.price) > parseFloat(amount)) {
+                    res.status(400).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                     return null;
                 }
                 if (yield StripeModel_1.default.findOne({ where: { ref } })) {

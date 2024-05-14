@@ -28,14 +28,14 @@ export class UserService {
             };
 
             // check if phone number is unique
-            // let user_by_tel = await User.findOne({where:{phone_number}});
+            let user_by_tel = await User.findOne({where:{phone_number}});
 
-            // if (user_by_tel) {
-            //     if (user_by_tel.email != email) {
-            //         response.send(sendError("Phone number already exists"))
-            //         return null;
-            //     }
-            // }
+            if (user_by_tel) {
+                // if (user_by_tel.email != email) {
+                    response.status(401).send(sendError("Phone number already exists"))
+                    return null;
+                // }
+            }
 
             let user = await User.findOne({where:{email}})
             
@@ -218,7 +218,7 @@ export class UserService {
                 return null
             }
 
-            if (user.active != IUserAccountStatus.ACTIVE) {
+            if (!user.active) {
                 response.status(400).send(sendError("Your account is no longer active"))
                 return null
             }

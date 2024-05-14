@@ -51,7 +51,7 @@ sequelize.sync({alter:false, force:false})
     await JobRequest.sync()
 
     await Profile.sync()
-
+ 
     await StripePayment.sync();
  
     User.hasMany(Job) 

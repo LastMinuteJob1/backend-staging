@@ -10,7 +10,7 @@ class Job extends Model {
   declare description:string; 
   declare job_location:string; 
   declare type:string;
-  declare price:string; 
+  declare price:number; 
   declare job_date:any; 
   declare job_time:any; 
   declare published:boolean; 
@@ -46,8 +46,8 @@ Job.init({
     values: [ADTYPE.GOODS, ADTYPE.SERVICES]
   }, 
   price: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: DataTypes.INTEGER,
+    defaultValue: 10
   }, 
   job_date: {
     type: DataTypes.STRING, // Change to DataTypes.DATE

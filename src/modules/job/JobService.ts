@@ -339,7 +339,8 @@ export class JobService {
         try {
 
             let {
-                page, limit, desc, q, type, from_date, to_date, job_date, job_time
+                page, limit, desc, q, type, from_date, 
+                to_date, job_date, job_time, from_price, to_price,
             } = req.query 
 
             let page_ = page ? parseInt(page as string) : 1;
@@ -348,6 +349,32 @@ export class JobService {
             let q_ = q ? q : ""
             let type_ = type ? type : ""
             //  pagination
+
+            if (from_price && to_price) {
+                log("<<<-----------------Filtering by price--------------->>>");
+                return await (<any> Job).paginate({
+                    page:page_, paginate:limit_,
+                    order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where:{
+                        active: true,
+                        price: {
+                            [Op.between]: [(parseFloat(from_price as string) - 0.00001), parseFloat(to_price as string)]
+                        },
+                        published: true
+                    },
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
+                    }] 
+                });
+            }
 
             if (job_date) {
 
@@ -457,6 +484,7 @@ export class JobService {
 
 
             // results by job search
+            log("----------------------Searchng by location and description------------------")
             const {docs, pages, total} = await (<any> Job).paginate({
                 page:page_, paginate:limit_,
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
@@ -492,21 +520,23 @@ export class JobService {
                     include: [
                         {
                             model: JobPics
-                        },{
-                        where: {
-                            active: true,
-                            [Op.or]: [
-                                { fullname: { [Op.like]: `%${q_}%` } },
-                                { email: { [Op.like]: `%${q_}%` } },
-                            ]
                         },
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
-                        include: [
-                            {
-                                model: Profile
-                            }
-                        ]
-                    }]
+                        {
+                            where: {
+                                active: true,
+                                [Op.or]: [
+                                    { fullname: { [Op.like]: `%${q_}%` } },
+                                    { email: { [Op.like]: `%${q_}%` } },
+                                ]
+                            },
+                            model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                            include: [
+                                {
+                                    model: Profile
+                                }
+                            ]   
+                        }
+                    ]
                 })
                 return {docs_, pages_, total_}
             }  
@@ -760,8 +790,8 @@ export class JobService {
                 return null;
             }
 
-            if (parseFloat(job.price) > parseFloat(amount)) {
-                res.status(400).send(sendError(`You have paid ${parseFloat(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+            if ((job.price) > parseFloat(amount)) {
+                res.status(400).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                 return null;
             }
 

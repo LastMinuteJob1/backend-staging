@@ -17,7 +17,6 @@ const error_1 = require("./error");
 const schema_1 = require("./schema");
 const methods_1 = require("./methods");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
-const UserInterface_1 = require("../modules/user/UserInterface");
 const ErrorWatcher = (err, req, res, next) => {
     if (err instanceof error_1.AppError) {
         res.status(err.statusCode).json({ message: err.message });
@@ -61,7 +60,7 @@ function authorization(req, res, next) {
                 res.send(err);
                 return;
             }
-            if (user.active != UserInterface_1.IUserAccountStatus.ACTIVE) {
+            if (!user.active) {
                 let err = (0, error_1.sendError)("This account is no longer active", 401);
                 res.send(err);
                 return;

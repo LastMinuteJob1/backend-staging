@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const db_1 = __importDefault(require("../../config/db"));
-const UserInterface_1 = require("./UserInterface");
 class User extends sequelize_1.Model {
 }
 User.init({
@@ -60,9 +59,9 @@ User.init({
         type: sequelize_1.DataTypes.STRING
     },
     active: {
-        type: sequelize_1.DataTypes.ENUM,
-        values: [UserInterface_1.IUserAccountStatus.ACTIVE, UserInterface_1.IUserAccountStatus.IN_ACTIVE, UserInterface_1.IUserAccountStatus.DELETED],
-        defaultValue: UserInterface_1.IUserAccountStatus.ACTIVE
+        type: sequelize_1.DataTypes.BOOLEAN,
+        // values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
+        defaultValue: true //IUserAccountStatus.ACTIVE
     },
     reason: {
         type: sequelize_1.DataTypes.STRING

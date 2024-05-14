@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
-const UserInterface_1 = require("./UserInterface");
 const UserModel_1 = __importDefault(require("./UserModel"));
 const error_1 = require("../../helper/error");
 const methods_1 = require("../../helper/methods");
@@ -37,13 +36,13 @@ class UserService {
                     is_verified: isGmail, token: isGmail ? token : null
                 };
                 // check if phone number is unique
-                // let user_by_tel = await User.findOne({where:{phone_number}});
-                // if (user_by_tel) {
-                //     if (user_by_tel.email != email) {
-                //         response.send(sendError("Phone number already exists"))
-                //         return null;
-                //     }
-                // }
+                let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
+                if (user_by_tel) {
+                    // if (user_by_tel.email != email) {
+                    response.status(401).send((0, error_1.sendError)("Phone number already exists"));
+                    return null;
+                    // }
+                }
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {
                     (0, console_1.log)("found", { user });
@@ -193,7 +192,7 @@ class UserService {
                     response.status(400).send((0, error_1.sendError)("Please verify your email"));
                     return null;
                 }
-                if (user.active != UserInterface_1.IUserAccountStatus.ACTIVE) {
+                if (!user.active) {
                     response.status(400).send((0, error_1.sendError)("Your account is no longer active"));
                     return null;
                 }
