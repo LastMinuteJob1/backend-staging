@@ -42,7 +42,7 @@ Job.init({
     defaultValue: true
   }, 
   type: {
-    type: DataTypes.ENUM,
+    type: DataTypes.ENUM, 
     values: [ADTYPE.GOODS, ADTYPE.SERVICES]
   }, 
   price: {

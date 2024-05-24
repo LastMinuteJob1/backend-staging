@@ -38,7 +38,7 @@ app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute) 
 app.use("/storage", storageRoute) 
 
-sequelize.sync({alter:true, force:false}) 
+sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
     // await JobRequest.drop();
     console.log('Connection to database established successfully.\n');

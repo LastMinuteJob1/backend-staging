@@ -36,7 +36,7 @@ Job.init({
         values: [JobInterface_1.ADTYPE.GOODS, JobInterface_1.ADTYPE.SERVICES]
     },
     price: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.FLOAT,
         defaultValue: 10
     },
     job_date: {
