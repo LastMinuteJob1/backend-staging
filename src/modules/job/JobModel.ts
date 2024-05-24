@@ -46,7 +46,7 @@ Job.init({
     values: [ADTYPE.GOODS, ADTYPE.SERVICES]
   }, 
   price: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     defaultValue: 10
   }, 
   job_date: {
