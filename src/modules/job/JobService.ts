@@ -798,7 +798,7 @@ export class JobService {
                     log(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>")
                     return data;
                 }
-
+ 
                 let {amount, currency} = data;
 
                 if (currency.toLowerCase() != "cad") {
