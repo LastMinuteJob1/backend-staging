@@ -683,11 +683,11 @@ class JobService {
                         return null;
                     }
                     if ((job.price) > parseFloat(amount)) {
-                        res.status(400).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                        res.status(402).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                         return null;
                     }
                     if (yield StripeModel_1.default.findOne({ where: { ref } })) {
-                        res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
+                        res.status(402).send((0, error_1.sendError)(`Duplicate transaction detected`));
                         return null;
                     }
                     let stripe = yield StripeModel_1.default.create({

@@ -807,12 +807,12 @@ export class JobService {
                 }
 
                 if ((job.price) > parseFloat(amount)) {
-                    res.status(400).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                    res.status(402).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                     return null;
                 }
 
                 if (await StripePayment.findOne({where:{ref}})) {
-                    res.status(401).send(sendError(`Duplicate transaction detected`));
+                    res.status(402).send(sendError(`Duplicate transaction detected`));
                     return null;
                 }
 
