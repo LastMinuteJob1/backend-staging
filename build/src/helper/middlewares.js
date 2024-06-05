@@ -51,18 +51,18 @@ function authorization(req, res, next) {
         console.log(decoded);
         if (decoded == null) {
             let err = (0, error_1.sendError)("Invalid authorization code", 401);
-            res.send(err);
+            res.status(401).send(err);
         }
         else {
             let user = yield UserModel_1.default.findOne({ where: { token } });
             if (user == null) {
                 let err = (0, error_1.sendError)("No user with this Auth token", 401);
-                res.send(err);
+                res.status(401).send(err);
                 return;
             }
             if (!user.active) {
                 let err = (0, error_1.sendError)("This account is no longer active", 401);
-                res.send(err);
+                res.status(401).send(err);
                 return;
             }
             req.headers["user"] = JSON.stringify(user);

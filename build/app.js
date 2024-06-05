@@ -33,6 +33,9 @@ const JobPics_1 = __importDefault(require("./src/modules/job/JobPics"));
 const path_1 = __importDefault(require("path"));
 const StorageRoute_1 = __importDefault(require("./storage/StorageRoute"));
 const StripeModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeModel"));
+const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"));
+const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
+const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -47,6 +50,7 @@ app.use("/job", JobRoute_1.default);
 app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
 app.use("/storage", StorageRoute_1.default);
+app.use("/wallet", WalletRoute_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // await JobRequest.drop();
@@ -59,6 +63,8 @@ db_1.default.sync({ alter: false, force: false })
     yield JobRequestModel_1.default.sync();
     yield ProfileModel_1.default.sync();
     yield StripeModel_1.default.sync();
+    yield WalletModel_1.default.sync();
+    yield TransactionHistoryModel_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});

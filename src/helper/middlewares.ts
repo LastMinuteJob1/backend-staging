@@ -33,17 +33,17 @@ export async function authorization (req:Request, res:Response, next: NextFuncti
   console.log(decoded)
   if (decoded == null) {
     let err = sendError("Invalid authorization code", 401)
-    res.send(err)
+    res.status(401).send(err)
   } else {
     let user = await User.findOne({where:{token}})
     if (user == null) {
       let err = sendError("No user with this Auth token", 401)
-      res.send(err)
+      res.status(401).send(err)
       return
     }
     if (!user.active) {
       let err = sendError("This account is no longer active", 401)
-      res.send(err)
+      res.status(401).send(err)
       return
     }
     req.headers["user"] = JSON.stringify(user)

@@ -31,6 +31,8 @@ const StorageService_1 = require("../../../storage/StorageService");
 const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
 const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeModel"));
 const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
+const WalletModel_1 = __importDefault(require("../wallet/WalletModel"));
+const TransactionHistoryModel_1 = __importDefault(require("../wallet/TransactionHistoryModel"));
 class JobService {
     constructor() {
         // private blobController = new BlobController()
@@ -652,15 +654,9 @@ class JobService {
             try {
                 let { slug } = req.params;
                 let { ref, platform } = req.body;
-                let data = yield this.stripeService.verify_payment(ref);
-                (0, console_1.log)({ data });
-                if (data.hasOwnProperty("err")) {
-                    (0, console_1.log)(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>");
-                    return data;
-                }
-                let { amount, currency } = data;
-                if (currency.toLowerCase() != "cad") {
-                    res.status(402).send((0, error_1.sendError)("Payment are only to be made in CAD"));
+                let user = yield (0, methods_1.getUser)(req);
+                if (!user) {
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 let job = yield JobModel_1.default.findOne({
@@ -670,24 +666,66 @@ class JobService {
                     res.status(404).send((0, error_1.sendError)("Unable to find job"));
                     return null;
                 }
-                if ((job.price) > parseFloat(amount)) {
-                    res.status(400).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                if (job.paid) {
+                    res.status(400).send((0, error_1.sendError)("This job has already been paid for"));
                     return null;
                 }
-                if (yield StripeModel_1.default.findOne({ where: { ref } })) {
-                    res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
-                    return null;
+                if (platform == "stripe") {
+                    let data = yield this.stripeService.verify_payment(ref);
+                    (0, console_1.log)({ data });
+                    if (data.hasOwnProperty("err")) {
+                        (0, console_1.log)(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>");
+                        return data;
+                    }
+                    let { amount, currency } = data;
+                    if (currency.toLowerCase() != "cad") {
+                        res.status(402).send((0, error_1.sendError)("Payment are only to be made in CAD"));
+                        return null;
+                    }
+                    if ((job.price) > parseFloat(amount)) {
+                        res.status(400).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                        return null;
+                    }
+                    if (yield StripeModel_1.default.findOne({ where: { ref } })) {
+                        res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
+                        return null;
+                    }
+                    let stripe = yield StripeModel_1.default.create({
+                        ref, data
+                    });
+                    if (!stripe) {
+                        res.status(500).send((0, error_1.sendError)(`Error creating transaction history`));
+                        return null;
+                    }
+                    yield stripe.setJob(job);
+                    yield job.update({ paid: true });
+                    return job;
                 }
-                let stripe = yield StripeModel_1.default.create({
-                    ref, data
-                });
-                if (!stripe) {
-                    res.status(500).send((0, error_1.sendError)(`Error creating transaction history`));
-                    return null;
+                else {
+                    // wallet pay
+                    // pin verification
+                    let { id } = user;
+                    let wallet = yield WalletModel_1.default.findOne({
+                        include: [
+                            { model: UserModel_1.default, where: { id }, attributes: ["id"] }
+                        ]
+                    });
+                    if (!wallet) {
+                        res.status(402).send((0, error_1.sendError)(`Insufficient balance`));
+                        return null;
+                    }
+                    if (wallet["balance"] < job.price) {
+                        res.status(402).send((0, error_1.sendError)(`Insufficient balance`));
+                        return null;
+                    }
+                    yield wallet.update({ balance: (wallet.balance - job.price) });
+                    let history = yield TransactionHistoryModel_1.default.create({
+                        amount: (job.price * -1), data: job
+                    });
+                    yield history.setWallet(wallet);
+                    yield job.update({ paid: true });
+                    return job;
                 }
-                yield stripe.setJob(job);
-                yield job.update({ paid: true });
-                return stripe;
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

@@ -19,6 +19,9 @@ import JobPics from './src/modules/job/JobPics';
 import path from 'path';
 import storageRoute from './storage/StorageRoute';
 import StripePayment from './src/third-party/stripe-payment/StripeModel';
+import walletRoute from './src/modules/wallet/WalletRoute';
+import Wallet from './src/modules/wallet/WalletModel';
+import TransactionHistory from './src/modules/wallet/TransactionHistoryModel';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -37,6 +40,7 @@ app.use("/job", jobRoute)
 app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute) 
 app.use("/storage", storageRoute) 
+app.use("/wallet", walletRoute) 
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
@@ -49,10 +53,13 @@ sequelize.sync({alter:false, force:false})
     
     await NotificationModel.sync()
     await JobRequest.sync()
-
+ 
     await Profile.sync()
  
     await StripePayment.sync();
+
+    await Wallet.sync();
+    await TransactionHistory.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 

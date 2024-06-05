@@ -20,6 +20,8 @@ import fs from "fs";
 import { StripeService } from "../../third-party/stripe-payment/StripeService";
 import StripePayment from "../../third-party/stripe-payment/StripeModel";
 import Profile from "../profile/ProfileModel";
+import Wallet from "../wallet/WalletModel";
+import TransactionHistory from "../wallet/TransactionHistoryModel";
 
 export class JobService {
 
@@ -765,20 +767,11 @@ export class JobService {
 
             let {ref, platform} = req.body;
 
-            let data = await this.stripeService.verify_payment(ref);
+            let user = await getUser(req);
 
-            log({data})
-
-            if (data.hasOwnProperty("err")) {
-                log(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>")
-                return data;
-            }
-
-            let {amount, currency} = data;
-
-            if (currency.toLowerCase() != "cad") {
-                res.status(402).send(sendError("Payment are only to be made in CAD"));
-                return null;
+            if (!user) {
+                res.status(400).send(sendError("Something went wrong, please login"));
+                return null
             }
 
             let job = await Job.findOne({
@@ -790,30 +783,91 @@ export class JobService {
                 return null;
             }
 
-            if ((job.price) > parseFloat(amount)) {
-                res.status(400).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+            if (job.paid) {
+                res.status(400).send(sendError("This job has already been paid for"));
                 return null;
             }
 
-            if (await StripePayment.findOne({where:{ref}})) {
-                res.status(401).send(sendError(`Duplicate transaction detected`));
-                return null;
+            if (platform == "stripe") {
+
+                let data = await this.stripeService.verify_payment(ref);
+
+                log({data})
+
+                if (data.hasOwnProperty("err")) {
+                    log(">>>>>>>>>>>>>TRANSACTION ERROR>>>>>>>>>>>")
+                    return data;
+                }
+
+                let {amount, currency} = data;
+
+                if (currency.toLowerCase() != "cad") {
+                    res.status(402).send(sendError("Payment are only to be made in CAD"));
+                    return null;
+                }
+
+                if ((job.price) > parseFloat(amount)) {
+                    res.status(400).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
+                    return null;
+                }
+
+                if (await StripePayment.findOne({where:{ref}})) {
+                    res.status(401).send(sendError(`Duplicate transaction detected`));
+                    return null;
+                }
+
+                let stripe = await StripePayment.create({
+                    ref, data
+                });
+
+                if (!stripe) {
+                    res.status(500).send(sendError(`Error creating transaction history`));
+                    return null;
+                }
+
+                await (<any>stripe).setJob(job)
+
+                await job.update({paid: true});
+
+                return job 
+
+            } else {
+
+                // wallet pay
+
+                // pin verification
+
+                let {id} = user;
+
+                let wallet = await Wallet.findOne({
+                    include: [
+                        {model:User, where:{id}, attributes: ["id"]}
+                    ]
+                });
+
+                if (!wallet) {
+                    res.status(402).send(sendError(`Insufficient balance`));
+                    return null;
+                }
+
+                if (wallet["balance"] < job.price) {
+                    res.status(402).send(sendError(`Insufficient balance`));
+                    return null;
+                }
+
+                await wallet.update({balance: (wallet.balance - job.price)})
+
+                let history = await TransactionHistory.create({
+                    amount: (job.price * -1), data:job
+                });
+    
+                await (<any>history).setWallet(wallet);
+
+                await job.update({paid: true});
+
+                return job;
+
             }
-
-            let stripe = await StripePayment.create({
-                ref, data
-            });
-
-            if (!stripe) {
-                res.status(500).send(sendError(`Error creating transaction history`));
-                return null;
-            }
-
-            await (<any>stripe).setJob(job)
-
-            await job.update({paid: true});
-
-            return stripe 
             
         } catch (error:any) {
             res.status(500).send(sendError(error));
