@@ -13,11 +13,11 @@ export class StripeService {
     
     public verify_payment = async (ref:string) => {
         try {
-            return await this.stripe.issuing.transactions.retrieve(
+            return await this.stripe.paymentIntents.retrieve(
                 ref
             );
         } catch (error) {
-            // log(error)
+            log(error)
             return {
                 err: "Invalid transaction reference"
             }

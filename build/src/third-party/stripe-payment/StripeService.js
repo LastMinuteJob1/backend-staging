@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StripeService = void 0;
+const console_1 = require("console");
 const env_1 = require("../../config/env");
 class StripeService {
     constructor() {
@@ -20,10 +21,10 @@ class StripeService {
         };
         this.verify_payment = (ref) => __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.stripe.issuing.transactions.retrieve(ref);
+                return yield this.stripe.paymentIntents.retrieve(ref);
             }
             catch (error) {
-                // log(error)
+                (0, console_1.log)(error);
                 return {
                     err: "Invalid transaction reference"
                 };
