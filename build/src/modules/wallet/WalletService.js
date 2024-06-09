@@ -98,8 +98,10 @@ class WalletService {
                         { model: UserModel_1.default, where: { id }, attributes: ["id"] }
                     ]
                 });
-                if (!wallet)
+                if (!wallet) {
                     wallet = yield WalletModel_1.default.create({ balance: 0.0 });
+                }
+                yield wallet.setUser(user.id);
                 return yield WalletModel_1.default.findOne({
                     include: [
                         { model: UserModel_1.default, where: { id }, attributes: ["id"] },
@@ -128,12 +130,19 @@ class WalletService {
                     return null;
                 }
                 let { id } = user;
+                (0, console_1.log)(user);
                 return yield TransactionHistoryModel_1.default.paginate({
                     page: page_, paginate: limit_,
                     order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    attributes: {
+                        exclude: ["data"]
+                    },
                     include: [
                         {
-                            model: WalletModel_1.default, include: [{ model: UserModel_1.default, attributes: ["id"], where: { id } }]
+                            required: true,
+                            model: WalletModel_1.default, include: [
+                                { model: UserModel_1.default, attributes: ["id"], where: { id } }
+                            ]
                         }
                     ]
                 });

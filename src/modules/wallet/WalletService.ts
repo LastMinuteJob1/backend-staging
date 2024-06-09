@@ -110,7 +110,11 @@ export class WalletService {
                 ]
             });
 
-            if (!wallet) wallet = await Wallet.create({balance:0.0});
+            if (!wallet) {
+                wallet = await Wallet.create({balance:0.0});
+            }
+
+            await (<any>wallet).setUser(user.id);
 
             return await Wallet.findOne({
                 include: [
@@ -145,12 +149,20 @@ export class WalletService {
 
             let {id} = user;
 
+            log(user)
+
             return await (<any> TransactionHistory).paginate({
-                page:page_, paginate:limit_,
+                page:page_, paginate:limit_, 
                 order:[['id', desc_ == 1 ? "DESC" : "ASC"]],
+                attributes: {
+                    exclude: ["data"]
+                },
                 include: [
                     {
-                        model: Wallet, include: [{model: User, attributes:["id"], where: {id}}]
+                        required: true,
+                        model: Wallet, include: [
+                            {model: User, attributes:["id"], where: {id}}
+                        ]
                     }
                 ]
             })
