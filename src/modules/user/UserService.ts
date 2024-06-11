@@ -38,6 +38,7 @@ export class UserService {
 
             if (user_by_tel) {
                 if (user_by_tel.email != email) {
+                    log(user_by_tel)
                     response.status(401).send(sendError("Phone number already exists"))
                     return null;
                 } else {
@@ -46,7 +47,8 @@ export class UserService {
                         response.status(400).send(sendError("User already exists with phone number " + phone_number));
                         return null;
                     }
-                }
+                } 
+                log("Can proceed process")
             }
 
             let user = await User.findOne({where:{email}})

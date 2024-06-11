@@ -4,6 +4,7 @@ import { jobSchema, userSchema } from "./schema";
 import { validateToken } from "./methods";
 import User from "../modules/user/UserModel";
 import { IUserAccountStatus } from "../modules/user/UserInterface";
+import { log } from "console";
 
 export const ErrorWatcher = (err: any, req: Request, res: Response, next: (err?: any) => void) => {
     if (err instanceof AppError) {
@@ -15,13 +16,16 @@ export const ErrorWatcher = (err: any, req: Request, res: Response, next: (err?:
 
 export function signup_middleware (req:Request, res:Response, next: NextFunction) {
   const { error } = userSchema.validate(req.body);
-  if (error) res.status(400).json({ error: error.details });
+  let err = (<any>error)
+  log(err)
+  if (error) {res.status(400).json(sendError(err["details"][0]["message"]));return}
   else next()
 }
 
 export function job_creation_middleware (req:Request, res:Response, next: NextFunction) {
   const { error } = jobSchema.validate(req.body);
-  if (error) res.status(400).json({ error: error.details });
+  let err = (<any>error)
+  if (error) {res.status(400).json(sendError(err["details"][0]["message"]));return}
   else next()
 }
 

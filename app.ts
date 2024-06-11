@@ -71,11 +71,13 @@ sequelize.sync({alter:false, force:false})
     mailController = new MailController()
     console.log("Email service ready"); 
 
-    app.listen(port, () => {
+    app.listen(port, async () => {
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
+        let us = await User.findOne({where:{phone_number:"08149835952"}})
+        log(us)
     }); 
 })
 .catch((error) => console.error('Unable to connect to the database:', error))

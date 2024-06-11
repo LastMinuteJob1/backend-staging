@@ -17,6 +17,7 @@ const error_1 = require("./error");
 const schema_1 = require("./schema");
 const methods_1 = require("./methods");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
+const console_1 = require("console");
 const ErrorWatcher = (err, req, res, next) => {
     if (err instanceof error_1.AppError) {
         res.status(err.statusCode).json({ message: err.message });
@@ -28,16 +29,23 @@ const ErrorWatcher = (err, req, res, next) => {
 exports.ErrorWatcher = ErrorWatcher;
 function signup_middleware(req, res, next) {
     const { error } = schema_1.userSchema.validate(req.body);
-    if (error)
-        res.status(400).json({ error: error.details });
+    let err = error;
+    (0, console_1.log)(err);
+    if (error) {
+        res.status(400).json((0, error_1.sendError)(err["details"][0]["message"]));
+        return;
+    }
     else
         next();
 }
 exports.signup_middleware = signup_middleware;
 function job_creation_middleware(req, res, next) {
     const { error } = schema_1.jobSchema.validate(req.body);
-    if (error)
-        res.status(400).json({ error: error.details });
+    let err = error;
+    if (error) {
+        res.status(400).json((0, error_1.sendError)(err["details"][0]["message"]));
+        return;
+    }
     else
         next();
 }

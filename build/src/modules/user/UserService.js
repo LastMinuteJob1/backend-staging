@@ -45,6 +45,7 @@ class UserService {
                 let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
                 if (user_by_tel) {
                     if (user_by_tel.email != email) {
+                        (0, console_1.log)(user_by_tel);
                         response.status(401).send((0, error_1.sendError)("Phone number already exists"));
                         return null;
                     }
@@ -55,6 +56,7 @@ class UserService {
                             return null;
                         }
                     }
+                    (0, console_1.log)("Can proceed process");
                 }
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {

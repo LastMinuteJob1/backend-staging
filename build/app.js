@@ -73,12 +73,14 @@ db_1.default.sync({ alter: false, force: false })
     // preparing mailing service
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
-    app.listen(port, () => {
+    app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
-    });
+        let us = yield UserModel_1.default.findOne({ where: { phone_number: "08149835952" } });
+        (0, console_1.log)(us);
+    }));
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))
     .finally(() => __awaiter(void 0, void 0, void 0, function* () { }));
