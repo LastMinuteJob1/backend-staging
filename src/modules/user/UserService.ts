@@ -21,6 +21,12 @@ export class UserService {
             let verification_code = generateRandomNumber()
             // console.log({verification_code});
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
+            if (address) {
+                if (address.length < 10) {
+                    response.status(400).send(sendError("Invalid address supplied"))
+                    return null;
+                }
+            }
             let data = {
                 fullname, email, phone_number, address, verification_code,
                 password: hashPassword(password), pronoun, city, postal_code,
@@ -31,10 +37,16 @@ export class UserService {
             let user_by_tel = await User.findOne({where:{phone_number}});
 
             if (user_by_tel) {
-                // if (user_by_tel.email != email) {
+                if (user_by_tel.email != email) {
                     response.status(401).send(sendError("Phone number already exists"))
                     return null;
-                // }
+                } else {
+                    if (user_by_tel.is_verified) { 
+                        log("verified")
+                        response.status(400).send(sendError("User already exists with phone number " + phone_number));
+                        return null;
+                    }
+                }
             }
 
             let user = await User.findOne({where:{email}})

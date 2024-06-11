@@ -30,6 +30,12 @@ class UserService {
                 let verification_code = (0, methods_1.generateRandomNumber)();
                 // console.log({verification_code});
                 // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
+                if (address) {
+                    if (address.length < 10) {
+                        response.status(400).send((0, error_1.sendError)("Invalid address supplied"));
+                        return null;
+                    }
+                }
                 let data = {
                     fullname, email, phone_number, address, verification_code,
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
@@ -38,10 +44,17 @@ class UserService {
                 // check if phone number is unique
                 let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
                 if (user_by_tel) {
-                    // if (user_by_tel.email != email) {
-                    response.status(401).send((0, error_1.sendError)("Phone number already exists"));
-                    return null;
-                    // }
+                    if (user_by_tel.email != email) {
+                        response.status(401).send((0, error_1.sendError)("Phone number already exists"));
+                        return null;
+                    }
+                    else {
+                        if (user_by_tel.is_verified) {
+                            (0, console_1.log)("verified");
+                            response.status(400).send((0, error_1.sendError)("User already exists with phone number " + phone_number));
+                            return null;
+                        }
+                    }
                 }
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {
