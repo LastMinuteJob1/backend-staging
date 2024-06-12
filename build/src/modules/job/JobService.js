@@ -19,6 +19,7 @@ const JobModel_1 = __importDefault(require("./JobModel"));
 const UserModel_1 = __importDefault(require("../user/UserModel"));
 const slugify_1 = __importDefault(require("slugify"));
 const sequelize_1 = require("sequelize");
+const NotificationController_1 = require("../notification/NotificationController");
 const NotificationInterface_1 = require("../notification/NotificationInterface");
 const console_1 = require("console");
 const JobPics_1 = __importDefault(require("./JobPics"));
@@ -36,7 +37,7 @@ const TransactionHistoryModel_1 = __importDefault(require("../wallet/Transaction
 class JobService {
     constructor() {
         // private blobController = new BlobController()
-        // private notificationController = new NotificationController()
+        this.notificationController = new NotificationController_1.NotificationController();
         this.notificationService = new NotificationService_1.NotificationService();
         this.storageService = new StorageService_1.StorageService("job-pics");
         this.emailService = new MailService_1.MailService();
@@ -66,13 +67,13 @@ class JobService {
                 // await job.save()
                 // job.user 
                 // stack in an in-app notification
-                // this.notificationController.add_notification({
-                //     from: "Last Minute Job", // sender
-                //     title: "Job creation",
-                //     type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
-                //     content: `Hello ${user.fullname}, \nYour job have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
-                //     user: user // receipant
-                // })
+                this.notificationController.add_notification({
+                    from: "Last Minute Job", // sender
+                    title: "Job creation",
+                    type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                    content: `Hello ${user.fullname}, \nYour job have been posted successfully, kindly proceed to the next step.`,
+                    user: user // receipant
+                });
                 return yield JobModel_1.default.findOne({
                     where: { slug },
                     include: [
@@ -539,6 +540,7 @@ class JobService {
         this.publish = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let slug = req.params.slug, job = yield JobModel_1.default.findOne({ where: { slug } });
+                let user = yield (0, methods_1.getUser)(req);
                 if (!job) {
                     res.status(404).send((0, error_1.sendError)("Unable to find job"));
                     return null;
@@ -548,6 +550,13 @@ class JobService {
                     return null;
                 }
                 yield job.update({ published: true });
+                this.notificationController.add_notification({
+                    from: "Last Minute Job", // sender
+                    title: "Job Published",
+                    type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                    content: `Your job is live now! you will get response from our able users`,
+                    user: user // receipant
+                });
                 return job;
             }
             catch (error) {
@@ -699,6 +708,13 @@ class JobService {
                     }
                     yield stripe.setJob(job);
                     yield job.update({ paid: true });
+                    this.notificationController.add_notification({
+                        from: "Last Minute Job", // sender
+                        title: "Payment Successful",
+                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                        content: `You payment of C$${amount} is successful`,
+                        user: user // receipant
+                    });
                     return job;
                 }
                 else {
@@ -724,6 +740,13 @@ class JobService {
                     });
                     yield history.setWallet(wallet);
                     yield job.update({ paid: true });
+                    this.notificationController.add_notification({
+                        from: "Last Minute Job", // sender
+                        title: "Job creation",
+                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                        content: `Your payment of C$${job.price} is successful`,
+                        user: user // receipant
+                    });
                     return job;
                 }
             }

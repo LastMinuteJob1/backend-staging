@@ -19,6 +19,7 @@ const NotificationModel_1 = __importDefault(require("./NotificationModel"));
 const error_1 = require("../../helper/error");
 const sequelize_1 = require("sequelize");
 const UserModel_1 = __importDefault(require("../user/UserModel"));
+const fcm_manager_1 = require("../../third-party/fcm/fcm-manager");
 class NotificationService {
     constructor() {
         this.open_notification = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -44,7 +45,7 @@ class NotificationService {
                 //  pagination
                 const { docs, pages, total } = yield NotificationModel_1.default.paginate(Object.assign(Object.assign({ page: page_, paginate: limit_, order: [['id', desc_ == 1 ? "DESC" : "ASC"]] }, where), { include: [{
                             where: { email: user.email },
-                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            model: UserModel_1.default, attributes: ["id", "email"]
                         }] }));
                 // updating each notification as seen
                 setTimeout(() => {
@@ -59,13 +60,41 @@ class NotificationService {
                 return null;
             }
         });
-        this.add_notification = (data) => __awaiter(this, void 0, void 0, function* () {
+        this.send_dummy_notification = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield (0, methods_1.getUser)(req);
+                if (user == null) {
+                    res.status(400).send((0, error_1.sendError)("Authentication failed, please login again"));
+                    return null;
+                }
+                let { title, content } = req.body;
+                const push_notification_res = yield fcm_manager_1.FCM_Manager.sendPushNotification({ user: user, title: title, content: content });
+                if (push_notification_res) {
+                    return push_notification_res;
+                }
+                else {
+                    res.status(400).send((0, error_1.sendError)("Please check your FCM registration token"));
+                    return null;
+                }
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.add_notification = (data, send_push = true) => __awaiter(this, void 0, void 0, function* () {
             let { title, type, content, from, user } = data;
             let slug = (0, slugify_1.default)(title + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
             let notification = yield NotificationModel_1.default.create({
                 title, type, content, from, slug
             });
             yield notification.setUser(user.id);
+            if (send_push)
+                yield fcm_manager_1.FCM_Manager.sendPushNotification({
+                    user: user,
+                    title: title,
+                    content: content
+                });
             return yield NotificationModel_1.default.findOne({ where: { slug } });
         });
     }

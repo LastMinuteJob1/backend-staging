@@ -7,6 +7,8 @@ import { getUser } from "../../helper/methods";
 import Wallet from "./WalletModel";
 import TransactionHistory from "./TransactionHistoryModel";
 import StripePayment from "../../third-party/stripe-payment/StripeModel";
+import { NotificationController } from "../notification/NotificationController";
+import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
 
 export class WalletService {
 
@@ -82,6 +84,14 @@ export class WalletService {
             });
 
             await (<any>history).setWallet(wallet)
+
+            new NotificationController().add_notification({
+                from: "Last Minute Job", // sender
+                title: "Inward Payment",
+                type: NOTIFICATION_TYPE.PAYMENT_IN,
+                content: `You have successfully fund your account with C$${amount}`,
+                user: user // receipant
+            })
 
             return {wallet};
 

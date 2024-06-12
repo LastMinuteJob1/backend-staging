@@ -63,6 +63,9 @@ User.init({
         // values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
         defaultValue: true //IUserAccountStatus.ACTIVE
     },
+    firebase_token: {
+        type: sequelize_1.DataTypes.STRING
+    },
     reason: {
         type: sequelize_1.DataTypes.STRING
     }

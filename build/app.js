@@ -78,8 +78,6 @@ db_1.default.sync({ alter: false, force: false })
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
-        let us = yield UserModel_1.default.findOne({ where: { phone_number: "08149835952" } });
-        (0, console_1.log)(us);
     }));
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))

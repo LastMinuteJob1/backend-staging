@@ -17,6 +17,7 @@ class User extends Model {
   declare token: string;
   declare active: boolean;
   declare reason: string;
+  declare firebase_token: string;
 }
 
 User.init({
@@ -74,6 +75,9 @@ User.init({
     type: DataTypes.BOOLEAN,
     // values: [IUserAccountStatus.ACTIVE, IUserAccountStatus.IN_ACTIVE, IUserAccountStatus.DELETED],
     defaultValue: true//IUserAccountStatus.ACTIVE
+  },
+  firebase_token: {
+    type: DataTypes.STRING
   },
   reason: {
     type: DataTypes.STRING

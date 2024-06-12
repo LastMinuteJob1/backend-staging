@@ -20,6 +20,11 @@ class NotificationController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.send_dummy_notification = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.notificationService.send_dummy_notification(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
         this.add_notification = (data) => __awaiter(this, void 0, void 0, function* () {
             return yield this.notificationService.add_notification(data);
         });

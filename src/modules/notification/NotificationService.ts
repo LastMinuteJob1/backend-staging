@@ -7,6 +7,7 @@ import { sendError } from "../../helper/error";
 import { Op } from "sequelize";
 import User from "../user/UserModel";
 import { log } from "console";
+import { FCM_Manager } from "../../third-party/fcm/fcm-manager";
 
 export class NotificationService {
 
@@ -45,7 +46,7 @@ export class NotificationService {
                 ...where,
                 include: [{
                     where: {email:user.email},
-                    model: User, attributes:{exclude:["password", "verification_code", "token"]}
+                    model: User, attributes:["id", "email"]
                 }]
             })
 
@@ -63,14 +64,48 @@ export class NotificationService {
             return null
         }
     }
+
+    public send_dummy_notification = async (req:Request, res:Response) => {
+        try {
+            
+            const user = await getUser(req)
+
+            if (user == null) {
+                res.status(400).send(sendError("Authentication failed, please login again"));
+                return null
+            }
+
+            let {title, content} = req.body
+
+            const push_notification_res = await FCM_Manager.sendPushNotification({ user: user, title: title, content: content });
+
+            if (push_notification_res) {
+
+                return push_notification_res
+
+            } else {
+                res.status(400).send(sendError("Please check your FCM registration token"));
+                return null
+            }
+
+        } catch (error:any) {
+            res.status(500).send(sendError(error));
+            return null
+        }
+    }
     
-    public add_notification = async (data:Notification) => {
+    public add_notification = async (data:Notification, send_push:boolean = true) => {
         let {title, type, content, from, user} = data
         let slug = slugify(title + " " + generateRandomNumber(), {lower:true})
         let notification:any = await NotificationModel.create({
             title, type, content, from, slug
         })
         await notification.setUser(user.id)
+        if (send_push) await FCM_Manager.sendPushNotification({
+            user: user,
+            title: title,
+            content: content
+        })
         return await NotificationModel.findOne({where:{slug}})
     }
 

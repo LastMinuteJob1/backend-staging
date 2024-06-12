@@ -21,6 +21,8 @@ const methods_1 = require("../../helper/methods");
 const WalletModel_1 = __importDefault(require("./WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./TransactionHistoryModel"));
 const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeModel"));
+const NotificationController_1 = require("../notification/NotificationController");
+const NotificationInterface_1 = require("../notification/NotificationInterface");
 class WalletService {
     constructor() {
         this._stripeService = new StripeService_1.StripeService();
@@ -77,6 +79,13 @@ class WalletService {
                     amount, data: payment_details
                 });
                 yield history.setWallet(wallet);
+                new NotificationController_1.NotificationController().add_notification({
+                    from: "Last Minute Job", // sender
+                    title: "Inward Payment",
+                    type: NotificationInterface_1.NOTIFICATION_TYPE.PAYMENT_IN,
+                    content: `You have successfully fund your account with C$${amount}`,
+                    user: user // receipant
+                });
                 return { wallet };
             }
             catch (error) {

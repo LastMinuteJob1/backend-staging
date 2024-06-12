@@ -26,7 +26,7 @@ import TransactionHistory from "../wallet/TransactionHistoryModel";
 export class JobService {
 
     // private blobController = new BlobController()
-    // private notificationController = new NotificationController()
+    private notificationController = new NotificationController()
     private notificationService = new NotificationService();
     private storageService = new StorageService("job-pics");
     private emailService = new MailService();
@@ -72,13 +72,13 @@ export class JobService {
             // job.user 
 
             // stack in an in-app notification
-            // this.notificationController.add_notification({
-            //     from: "Last Minute Job", // sender
-            //     title: "Job creation",
-            //     type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
-            //     content: `Hello ${user.fullname}, \nYour job have been posted successfully, you will get feedback from our users in a couple of minutes. Stay tunned to the app`,
-            //     user: user // receipant
-            // })
+            this.notificationController.add_notification({
+                from: "Last Minute Job", // sender
+                title: "Job creation",
+                type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                content: `Hello ${user.fullname}, \nYour job have been posted successfully, kindly proceed to the next step.`,
+                user: user // receipant
+            })
 
             return await Job.findOne({
                 where:{slug},
@@ -629,6 +629,9 @@ export class JobService {
             let slug  = req.params.slug,
                 job = await Job.findOne({where:{slug}});
 
+            let user:User = await getUser(req)
+    
+
             if (!job) {
                 res.status(404).send(sendError("Unable to find job"));
                 return null
@@ -640,6 +643,14 @@ export class JobService {
             }
 
             await job.update({published:true})
+
+            this.notificationController.add_notification({
+                from: "Last Minute Job", // sender
+                title: "Job Published",
+                type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                content: `Your job is live now! you will get response from our able users`,
+                user: user // receipant
+            })
 
             return job;
             
@@ -829,6 +840,14 @@ export class JobService {
 
                 await job.update({paid: true});
 
+                this.notificationController.add_notification({
+                    from: "Last Minute Job", // sender
+                    title: "Payment Successful",
+                    type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                    content: `You payment of C$${amount} is successful`,
+                    user: user // receipant
+                })
+
                 return job 
 
             } else {
@@ -864,6 +883,14 @@ export class JobService {
                 await (<any>history).setWallet(wallet);
 
                 await job.update({paid: true});
+
+                this.notificationController.add_notification({
+                    from: "Last Minute Job", // sender
+                    title: "Job creation",
+                    type: NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
+                    content: `Your payment of C$${job.price} is successful`,
+                    user: user // receipant
+                })
 
                 return job;
 

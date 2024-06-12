@@ -9,5 +9,6 @@ notificationRoute.use(authorization)
 
 // view user notifications
 notificationRoute.get("/", notificationController.open_notification)
+notificationRoute.post("/test", notificationController.send_dummy_notification)
 
 export default notificationRoute

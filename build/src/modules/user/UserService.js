@@ -193,7 +193,7 @@ class UserService {
         this.login = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
-                let { email, password } = request.body;
+                let { email, password, firebase_token } = request.body;
                 (0, console_1.log)(request.body);
                 password = (0, methods_1.hashPassword)(password);
                 let user = yield UserModel_1.default.findOne({
@@ -214,7 +214,7 @@ class UserService {
                 let token = yield (0, methods_1.generateToken)({
                     email: user.email, name: user.fullname
                 });
-                yield user.update({ token, where: { email } });
+                yield user.update({ token, firebase_token, where: { email } });
                 return yield UserModel_1.default.findOne({ where: { email },
                     include: [
                         { model: ProfileModel_1.default }

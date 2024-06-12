@@ -212,7 +212,7 @@ export class UserService {
 
             console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
             
-            let {email, password} = request.body
+            let {email, password, firebase_token} = request.body
 
             log(request.body)
 
@@ -241,7 +241,7 @@ export class UserService {
                 email: user.email, name: user.fullname
             });
 
-            await user.update({token, where:{email}})
+            await user.update({token, firebase_token, where:{email}})
 
             return await User.findOne({where:{email}, 
                 include: [
