@@ -45,6 +45,11 @@ class UserController {
             if (data != null)
                 response.send((0, methods_1.sendResponse)(data));
         });
+        this.verify_google_oauth_token_id = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.userService.verify_google_oauth_token_id(request, response);
+            if (data != null)
+                response.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.UserController = UserController;

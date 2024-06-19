@@ -2,7 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
 import { ACCESS_KEY, APP_VERSION,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
-SECRET_KEY} from './src/config/env';
+SECRET_KEY,
+STRIPE_SECRET_KEY} from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';
 import { MailController } from './src/modules/mailer/MailController';
@@ -82,4 +83,4 @@ sequelize.sync({alter:false, force:false})
 .finally(async () => { }); 
 
 const storage_path = path.join(__dirname + "/storage")
-export { mailController, storage_path }  
+export { mailController, storage_path }   

@@ -363,4 +363,30 @@ export class UserService {
             return null
         }
     }
+
+     public verify_google_oauth_token_id = async (request:Request, response:Response) => {
+        try {
+
+            let {token_id} = request.body;
+
+            let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+
+            if (email == null) {
+                response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                return null;
+            }
+                        
+            if (name == null) { 
+                response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                return null;
+            } 
+
+            return {email, name}
+            
+        } catch (error:any) {
+            response.status(500).send(sendError(error))
+            return null
+        }
+     }
+
 }

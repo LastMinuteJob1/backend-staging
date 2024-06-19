@@ -42,4 +42,10 @@ export class UserController {
             response.send(sendResponse(data))
     }
 
+    public verify_google_oauth_token_id = async (request:Request, response:Response) => {
+        let data = await this.userService.verify_google_oauth_token_id(request, response)
+        if (data != null)
+            response.send(sendResponse(data))
+    }
+
 }

@@ -317,6 +317,25 @@ class UserService {
                 return null;
             }
         });
+        this.verify_google_oauth_token_id = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { token_id } = request.body;
+                let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
+                if (email == null) {
+                    response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                    return null;
+                }
+                if (name == null) {
+                    response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                    return null;
+                }
+                return { email, name };
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
     }
 }
 exports.UserService = UserService;
