@@ -21,12 +21,47 @@ class StripeService {
         };
         this.verify_payment = (ref) => __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.stripe.paymentIntents.retrieve(ref);
+                let data = yield this.stripe.paymentIntents.retrieve(ref);
+                let { status, message } = yield this.check_transaction_status(ref);
+                (0, console_1.log)({ "Transaction-Status": status });
+                if (!status) {
+                    return {
+                        err: "Transaction failed !", message
+                    };
+                }
+                return data;
             }
             catch (error) {
-                (0, console_1.log)(error);
+                // log(error)
                 return {
-                    err: "Invalid transaction reference"
+                    err: "Invalid transaction reference",
+                    message: error.raw.message
+                };
+            }
+        });
+        this.check_transaction_status = (ref) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { paymentIntent, error } = yield this.stripe.paymentIntents.confirm(ref, {
+                    return_url: 'https://www.lastminutejob.xyz',
+                    payment_method: 'pm_card_visa'
+                });
+                if (error) {
+                    // Handle error here
+                    (0, console_1.log)({ error });
+                    (0, console_1.log)("<=======================[ERROR]===========================>");
+                    return null;
+                }
+                else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    // Handle successful payment here
+                    (0, console_1.log)({ paymentIntent });
+                    (0, console_1.log)("<=======================[SUCCESS]===========================>");
+                    return paymentIntent;
+                }
+            }
+            catch (error) {
+                (0, console_1.log)("***********************[EXCEPTION]************************");
+                return {
+                    status: null, message: error
                 };
             }
         });

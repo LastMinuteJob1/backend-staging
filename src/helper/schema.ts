@@ -9,7 +9,8 @@ export const userSchema = Joi.object({
     pronoun:  Joi.string().min(2).required(),
     city:  Joi.string().min(2).required(),
     postal_code:  Joi.string().required(),
-    isGmail: Joi.bool().required()
+    isGmail: Joi.bool().required(),
+    token_id: Joi.string().optional()
 });
 
 export const jobSchema = Joi.object({

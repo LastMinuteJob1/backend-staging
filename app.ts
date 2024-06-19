@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { ACCESS_KEY, APP_VERSION,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
+import { ACCESS_KEY, APP_VERSION,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
 SECRET_KEY} from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';

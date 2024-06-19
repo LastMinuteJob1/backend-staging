@@ -21,6 +21,13 @@ export class WalletService {
 
             let data = await this._stripeService.verify_payment(ref);
 
+            // let {client_secret} = data
+
+            // if (! await this._stripeService.check_transaction_status(client_secret)) {
+            //     res.status(402).send(sendError("This transaction was not successfull", 402))
+            //     return null;
+            // }
+
             log(data)
 
             if ((data.hasOwnProperty("err"))) {

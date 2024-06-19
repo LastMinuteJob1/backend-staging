@@ -30,6 +30,11 @@ class WalletService {
             try {
                 let { ref } = req.params;
                 let data = yield this._stripeService.verify_payment(ref);
+                // let {client_secret} = data
+                // if (! await this._stripeService.check_transaction_status(client_secret)) {
+                //     res.status(402).send(sendError("This transaction was not successfull", 402))
+                //     return null;
+                // }
                 (0, console_1.log)(data);
                 if ((data.hasOwnProperty("err"))) {
                     res.status(400).send((0, error_1.sendError)("Invalid transaction reference", 400));

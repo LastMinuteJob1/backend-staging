@@ -7,15 +7,18 @@ import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
 import { log } from "console";
 import Profile from "../profile/ProfileModel";
+import { GoogleOAuthService } from "../../third-party/google-oauth/GoogleOauthService";
 
 export class UserService {
+
+    private _googleOAuthService = new GoogleOAuthService()
 
     public signup = async (request:Request, response:Response) => {
         try {
             let payload:SignupRequest = request.body;
             let {
                 fullname, email, phone_number, pronoun, city, postal_code,
-                address, password, isGmail, 
+                address, password, isGmail, token_id
             } = payload
             let token = await generateToken(payload)
             let verification_code = generateRandomNumber()
@@ -30,8 +33,36 @@ export class UserService {
             let data = {
                 fullname, email, phone_number, address, verification_code,
                 password: hashPassword(password), pronoun, city, postal_code,
-                is_verified: isGmail, token: isGmail ? token : null
+                is_verified: false, token: isGmail ? token : null
             };
+
+            let is_email_verified = false
+            log(payload)
+            if (isGmail)
+                if (isGmail.toString() == 'true') {
+                    log("****************Checking Google OAuth***************")
+                    if (!token_id) {
+                        response.status(400).send(sendError("To signup with Google, please supply the token_id"));
+                        return null;
+                    } else {
+                        // verify token ID
+                        let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+                        if (email == null) {
+                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                            return null;
+                        }
+                        if (name == null) { 
+                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                            return null;
+                        } 
+                        log("*****************Google OAuth Successful********************")
+                        data["fullname"] = name;
+                        data["email"] = email;
+                        is_email_verified = true
+                    }
+                }
+
+            data["is_verified"] = is_email_verified
 
             // check if phone number is unique
             let user_by_tel = await User.findOne({where:{phone_number}});
@@ -69,11 +100,13 @@ export class UserService {
                 return null;
             }
 
-            await mailController.send({
-                from: EMAIL_USERNAME, to: email,
-                text: "Your email verification token is: " + verification_code + " valid within 5 minutes",
-                subject: "Email Verification"
-            })
+            if (!is_email_verified)
+                await mailController.send({
+                    from: EMAIL_USERNAME, to: email,
+                    text: "Your email verification token is: " + verification_code + " valid within 5 minutes",
+                    subject: "Email Verification"
+                })
+
             setTimeout(async () => {
                 await user.update({
                     verification_code: generateRandomNumber(),
@@ -81,6 +114,7 @@ export class UserService {
                 })
                 console.log("code updated")
             }, 1000 * 60 * 5)
+
             return await User.findOne({
                 where: {email},
                 include: [
@@ -212,9 +246,50 @@ export class UserService {
 
             console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
             
-            let {email, password, firebase_token} = request.body
+            let {email, password, firebase_token, isGmail, token_id} = request.body
 
             log(request.body)
+
+            if(isGmail)
+                if (isGmail == 'true') {
+
+                    log(">>>>>>>>>>>>>>>>>>>>>>>[Gmail Signin]>>>>>>>>>>>>>>>>>>>")
+                    if (!token_id) {
+                        response.status(400).send(sendError("To signin with Gmail you have to provide 'token_id'"))
+                        return null
+                    } else {
+
+                        // verify token ID
+                        let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+                        if (email == null) {
+                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                            return null;
+                        }
+                        if (name == null) {
+                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                            return null;
+                        }
+                        log("*****************Checking System For Credentials*****************")
+                        let user = await User.findOne({where: {email}})
+                        if (!user) {
+                            response.status(404).send(sendError(`We couldn't fetch your record as ${email}, please sign-in`))
+                            return null
+                        }
+                        log("*****************Google OAuth Successful********************")
+
+                        let token = await generateToken({
+                            email: user.email, name: user.fullname
+                        });
+
+                        await user.update({token, firebase_token, where:{email}})
+
+                        return await User.findOne({where:{email}, 
+                            include: [
+                                {model: Profile}
+                            ], attributes:{exclude:["verification_code", "password"]}})
+                    }
+
+                }
 
             password = hashPassword(password)
 

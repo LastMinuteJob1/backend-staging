@@ -6,6 +6,7 @@ export interface SignupRequest {
     password:string,
     isGmail:boolean,
     token?: string,
+    token_id?: string,
     pronoun:string, 
     city:string, 
     postal_code:number,

@@ -20,12 +20,14 @@ const app_1 = require("../../../app");
 const env_1 = require("../../config/env");
 const console_1 = require("console");
 const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
+const GoogleOauthService_1 = require("../../third-party/google-oauth/GoogleOauthService");
 class UserService {
     constructor() {
+        this._googleOAuthService = new GoogleOauthService_1.GoogleOAuthService();
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payload = request.body;
-                let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, } = payload;
+                let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, token_id } = payload;
                 let token = yield (0, methods_1.generateToken)(payload);
                 let verification_code = (0, methods_1.generateRandomNumber)();
                 // console.log({verification_code});
@@ -39,8 +41,35 @@ class UserService {
                 let data = {
                     fullname, email, phone_number, address, verification_code,
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
-                    is_verified: isGmail, token: isGmail ? token : null
+                    is_verified: false, token: isGmail ? token : null
                 };
+                let is_email_verified = false;
+                (0, console_1.log)(payload);
+                if (isGmail)
+                    if (isGmail.toString() == 'true') {
+                        (0, console_1.log)("****************Checking Google OAuth***************");
+                        if (!token_id) {
+                            response.status(400).send((0, error_1.sendError)("To signup with Google, please supply the token_id"));
+                            return null;
+                        }
+                        else {
+                            // verify token ID
+                            let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
+                            if (email == null) {
+                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                                return null;
+                            }
+                            if (name == null) {
+                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                                return null;
+                            }
+                            (0, console_1.log)("*****************Google OAuth Successful********************");
+                            data["fullname"] = name;
+                            data["email"] = email;
+                            is_email_verified = true;
+                        }
+                    }
+                data["is_verified"] = is_email_verified;
                 // check if phone number is unique
                 let user_by_tel = yield UserModel_1.default.findOne({ where: { phone_number } });
                 if (user_by_tel) {
@@ -73,11 +102,12 @@ class UserService {
                     response.status(500).send((0, error_1.sendError)("Something went wrong " + email));
                     return null;
                 }
-                yield app_1.mailController.send({
-                    from: env_1.EMAIL_USERNAME, to: email,
-                    text: "Your email verification token is: " + verification_code + " valid within 5 minutes",
-                    subject: "Email Verification"
-                });
+                if (!is_email_verified)
+                    yield app_1.mailController.send({
+                        from: env_1.EMAIL_USERNAME, to: email,
+                        text: "Your email verification token is: " + verification_code + " valid within 5 minutes",
+                        subject: "Email Verification"
+                    });
                 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                     yield user.update({
                         verification_code: (0, methods_1.generateRandomNumber)(),
@@ -193,8 +223,43 @@ class UserService {
         this.login = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
-                let { email, password, firebase_token } = request.body;
+                let { email, password, firebase_token, isGmail, token_id } = request.body;
                 (0, console_1.log)(request.body);
+                if (isGmail)
+                    if (isGmail == 'true') {
+                        (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>[Gmail Signin]>>>>>>>>>>>>>>>>>>>");
+                        if (!token_id) {
+                            response.status(400).send((0, error_1.sendError)("To signin with Gmail you have to provide 'token_id'"));
+                            return null;
+                        }
+                        else {
+                            // verify token ID
+                            let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
+                            if (email == null) {
+                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                                return null;
+                            }
+                            if (name == null) {
+                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                                return null;
+                            }
+                            (0, console_1.log)("*****************Checking System For Credentials*****************");
+                            let user = yield UserModel_1.default.findOne({ where: { email } });
+                            if (!user) {
+                                response.status(404).send((0, error_1.sendError)(`We couldn't fetch your record as ${email}, please sign-in`));
+                                return null;
+                            }
+                            (0, console_1.log)("*****************Google OAuth Successful********************");
+                            let token = yield (0, methods_1.generateToken)({
+                                email: user.email, name: user.fullname
+                            });
+                            yield user.update({ token, firebase_token, where: { email } });
+                            return yield UserModel_1.default.findOne({ where: { email },
+                                include: [
+                                    { model: ProfileModel_1.default }
+                                ], attributes: { exclude: ["verification_code", "password"] } });
+                        }
+                    }
                 password = (0, methods_1.hashPassword)(password);
                 let user = yield UserModel_1.default.findOne({
                     where: { email, password }
