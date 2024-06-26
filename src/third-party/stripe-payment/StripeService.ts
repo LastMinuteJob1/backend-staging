@@ -1,6 +1,7 @@
 import { log } from "console";
-import { STRIPE_SECRET_KEY } from "../../config/env";
+import { SERVER_BASE_URL, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from "../../config/env";
 import { IPayment } from "./StripeInterface";
+import StripeWebhookPayment from "./StripeWebhookPaymentsModel";
 
 export class StripeService {
 
@@ -14,21 +15,33 @@ export class StripeService {
     public verify_payment = async (ref:string) => {
         try {
 
-            let data = await this.stripe.paymentIntents.retrieve(
-                ref
-            );
+            let payment = await StripeWebhookPayment.findOne({where:{ref}})
 
-            let {status, message} = await this.check_transaction_status(ref)
-
-            log({"Transaction-Status": status})
-
-            if (!status) {
+            if (!payment) {
                 return {
-                    err: "Transaction failed !", message
+                    err: "Transaction failed !", message: "Transaction not found"
                 }
             }
 
+            let {data} = payment
+
             return data
+
+            // let data = await this.stripe.paymentIntents.retrieve(
+            //     ref
+            // );
+
+            // let {status, message} = await this.check_transaction_status(ref)
+
+            // log({"Transaction-Status": status})
+
+            // if (!status) {
+            //     return {
+            //         err: "Transaction failed !", message
+            //     }
+            // }
+
+            // return data
 
         } catch (error:any) {
             // log(error)
@@ -61,6 +74,29 @@ export class StripeService {
             return {
                 status: null, message:error
             }
+        }
+    }
+
+    public register_webhook = async () => {
+
+        const url = `${SERVER_BASE_URL}/webhook/process-payment/stripe/SmlsbyBCaWxsaW9uYWlyZQ`
+
+        const endpoint = await this.stripe.webhookEndpoints.create({
+            url,
+            enabled_events: [
+                'payment_intent.payment_failed',
+                'payment_intent.succeeded',
+            ],
+        });
+
+        return endpoint
+    }
+
+    public get_payment_event = async (body:any, signature:any) => {
+        try {
+            return await this.stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
+        } catch (error) {
+            return null
         }
     }
 

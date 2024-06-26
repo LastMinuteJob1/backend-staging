@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StripeService = void 0;
 const console_1 = require("console");
 const env_1 = require("../../config/env");
+const StripeWebhookPaymentsModel_1 = __importDefault(require("./StripeWebhookPaymentsModel"));
 class StripeService {
     constructor() {
         // private BASE_URL:string = "https://api.stripe.com";
@@ -21,15 +25,25 @@ class StripeService {
         };
         this.verify_payment = (ref) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let data = yield this.stripe.paymentIntents.retrieve(ref);
-                let { status, message } = yield this.check_transaction_status(ref);
-                (0, console_1.log)({ "Transaction-Status": status });
-                if (!status) {
+                let payment = yield StripeWebhookPaymentsModel_1.default.findOne({ where: { ref } });
+                if (!payment) {
                     return {
-                        err: "Transaction failed !", message
+                        err: "Transaction failed !", message: "Transaction not found"
                     };
                 }
+                let { data } = payment;
                 return data;
+                // let data = await this.stripe.paymentIntents.retrieve(
+                //     ref
+                // );
+                // let {status, message} = await this.check_transaction_status(ref)
+                // log({"Transaction-Status": status})
+                // if (!status) {
+                //     return {
+                //         err: "Transaction failed !", message
+                //     }
+                // }
+                // return data
             }
             catch (error) {
                 // log(error)
@@ -63,6 +77,25 @@ class StripeService {
                 return {
                     status: null, message: error
                 };
+            }
+        });
+        this.register_webhook = () => __awaiter(this, void 0, void 0, function* () {
+            const url = `${env_1.SERVER_BASE_URL}/webhook/process-payment/stripe/SmlsbyBCaWxsaW9uYWlyZQ`;
+            const endpoint = yield this.stripe.webhookEndpoints.create({
+                url,
+                enabled_events: [
+                    'payment_intent.payment_failed',
+                    'payment_intent.succeeded',
+                ],
+            });
+            return endpoint;
+        });
+        this.get_payment_event = (body, signature) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.stripe.webhooks.constructEvent(body, signature, env_1.STRIPE_WEBHOOK_SECRET);
+            }
+            catch (error) {
+                return null;
             }
         });
     }

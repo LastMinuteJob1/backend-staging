@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STRIPE_SECRET_KEY = exports.SECRET_KEY = exports.ACCESS_KEY = exports.SECURE_SMTP = exports.SMTP_PORT = exports.SMTP_HOST = exports.EMAIL_SERVICE = exports.EMAIL_PASSWORD = exports.EMAIL_USERNAME = exports.JWT_SECRET_KEY = exports.MYSQL_PORT = exports.MYSQL_HOST = exports.MYSQL_USERNAME = exports.MYSQL_PASSWORD = exports.MYSQL_DATABASE = exports.ENVIROMENT = exports.APP_VERSION = void 0;
+exports.SERVER_BASE_URL = exports.STRIPE_WEBHOOK_SECRET = exports.STRIPE_SECRET_KEY = exports.SECRET_KEY = exports.ACCESS_KEY = exports.SECURE_SMTP = exports.SMTP_PORT = exports.SMTP_HOST = exports.EMAIL_SERVICE = exports.EMAIL_PASSWORD = exports.EMAIL_USERNAME = exports.JWT_SECRET_KEY = exports.MYSQL_PORT = exports.MYSQL_HOST = exports.MYSQL_USERNAME = exports.MYSQL_PASSWORD = exports.MYSQL_DATABASE = exports.ENVIROMENT = exports.APP_VERSION = void 0;
 require('dotenv').config();
 exports.APP_VERSION = process.env.APP_VERSION || "";
 // enviroment
@@ -25,3 +25,6 @@ exports.ACCESS_KEY = process.env.ACCESS_KEY || "";
 exports.SECRET_KEY = process.env.SECRET_KEY || "";
 // STRIPE PAYMENT
 exports.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
+exports.STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+// SERVER DETAILS
+exports.SERVER_BASE_URL = process.env.SERVER_BASE_URL || "";

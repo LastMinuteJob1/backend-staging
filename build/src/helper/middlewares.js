@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authorization = exports.job_creation_middleware = exports.signup_middleware = exports.ErrorWatcher = void 0;
+exports.stripe_authorization = exports.authorization = exports.job_creation_middleware = exports.signup_middleware = exports.ErrorWatcher = void 0;
 const error_1 = require("./error");
 const schema_1 = require("./schema");
 const methods_1 = require("./methods");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const console_1 = require("console");
+const StripeService_1 = require("../third-party/stripe-payment/StripeService");
 const ErrorWatcher = (err, req, res, next) => {
     if (err instanceof error_1.AppError) {
         res.status(err.statusCode).json({ message: err.message });
@@ -79,3 +80,26 @@ function authorization(req, res, next) {
     });
 }
 exports.authorization = authorization;
+const stripeService = new StripeService_1.StripeService();
+function stripe_authorization(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const sig = req.headers['stripe-signature'];
+        let event;
+        try {
+            event = yield stripeService.get_payment_event(req.body, sig); //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+            if (!event) {
+                res.status(400).json((0, error_1.sendError)(`Webhook Error:`));
+                (0, console_1.log)("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+                return;
+            }
+            (0, console_1.log)("++++++++++++++++++++++++++++++++++++++++++++++++");
+            (0, console_1.log)("Stripe Log Event: ", event);
+            (0, console_1.log)("++++++++++++++++++++++++++++++++++++++++++++++++");
+            next();
+        }
+        catch (err) {
+            res.status(400).send((0, error_1.sendError)(`Webhook Error: ${err.message}`));
+        }
+    });
+}
+exports.stripe_authorization = stripe_authorization;

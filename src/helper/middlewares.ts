@@ -5,6 +5,7 @@ import { validateToken } from "./methods";
 import User from "../modules/user/UserModel";
 import { IUserAccountStatus } from "../modules/user/UserInterface";
 import { log } from "console";
+import { StripeService } from "../third-party/stripe-payment/StripeService";
 
 export const ErrorWatcher = (err: any, req: Request, res: Response, next: (err?: any) => void) => {
     if (err instanceof AppError) {
@@ -53,4 +54,34 @@ export async function authorization (req:Request, res:Response, next: NextFuncti
     req.headers["user"] = JSON.stringify(user)
     next()
   }
+}
+
+const stripeService = new StripeService()
+
+export async function stripe_authorization (req:Request, res:Response, next: NextFunction) {
+
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+
+    event = await stripeService.get_payment_event(req.body, sig) //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+
+    if (!event) {
+      res.status(400).json(sendError(`Webhook Error:`));
+      log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+      return;
+    }
+
+    log("++++++++++++++++++++++++++++++++++++++++++++++++")
+    log("Stripe Log Event: ", event)
+    log("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    next();
+
+  } catch (err:any) {
+    res.status(400).send(sendError(`Webhook Error: ${err.message}`));
+  }
+
 }

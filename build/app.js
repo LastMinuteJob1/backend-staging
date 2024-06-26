@@ -36,6 +36,7 @@ const StripeModel_1 = __importDefault(require("./src/third-party/stripe-payment/
 const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"));
 const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
+const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -51,9 +52,10 @@ app.use("/notification", NotificationRoute_1.default);
 app.use("/job-request", JobRequestRoute_1.default);
 app.use("/storage", StorageRoute_1.default);
 app.use("/wallet", WalletRoute_1.default);
+app.use("/webhook", WebhookRoute_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
-    // await JobRequest.drop();
+    // await JobRequest.drop(); 
     console.log('Connection to database established successfully.\n');
     // syncing models 
     yield UserModel_1.default.sync();
@@ -75,6 +77,8 @@ db_1.default.sync({ alter: false, force: false })
     console.log("Email service ready");
     app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
+        // log("*****************Registering Webhook**********************")
+        // log(await new StripeService().register_webhook());
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);

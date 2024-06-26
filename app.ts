@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { ACCESS_KEY, APP_VERSION,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
+import { ACCESS_KEY, APP_VERSION,EMAIL_USERNAME,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
 SECRET_KEY,
 STRIPE_SECRET_KEY} from './src/config/env';
 import User from './src/modules/user/UserModel';
@@ -23,6 +23,8 @@ import StripePayment from './src/third-party/stripe-payment/StripeModel';
 import walletRoute from './src/modules/wallet/WalletRoute';
 import Wallet from './src/modules/wallet/WalletModel';
 import TransactionHistory from './src/modules/wallet/TransactionHistoryModel';
+import webHookRoute from './src/third-party/webhook/WebhookRoute';
+import { StripeService } from './src/third-party/stripe-payment/StripeService';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -42,10 +44,11 @@ app.use("/notification", notificationRoute)
 app.use("/job-request", jobRequestRoute) 
 app.use("/storage", storageRoute) 
 app.use("/wallet", walletRoute) 
+app.use("/webhook", webHookRoute) 
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
-    // await JobRequest.drop();
+    // await JobRequest.drop(); 
     console.log('Connection to database established successfully.\n');
     // syncing models 
     await User.sync()
@@ -73,11 +76,18 @@ sequelize.sync({alter:false, force:false})
     console.log("Email service ready"); 
 
     app.listen(port, async () => {
+
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
+
+        // log("*****************Registering Webhook**********************")
+        // log(await new StripeService().register_webhook());
+
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
+
     }); 
+    
 })
 .catch((error) => console.error('Unable to connect to the database:', error))
 .finally(async () => { }); 
