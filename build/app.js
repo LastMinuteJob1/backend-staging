@@ -37,6 +37,9 @@ const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"
 const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
 const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
+const MailService_1 = require("./src/modules/mailer/MailService");
+const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
+const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -53,6 +56,7 @@ app.use("/job-request", JobRequestRoute_1.default);
 app.use("/storage", StorageRoute_1.default);
 app.use("/wallet", WalletRoute_1.default);
 app.use("/webhook", WebhookRoute_1.default);
+app.use("/admin-dashboard", AdminDashboardRoute_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // await JobRequest.drop(); 
@@ -65,6 +69,7 @@ db_1.default.sync({ alter: false, force: false })
     yield JobRequestModel_1.default.sync();
     yield ProfileModel_1.default.sync();
     yield StripeModel_1.default.sync();
+    yield StripeCustomerModel_1.default.sync();
     yield WalletModel_1.default.sync();
     yield TransactionHistoryModel_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
@@ -79,6 +84,12 @@ db_1.default.sync({ alter: false, force: false })
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
         // log("*****************Registering Webhook**********************")
         // log(await new StripeService().register_webhook());
+        new MailService_1.MailService().send({
+            from: env_1.EMAIL_USERNAME,
+            to: 'chibuezeadeyemi@gmail.com',
+            subject: 'Testing',
+            html: "Jilo Billionaire"
+        });
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);

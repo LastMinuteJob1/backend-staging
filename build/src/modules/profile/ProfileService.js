@@ -20,6 +20,7 @@ const ProfileModel_1 = __importDefault(require("./ProfileModel"));
 const console_1 = require("console");
 const UserInterface_1 = require("../user/UserInterface");
 const StorageService_1 = require("../../../storage/StorageService");
+const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
 class ProfileService {
     constructor() {
         this.storageService = new StorageService_1.StorageService("profile-uploads");
@@ -27,6 +28,8 @@ class ProfileService {
             try {
                 let user = yield (0, methods_1.getUser)(req), uid = UserModel_1.default.findOne({ where: { email: user.email }, include: [{
                             model: ProfileModel_1.default
+                        }, {
+                            model: StripeCustomerModel_1.default
                         }],
                     attributes: { exclude: ["password", "verification_code"] } });
                 return uid;

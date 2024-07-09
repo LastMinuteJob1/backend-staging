@@ -9,6 +9,7 @@ import TransactionHistory from "./TransactionHistoryModel";
 import StripePayment from "../../third-party/stripe-payment/StripeModel";
 import { NotificationController } from "../notification/NotificationController";
 import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
+import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel";
 
 export class WalletService {
 
@@ -190,4 +191,67 @@ export class WalletService {
             return null
         }
     }
+
+    public initiate_withdrawal = async (req:Request, res:Response) => {
+        try {
+
+            let user:User = await getUser(req)
+
+            if (!user) {
+                res.status(400).send(sendError("Something went wrong, please login"));
+                return null
+            }
+
+            let {amount, account} = req.body;
+
+            account = !account ? "stripe" : "paypal"
+
+            if (account == "paypal") {
+                res.status(500).send(sendError("Paypal withdrawal is not yet implemented"));
+                return null
+            }
+
+            let raw_user = await User.findOne({where: {
+                id: user.id
+            }, include:[
+                {model:Wallet}, {model:StripeCustomer}
+            ]})
+
+            let wallet:any = await this.query_wallet(req, res)
+
+            if (!wallet) {
+                res.status(500).send(sendError("Error connecting to wallet, please try again"));
+                return null
+            }
+
+            amount = parseFloat(amount)
+            let balance = parseFloat(wallet["balance"]);
+
+            log(balance)
+
+            // if (balance < amount) {
+            //     res.status(402).send(sendError("Insufficient fund"));
+            //     return null
+            // }
+
+            let customer = raw_user?["StripeCustomer"] : null
+
+            if (!customer) {
+                res.status(400).send(sendError("Please link you stripe account"));
+                return null
+            }
+
+            let raw_wallet = await Wallet.findOne({where:{id: wallet.id}})
+
+            await raw_wallet?.update({balance: balance - amount})
+
+            return raw_wallet
+            
+        } catch (error:any) {
+            res.status(500).send(sendError(error));
+            log({error})
+            return null
+        }
+    }
+
 }

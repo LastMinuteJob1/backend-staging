@@ -2,16 +2,20 @@ import { Request, Response } from "express";
 import { IUserAccountStatus, SignupRequest } from "./UserInterface";
 import User from "./UserModel";
 import { /*AppError,*/ sendError } from "../../helper/error";
-import { generateRandomNumber, generateToken, hashPassword, sendResponse } from "../../helper/methods";
+import { generateRandomNumber, generateToken, getUser, hashPassword, sendResponse } from "../../helper/methods";
 import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
 import { log } from "console";
 import Profile from "../profile/ProfileModel";
 import { GoogleOAuthService } from "../../third-party/google-oauth/GoogleOauthService";
+import { StripeService } from "../../third-party/stripe-payment/StripeService";
+import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel";
+import { LakeFormation } from "aws-sdk";
 
 export class UserService {
 
-    private _googleOAuthService = new GoogleOAuthService()
+    private _googleOAuthService = new GoogleOAuthService();
+    private _stripeService = new StripeService()
 
     public signup = async (request:Request, response:Response) => {
         try {
@@ -22,7 +26,7 @@ export class UserService {
             } = payload
             let token = await generateToken(payload)
             let verification_code = generateRandomNumber()
-            // console.log({verification_code});
+            console.log({verification_code});
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
             if (address) {
                 if (address.length < 10) {
@@ -384,6 +388,53 @@ export class UserService {
             return {email, name}
             
         } catch (error:any) {
+            response.status(500).send(sendError(error))
+            return null
+        }
+     }
+
+     public add_stripe_customer = async (request:Request, response:Response) => {
+        try {
+
+            let {username, email} = request.body
+
+            let user:User = await getUser(request)
+
+            if (!user) {
+                response.status(400).send(sendError("Something went wrong, please login"));
+                return null
+            }
+
+            if (!email) {
+                log(">>>>>>>>>>>>>>>>>>>Getting user default email>>>>>>>>>>>>>>>>>>")
+                email = user.email
+            }
+
+            let raw_user = await User.findOne({where:{email}, include: [
+                {model: StripeCustomer}
+            ]})
+
+            let data = await this._stripeService.add_customers(username, email)
+
+            let customer = await StripeCustomer.create({data}) 
+
+            let prev_data = (<any>raw_user)["StripeCustomer"]
+
+            log({prev_data})
+
+            if (prev_data) { 
+                log("<<<<<<<<<<<<<<<<<<<Updating Data>>>>>>>>>>>>>>>>>>>>>>")
+                await prev_data.update({
+                    data
+                })
+                log(prev_data)
+            } else
+                await (<any> customer).setUser(raw_user)
+
+            return data
+
+        } catch (error:any) {
+            log(error)
             response.status(500).send(sendError(error))
             return null
         }

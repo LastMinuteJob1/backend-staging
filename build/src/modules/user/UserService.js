@@ -21,16 +21,19 @@ const env_1 = require("../../config/env");
 const console_1 = require("console");
 const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 const GoogleOauthService_1 = require("../../third-party/google-oauth/GoogleOauthService");
+const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
+const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
 class UserService {
     constructor() {
         this._googleOAuthService = new GoogleOauthService_1.GoogleOAuthService();
+        this._stripeService = new StripeService_1.StripeService();
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payload = request.body;
                 let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, token_id } = payload;
                 let token = yield (0, methods_1.generateToken)(payload);
                 let verification_code = (0, methods_1.generateRandomNumber)();
-                // console.log({verification_code});
+                console.log({ verification_code });
                 // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
                 if (address) {
                     if (address.length < 10) {
@@ -332,6 +335,42 @@ class UserService {
                 return { email, name };
             }
             catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.add_stripe_customer = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { username, email } = request.body;
+                let user = yield (0, methods_1.getUser)(request);
+                if (!user) {
+                    response.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                if (!email) {
+                    (0, console_1.log)(">>>>>>>>>>>>>>>>>>>Getting user default email>>>>>>>>>>>>>>>>>>");
+                    email = user.email;
+                }
+                let raw_user = yield UserModel_1.default.findOne({ where: { email }, include: [
+                        { model: StripeCustomerModel_1.default }
+                    ] });
+                let data = yield this._stripeService.add_customers(username, email);
+                let customer = yield StripeCustomerModel_1.default.create({ data });
+                let prev_data = raw_user["StripeCustomer"];
+                (0, console_1.log)({ prev_data });
+                if (prev_data) {
+                    (0, console_1.log)("<<<<<<<<<<<<<<<<<<<Updating Data>>>>>>>>>>>>>>>>>>>>>>");
+                    yield prev_data.update({
+                        data
+                    });
+                    (0, console_1.log)(prev_data);
+                }
+                else
+                    yield customer.setUser(raw_user);
+                return data;
+            }
+            catch (error) {
+                (0, console_1.log)(error);
                 response.status(500).send((0, error_1.sendError)(error));
                 return null;
             }

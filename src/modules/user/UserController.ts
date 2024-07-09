@@ -48,4 +48,10 @@ export class UserController {
             response.send(sendResponse(data))
     }
 
+     public add_stripe_customer = async (request:Request, response:Response) => {
+        let data = await this.userService.add_stripe_customer(request, response)
+        if (data != null)
+            response.send(sendResponse(data))
+     }
+
 }

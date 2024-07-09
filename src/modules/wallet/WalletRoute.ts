@@ -12,5 +12,6 @@ walletRoute.post("/verify-stripe-payment/:ref", walletController.verify_stripe_p
 walletRoute.post("/fund-wallet", walletController.fund_wallet)
 walletRoute.get("/", walletController.query_wallet)
 walletRoute.get("/transaction-history", walletController.wallet_history)
+walletRoute.post("/initiate-withdrawal", walletController.initiate_withdrawal)
 
 export default walletRoute;

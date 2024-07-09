@@ -14,4 +14,6 @@ userRouter.post("/validate-otp", userController.check_otp_validity);
 userRouter.post("/sign-in", userController.login);
 userRouter.post("/recover-password", userController.password_recovery);
 userRouter.post("/verify-google-oauth-token-id", userController.verify_google_oauth_token_id);
+userRouter.use(middlewares_1.authorization);
+userRouter.post("/add-stripe-account", userController.add_stripe_customer);
 exports.default = userRouter;

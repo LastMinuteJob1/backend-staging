@@ -23,6 +23,7 @@ const TransactionHistoryModel_1 = __importDefault(require("./TransactionHistoryM
 const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeModel"));
 const NotificationController_1 = require("../notification/NotificationController");
 const NotificationInterface_1 = require("../notification/NotificationInterface");
+const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
 class WalletService {
     constructor() {
         this._stripeService = new StripeService_1.StripeService();
@@ -160,6 +161,51 @@ class WalletService {
                         }
                     ]
                 });
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.initiate_withdrawal = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let user = yield (0, methods_1.getUser)(req);
+                if (!user) {
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                let { amount, account } = req.body;
+                account = !account ? "stripe" : "paypal";
+                if (account == "paypal") {
+                    res.status(500).send((0, error_1.sendError)("Paypal withdrawal is not yet implemented"));
+                    return null;
+                }
+                let raw_user = yield UserModel_1.default.findOne({ where: {
+                        id: user.id
+                    }, include: [
+                        { model: WalletModel_1.default }, { model: StripeCustomerModel_1.default }
+                    ] });
+                let wallet = yield this.query_wallet(req, res);
+                if (!wallet) {
+                    res.status(500).send((0, error_1.sendError)("Error connecting to wallet, please try again"));
+                    return null;
+                }
+                amount = parseFloat(amount);
+                let balance = parseFloat(wallet["balance"]);
+                (0, console_1.log)(balance);
+                // if (balance < amount) {
+                //     res.status(402).send(sendError("Insufficient fund"));
+                //     return null
+                // }
+                let customer = raw_user ? ["StripeCustomer"] : null;
+                if (!customer) {
+                    res.status(400).send((0, error_1.sendError)("Please link you stripe account"));
+                    return null;
+                }
+                let raw_wallet = yield WalletModel_1.default.findOne({ where: { id: wallet.id } });
+                yield (raw_wallet === null || raw_wallet === void 0 ? void 0 : raw_wallet.update({ balance: balance - amount }));
+                return raw_wallet;
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

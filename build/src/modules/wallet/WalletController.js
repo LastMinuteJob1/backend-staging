@@ -35,6 +35,11 @@ class WalletController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.initiate_withdrawal = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._walletService.initiate_withdrawal(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.WalletController = WalletController;

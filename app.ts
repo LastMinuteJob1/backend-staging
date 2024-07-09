@@ -25,6 +25,9 @@ import Wallet from './src/modules/wallet/WalletModel';
 import TransactionHistory from './src/modules/wallet/TransactionHistoryModel';
 import webHookRoute from './src/third-party/webhook/WebhookRoute';
 import { StripeService } from './src/third-party/stripe-payment/StripeService';
+import { MailService } from './src/modules/mailer/MailService';
+import adminDashboardRoute from './src/modules/admin-dashboard/AdminDashboardRoute';
+import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -45,6 +48,7 @@ app.use("/job-request", jobRequestRoute)
 app.use("/storage", storageRoute) 
 app.use("/wallet", walletRoute) 
 app.use("/webhook", webHookRoute) 
+app.use("/admin-dashboard", adminDashboardRoute)
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
@@ -61,6 +65,7 @@ sequelize.sync({alter:false, force:false})
     await Profile.sync()
  
     await StripePayment.sync();
+    await StripeCustomer.sync();
 
     await Wallet.sync();
     await TransactionHistory.sync();
@@ -81,6 +86,13 @@ sequelize.sync({alter:false, force:false})
 
         // log("*****************Registering Webhook**********************")
         // log(await new StripeService().register_webhook());
+
+        new MailService().send({
+            from: EMAIL_USERNAME,
+            to: 'chibuezeadeyemi@gmail.com',
+            subject: 'Testing',
+            html: "Jilo Billionaire"
+        });
 
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);

@@ -26,5 +26,10 @@ export class WalletController {
         if (data != null)
             res.send(sendResponse(data))
     }
+    public initiate_withdrawal = async (req:Request, res:Response) => {
+        let data = await this._walletService.initiate_withdrawal(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
 
 } 

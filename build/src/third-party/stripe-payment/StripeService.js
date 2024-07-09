@@ -98,6 +98,17 @@ class StripeService {
                 return null;
             }
         });
+        this.add_customers = (username, email) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.stripe.customers.create({
+                    name: username,
+                    email: email,
+                });
+            }
+            catch (error) {
+                return error;
+            }
+        });
     }
 }
 exports.StripeService = StripeService;

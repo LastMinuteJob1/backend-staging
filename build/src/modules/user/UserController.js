@@ -50,6 +50,11 @@ class UserController {
             if (data != null)
                 response.send((0, methods_1.sendResponse)(data));
         });
+        this.add_stripe_customer = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.userService.add_stripe_customer(request, response);
+            if (data != null)
+                response.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.UserController = UserController;

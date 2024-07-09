@@ -6,6 +6,7 @@ import Profile from "./ProfileModel"
 import { log } from "console"
 import { IUserAccountStatus } from "../user/UserInterface"
 import { StorageService } from "../../../storage/StorageService"
+import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel"
 
 export class ProfileService {
 
@@ -17,6 +18,8 @@ export class ProfileService {
             let user = await getUser(req),
                 uid = User.findOne({where:{email:user.email}, include:[{
                     model: Profile
+                }, {
+                    model: StripeCustomer
                 }],
                 attributes:{exclude:["password", "verification_code"]}})
 

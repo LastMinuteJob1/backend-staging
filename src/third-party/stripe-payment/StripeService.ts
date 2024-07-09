@@ -100,4 +100,17 @@ export class StripeService {
         }
     }
 
+    public add_customers = async (username:string, email:string) => {
+        try {
+
+            return await this.stripe.customers.create({
+                name: username,
+                email: email,
+            });
+            
+        } catch (error) {
+            return error
+        }
+    }
+
 }
