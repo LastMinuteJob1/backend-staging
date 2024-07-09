@@ -211,7 +211,7 @@ export class WalletService {
                 return null
             }
 
-            let raw_user = await User.findOne({where: {
+            let raw_user:any = await User.findOne({where: {
                 id: user.id
             }, include:[
                 {model:Wallet}, {model:StripeCustomer}
@@ -234,7 +234,7 @@ export class WalletService {
                 return null
             }
 
-            let customer = raw_user?["StripeCustomer"] : null
+            let customer = raw_user ? raw_user["StripeCustomer"] : null
 
             if (!customer) {
                 res.status(400).send(sendError("Please link you stripe account"));

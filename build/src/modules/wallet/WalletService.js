@@ -198,7 +198,7 @@ class WalletService {
                     res.status(402).send((0, error_1.sendError)("Insufficient fund"));
                     return null;
                 }
-                let customer = raw_user ? ["StripeCustomer"] : null;
+                let customer = raw_user ? raw_user["StripeCustomer"] : null;
                 if (!customer) {
                     res.status(400).send((0, error_1.sendError)("Please link you stripe account"));
                     return null;
