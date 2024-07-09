@@ -229,10 +229,10 @@ export class WalletService {
 
             log(balance)
 
-            // if (balance < amount) {
-            //     res.status(402).send(sendError("Insufficient fund"));
-            //     return null
-            // }
+            if (balance < amount) {
+                res.status(402).send(sendError("Insufficient fund"));
+                return null
+            }
 
             let customer = raw_user?["StripeCustomer"] : null
 
