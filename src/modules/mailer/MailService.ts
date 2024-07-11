@@ -9,8 +9,8 @@ export class MailService {
     constructor () {
         this.transporter = nodemailer.createTransport({
            host: SMTP_HOST,
-           port: 465,
-           secure: true,
+           port: 587,
+           secure: false,
            auth: {
             user: EMAIL_USERNAME,
             pass: EMAIL_PASSWORD
