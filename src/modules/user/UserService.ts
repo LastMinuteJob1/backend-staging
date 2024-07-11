@@ -11,6 +11,7 @@ import { GoogleOAuthService } from "../../third-party/google-oauth/GoogleOauthSe
 import { StripeService } from "../../third-party/stripe-payment/StripeService";
 import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel";
 import { LakeFormation } from "aws-sdk";
+import Wallet from "../wallet/WalletModel";
 
 export class UserService {
 
@@ -30,7 +31,7 @@ export class UserService {
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
             if (address) {
                 if (address.length < 10) {
-                    response.status(400).send(sendError("Invalid address supplied"))
+                    response.status(409).send(sendError("Invalid address supplied"))
                     return null;
                 }
             }
@@ -46,17 +47,17 @@ export class UserService {
                 if (isGmail.toString() == 'true') {
                     log("****************Checking Google OAuth***************")
                     if (!token_id) {
-                        response.status(400).send(sendError("To signup with Google, please supply the token_id"));
+                        response.status(409).send(sendError("To signup with Google, please supply the token_id"));
                         return null;
                     } else {
                         // verify token ID
                         let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
                         if (email == null) {
-                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                            response.status(409).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
                             return null;
                         }
                         if (name == null) { 
-                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                            response.status(409).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
                             return null;
                         } 
                         log("*****************Google OAuth Successful********************")
@@ -74,12 +75,12 @@ export class UserService {
             if (user_by_tel) {
                 if (user_by_tel.email != email) {
                     log(user_by_tel)
-                    response.status(401).send(sendError("Phone number already exists"))
+                    response.status(409).send(sendError("Phone number already exists"))
                     return null;
                 } else {
                     if (user_by_tel.is_verified) { 
                         log("verified")
-                        response.status(400).send(sendError("User already exists with phone number " + phone_number));
+                        response.status(409).send(sendError("User already exists with phone number " + phone_number));
                         return null;
                     }
                 } 
@@ -93,7 +94,7 @@ export class UserService {
                 log("found", {user})
                 if (user.is_verified) { 
                     log("verified")
-                    response.status(400).send(sendError("User already exists with email " + email));
+                    response.status(409).send(sendError("User already exists with email " + email));
                     return null;
                 }
 
@@ -119,7 +120,7 @@ export class UserService {
                 console.log("code updated")
             }, 1000 * 60 * 5)
 
-            return await User.findOne({
+            let reg_user = await User.findOne({
                 where: {email},
                 include: [
                     {model: Profile}
@@ -128,6 +129,22 @@ export class UserService {
                     exclude: ["password", "verification_code"]
                 }
             })
+
+            if (reg_user) {
+                // generate a wallet for the user
+                let wallet = await Wallet.findOne({
+                    include: [
+                        {model:User, where:{id: reg_user.id}, attributes: ["id"]}
+                    ]
+                })
+                if (!wallet) {
+                    wallet = await Wallet.create({balance:0})
+                    await (<any>wallet).setUser(user.id);
+                }
+            }
+
+            return reg_user;
+
         } catch (error:any) {
             response.status(500).send(sendError(error));
             return null
@@ -259,18 +276,18 @@ export class UserService {
 
                     log(">>>>>>>>>>>>>>>>>>>>>>>[Gmail Signin]>>>>>>>>>>>>>>>>>>>")
                     if (!token_id) {
-                        response.status(400).send(sendError("To signin with Gmail you have to provide 'token_id'"))
+                        response.status(409).send(sendError("To signin with Gmail you have to provide 'token_id'"))
                         return null
                     } else {
 
                         // verify token ID
                         let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
                         if (email == null) {
-                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                            response.status(409).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
                             return null;
                         }
                         if (name == null) {
-                            response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                            response.status(409).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
                             return null;
                         }
                         log("*****************Checking System For Credentials*****************")

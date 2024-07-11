@@ -87,12 +87,12 @@ sequelize.sync({alter:false, force:false})
         // log("*****************Registering Webhook**********************")
         // log(await new StripeService().register_webhook());
 
-        new MailService().send({
-            from: EMAIL_USERNAME,
-            to: 'chibuezeadeyemi@gmail.com',
-            subject: 'Testing',
-            html: "Jilo Billionaire"
-        });
+        // new MailService().send({
+        //     from: EMAIL_USERNAME,
+        //     to: 'chibuezeadeyemi@gmail.com',
+        //     subject: 'Testing',
+        //     html: "Jilo Billionaire"
+        // });
 
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);

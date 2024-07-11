@@ -723,7 +723,7 @@ export class JobService {
             })
 
             if (!job) {
-                res.status(400).send(sendError("Unable to submit this job"));
+                res.status(409).send(sendError("Unable to submit this job"));
                 return null;
             }
 
@@ -732,7 +732,7 @@ export class JobService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.status(400).send(sendError("Something went wrong, please login"));
+                res.status(409).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -748,7 +748,7 @@ export class JobService {
                 this.emailService.send({
                     from: EMAIL_USERNAME, to: email,
                     text: `Dear ${user.fullname} 
-                    <br> Your job have successfuly been accepted, you'll receive your fund in 5 minutes
+                    <br> Your job have successfuly been accepted, you'll receive your fund as soon at it's been approved
                     <br>Best regards`,
                     subject: "Job Application Update"
                 })

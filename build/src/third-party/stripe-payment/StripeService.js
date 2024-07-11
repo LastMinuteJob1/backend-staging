@@ -16,13 +16,47 @@ exports.StripeService = void 0;
 const console_1 = require("console");
 const env_1 = require("../../config/env");
 const StripeWebhookPaymentsModel_1 = __importDefault(require("./StripeWebhookPaymentsModel"));
+const UserModel_1 = __importDefault(require("../../modules/user/UserModel"));
+const WalletModel_1 = __importDefault(require("../../modules/wallet/WalletModel"));
+const TransactionHistoryModel_1 = __importDefault(require("../../modules/wallet/TransactionHistoryModel"));
+const NotificationController_1 = require("../../modules/notification/NotificationController");
+const NotificationInterface_1 = require("../../modules/notification/NotificationInterface");
 class StripeService {
     constructor() {
         // private BASE_URL:string = "https://api.stripe.com";
         this.stripe = require("stripe")(env_1.STRIPE_SECRET_KEY);
-        this.disburse_payment = (options) => {
+        this.disburse_payment = (options) => __awaiter(this, void 0, void 0, function* () {
+            let receiver = options["to"], sender = options["from"], amount = options["amount"], charges = options["charges"], narration = options["narration"];
+            let wallet = yield WalletModel_1.default.findOne({
+                include: [
+                    { model: UserModel_1.default, where: { id: receiver.id }, attributes: ["id"] }
+                ]
+            });
+            amount -= charges;
+            // drop fund
+            if (!wallet) {
+                wallet = yield WalletModel_1.default.create({ balance: amount });
+                yield wallet.setUser(receiver.id);
+            }
+            else
+                yield wallet.update({ balance: (amount + wallet.balance) });
+            // add to transaction
+            let history = yield TransactionHistoryModel_1.default.create({
+                amount, data: {
+                    narration,
+                    from: sender
+                }
+            });
+            yield history.setWallet(wallet);
+            new NotificationController_1.NotificationController().add_notification({
+                from: "Last Minute Job", // sender
+                title: "Inward Payment",
+                type: NotificationInterface_1.NOTIFICATION_TYPE.PAYMENT_IN,
+                content: `You have been credit with C$${amount}from ${sender.fullname}`,
+                user: receiver // receipant
+            });
             return options;
-        };
+        });
         this.verify_payment = (ref) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payment = yield StripeWebhookPaymentsModel_1.default.findOne({ where: { ref } });

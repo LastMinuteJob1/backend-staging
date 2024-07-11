@@ -2,13 +2,56 @@ import { log } from "console";
 import { SERVER_BASE_URL, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from "../../config/env";
 import { IPayment } from "./StripeInterface";
 import StripeWebhookPayment from "./StripeWebhookPaymentsModel";
+import User from "../../modules/user/UserModel";
+import Wallet from "../../modules/wallet/WalletModel";
+import TransactionHistory from "../../modules/wallet/TransactionHistoryModel";
+import { NotificationController } from "../../modules/notification/NotificationController";
+import { NOTIFICATION_TYPE } from "../../modules/notification/NotificationInterface";
 
 export class StripeService {
 
     // private BASE_URL:string = "https://api.stripe.com";
     private stripe = require("stripe")(STRIPE_SECRET_KEY);
 
-    public disburse_payment = (options:IPayment) => {
+    public disburse_payment = async (options:IPayment) => {
+
+        let receiver:User = options["to"], 
+            sender:User = options["from"], 
+            amount:number = options["amount"],
+            charges:number = options["charges"],
+            narration:string = options["narration"];
+        
+        let wallet = await Wallet.findOne({
+            include: [
+                {model:User, where:{id: receiver.id}, attributes: ["id"]}
+            ]
+        })
+
+        amount -= charges
+
+        // drop fund
+        if (!wallet) { 
+            wallet = await Wallet.create({balance:amount});
+            await (<any>wallet).setUser(receiver.id);
+        }  else await wallet.update({balance:(amount + wallet.balance)})
+
+        // add to transaction
+        let history = await TransactionHistory.create({
+            amount, data:{
+                narration,
+                from: sender
+            }
+        });
+
+        await (<any>history).setWallet(wallet)
+        new NotificationController().add_notification({
+            from: "Last Minute Job", // sender
+            title: "Inward Payment",
+            type: NOTIFICATION_TYPE.PAYMENT_IN,
+            content: `You have been credit with C$${amount}from ${sender.fullname}`,
+            user: receiver // receipant
+        })
+
         return options
     }
     

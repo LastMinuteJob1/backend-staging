@@ -617,13 +617,13 @@ class JobService {
                     ]
                 });
                 if (!job) {
-                    res.status(400).send((0, error_1.sendError)("Unable to submit this job"));
+                    res.status(409).send((0, error_1.sendError)("Unable to submit this job"));
                     return null;
                 }
                 // check if user owns the job
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(409).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 // extract the request
@@ -638,7 +638,7 @@ class JobService {
                     this.emailService.send({
                         from: env_1.EMAIL_USERNAME, to: email,
                         text: `Dear ${user.fullname} 
-                    <br> Your job have successfuly been accepted, you'll receive your fund in 5 minutes
+                    <br> Your job have successfuly been accepted, you'll receive your fund as soon at it's been approved
                     <br>Best regards`,
                         subject: "Job Application Update"
                     });

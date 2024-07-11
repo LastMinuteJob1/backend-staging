@@ -23,6 +23,7 @@ const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 const GoogleOauthService_1 = require("../../third-party/google-oauth/GoogleOauthService");
 const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
 const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
+const WalletModel_1 = __importDefault(require("../wallet/WalletModel"));
 class UserService {
     constructor() {
         this._googleOAuthService = new GoogleOauthService_1.GoogleOAuthService();
@@ -37,7 +38,7 @@ class UserService {
                 // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
                 if (address) {
                     if (address.length < 10) {
-                        response.status(400).send((0, error_1.sendError)("Invalid address supplied"));
+                        response.status(409).send((0, error_1.sendError)("Invalid address supplied"));
                         return null;
                     }
                 }
@@ -52,18 +53,18 @@ class UserService {
                     if (isGmail.toString() == 'true') {
                         (0, console_1.log)("****************Checking Google OAuth***************");
                         if (!token_id) {
-                            response.status(400).send((0, error_1.sendError)("To signup with Google, please supply the token_id"));
+                            response.status(409).send((0, error_1.sendError)("To signup with Google, please supply the token_id"));
                             return null;
                         }
                         else {
                             // verify token ID
                             let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
                             if (email == null) {
-                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                                response.status(409).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
                                 return null;
                             }
                             if (name == null) {
-                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                                response.status(409).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
                                 return null;
                             }
                             (0, console_1.log)("*****************Google OAuth Successful********************");
@@ -78,13 +79,13 @@ class UserService {
                 if (user_by_tel) {
                     if (user_by_tel.email != email) {
                         (0, console_1.log)(user_by_tel);
-                        response.status(401).send((0, error_1.sendError)("Phone number already exists"));
+                        response.status(409).send((0, error_1.sendError)("Phone number already exists"));
                         return null;
                     }
                     else {
                         if (user_by_tel.is_verified) {
                             (0, console_1.log)("verified");
-                            response.status(400).send((0, error_1.sendError)("User already exists with phone number " + phone_number));
+                            response.status(409).send((0, error_1.sendError)("User already exists with phone number " + phone_number));
                             return null;
                         }
                     }
@@ -95,7 +96,7 @@ class UserService {
                     (0, console_1.log)("found", { user });
                     if (user.is_verified) {
                         (0, console_1.log)("verified");
-                        response.status(400).send((0, error_1.sendError)("User already exists with email " + email));
+                        response.status(409).send((0, error_1.sendError)("User already exists with email " + email));
                         return null;
                     }
                 }
@@ -118,7 +119,7 @@ class UserService {
                     });
                     console.log("code updated");
                 }), 1000 * 60 * 5);
-                return yield UserModel_1.default.findOne({
+                let reg_user = yield UserModel_1.default.findOne({
                     where: { email },
                     include: [
                         { model: ProfileModel_1.default }
@@ -127,6 +128,19 @@ class UserService {
                         exclude: ["password", "verification_code"]
                     }
                 });
+                if (reg_user) {
+                    // generate a wallet for the user
+                    let wallet = yield WalletModel_1.default.findOne({
+                        include: [
+                            { model: UserModel_1.default, where: { id: reg_user.id }, attributes: ["id"] }
+                        ]
+                    });
+                    if (!wallet) {
+                        wallet = yield WalletModel_1.default.create({ balance: 0 });
+                        yield wallet.setUser(user.id);
+                    }
+                }
+                return reg_user;
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));
@@ -232,18 +246,18 @@ class UserService {
                     if (isGmail == 'true') {
                         (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>[Gmail Signin]>>>>>>>>>>>>>>>>>>>");
                         if (!token_id) {
-                            response.status(400).send((0, error_1.sendError)("To signin with Gmail you have to provide 'token_id'"));
+                            response.status(409).send((0, error_1.sendError)("To signin with Gmail you have to provide 'token_id'"));
                             return null;
                         }
                         else {
                             // verify token ID
                             let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
                             if (email == null) {
-                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
+                                response.status(409).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
                                 return null;
                             }
                             if (name == null) {
-                                response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
+                                response.status(409).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
                                 return null;
                             }
                             (0, console_1.log)("*****************Checking System For Credentials*****************");

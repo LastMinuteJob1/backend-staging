@@ -37,7 +37,6 @@ const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"
 const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
 const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
-const MailService_1 = require("./src/modules/mailer/MailService");
 const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
@@ -84,12 +83,12 @@ db_1.default.sync({ alter: false, force: false })
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
         // log("*****************Registering Webhook**********************")
         // log(await new StripeService().register_webhook());
-        new MailService_1.MailService().send({
-            from: env_1.EMAIL_USERNAME,
-            to: 'chibuezeadeyemi@gmail.com',
-            subject: 'Testing',
-            html: "Jilo Billionaire"
-        });
+        // new MailService().send({
+        //     from: EMAIL_USERNAME,
+        //     to: 'chibuezeadeyemi@gmail.com',
+        //     subject: 'Testing',
+        //     html: "Jilo Billionaire"
+        // });
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
