@@ -456,7 +456,7 @@ class JobRequestService {
                     });
                     this.emailService.send({
                         from: env_1.EMAIL_USERNAME, to: email,
-                        text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations has been approved, keep the good work on `,
+                        text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations your job has been approved, keep the good work on `,
                         subject: "Job Accepted"
                     });
                     // process stripe payment
@@ -464,7 +464,7 @@ class JobRequestService {
                         amount: job.price,
                         from: user,
                         to: worker,
-                        narration: `Payment for`,
+                        narration: `Payment for completed job`,
                         charges: (0, methods_1.getCharges)(job.price)
                     });
                 }

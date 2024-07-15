@@ -33,7 +33,7 @@ class WebhookService {
                         let { id } = paymentIntent;
                         let existing_record = yield StripeWebhookPaymentsModel_1.default.findOne({ where: { ref: id } });
                         if (existing_record) {
-                            res.status(401).send((0, error_1.sendError)("Duplicate entry"));
+                            res.status(409).send((0, error_1.sendError)("Duplicate entry"));
                             return null;
                         }
                         const data = yield StripeWebhookPaymentsModel_1.default.create({ ref: id, data: paymentIntent });

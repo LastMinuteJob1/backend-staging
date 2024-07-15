@@ -10,6 +10,7 @@ import StripePayment from "../../third-party/stripe-payment/StripeModel";
 import { NotificationController } from "../notification/NotificationController";
 import { NOTIFICATION_TYPE } from "../notification/NotificationInterface";
 import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel";
+import Withdrawal from "./Withdrawal";
 
 export class WalletService {
 
@@ -52,7 +53,7 @@ export class WalletService {
             let payment_details = await this._stripeService.verify_payment(ref);
 
             if ((payment_details.hasOwnProperty("err"))) {
-                res.status(400).send(sendError("Invalid transaction reference", 400))
+                res.status(402).send(sendError("Invalid transaction reference", 400))
                 return null;
             }
 
@@ -61,7 +62,7 @@ export class WalletService {
                 return null;
             }
 
-            let {amount, currency} = payment_details;
+            let {amount, currency} = payment_details["data"];
 
             let stripe = await StripePayment.create({
                 ref, data:payment_details
@@ -70,7 +71,7 @@ export class WalletService {
             let user:User = await getUser(req)
 
             if (!user) {
-                res.status(400).send(sendError("Something went wrong, please login"));
+                res.status(409).send(sendError("Something went wrong, please login"));
                 return null
             }
 
@@ -204,7 +205,7 @@ export class WalletService {
 
             let {amount, account} = req.body;
 
-            account = !account ? "stripe" : "paypal"
+            account = !account ? "stripe" : account
 
             if (account == "paypal") {
                 res.status(500).send(sendError("Paypal withdrawal is not yet implemented"));
@@ -220,7 +221,7 @@ export class WalletService {
             let wallet:any = await this.query_wallet(req, res)
 
             if (!wallet) {
-                res.status(500).send(sendError("Error connecting to wallet, please try again"));
+                res.status(409).send(sendError("Error connecting to wallet, please try again"));
                 return null
             }
 
@@ -229,23 +230,50 @@ export class WalletService {
 
             log(balance)
 
-            if (balance < amount) {
-                res.status(402).send(sendError("Insufficient fund"));
-                return null
-            }
+            // if (balance < amount) {
+            //     res.status(402).send(sendError("Insufficient fund"));
+            //     return null
+            // }
 
             let customer = raw_user ? raw_user["StripeCustomer"] : null
 
             if (!customer) {
-                res.status(400).send(sendError("Please link you stripe account"));
+                res.status(400).send(sendError("Please link your stripe account"));
                 return null
             }
 
             let raw_wallet = await Wallet.findOne({where:{id: wallet.id}})
 
-            await raw_wallet?.update({balance: balance - amount})
+            if (!raw_wallet) {
+                res.status(409).send(sendError("Error fetching wallet"));
+                return null;
+            }
 
-            return raw_wallet
+            await raw_wallet.update({balance: (balance - amount)})
+
+            // stripe payment to customer
+            let withdrawal = await Withdrawal.create({amount})
+
+            if (!withdrawal) {
+                await raw_wallet.update({balance: (balance + amount)})
+                res.status(409).send(sendError("Error initiating withdrawal request"));
+                return null;
+            }
+
+            if (!await (<any> withdrawal).setStripeCustomer(customer)) {
+                await raw_wallet.update({balance: (balance + amount)})
+                res.status(409).send(sendError("Error assigning withdrawal request"));
+                withdrawal.destroy()
+                return null;
+            }
+
+            let history = await TransactionHistory.create({
+                amount: (amount * (-1)), data: withdrawal, 
+            })
+
+            await (<any> history).setWallet(raw_wallet)
+
+            return withdrawal
             
         } catch (error:any) {
             res.status(500).send(sendError(error));

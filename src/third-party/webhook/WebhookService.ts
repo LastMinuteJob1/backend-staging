@@ -28,7 +28,7 @@ export class WebhookService {
                       let existing_record = await StripeWebhookPayment.findOne({where:{ref:id}})
 
                       if (existing_record) {
-                        res.status(401).send(sendError("Duplicate entry"));
+                        res.status(409).send(sendError("Duplicate entry"));
                         return null
                       }
 

@@ -39,6 +39,7 @@ const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/
 const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
 const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
+const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -71,6 +72,7 @@ db_1.default.sync({ alter: false, force: false })
     yield StripeCustomerModel_1.default.sync();
     yield WalletModel_1.default.sync();
     yield TransactionHistoryModel_1.default.sync();
+    yield Withdrawal_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});

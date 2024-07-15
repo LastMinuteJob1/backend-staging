@@ -73,7 +73,7 @@ function getUser(req) {
 }
 exports.getUser = getUser;
 function getCharges(price) {
-    return (10 * price) / 100;
+    return (7.5 * price) / 100;
 }
 exports.getCharges = getCharges;
 function generateReferralCode(options) {

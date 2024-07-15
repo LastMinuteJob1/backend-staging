@@ -523,7 +523,7 @@ export class JobRequestService {
 
                 this.emailService.send({
                     from: EMAIL_USERNAME, to: email,
-                    text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations has been approved, keep the good work on `,
+                    text: `Dear ${worker["fullname"].split(" ")[0]} <br> congratulations your job has been approved, keep the good work on `,
                     subject: "Job Accepted"
                 })
 
@@ -532,7 +532,7 @@ export class JobRequestService {
                     amount: job.price,
                     from: user,
                     to: worker,
-                    narration: `Payment for`,
+                    narration: `Payment for completed job`,
                     charges: getCharges(job.price)
                 })
 

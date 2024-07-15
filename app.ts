@@ -28,6 +28,7 @@ import { StripeService } from './src/third-party/stripe-payment/StripeService';
 import { MailService } from './src/modules/mailer/MailService';
 import adminDashboardRoute from './src/modules/admin-dashboard/AdminDashboardRoute';
 import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel';
+import Withdrawal from './src/modules/wallet/Withdrawal';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -69,6 +70,7 @@ sequelize.sync({alter:false, force:false})
 
     await Wallet.sync();
     await TransactionHistory.sync();
+    await Withdrawal.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 

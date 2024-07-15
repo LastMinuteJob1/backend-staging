@@ -24,6 +24,7 @@ const StripeModel_1 = __importDefault(require("../../third-party/stripe-payment/
 const NotificationController_1 = require("../notification/NotificationController");
 const NotificationInterface_1 = require("../notification/NotificationInterface");
 const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
+const Withdrawal_1 = __importDefault(require("./Withdrawal"));
 class WalletService {
     constructor() {
         this._stripeService = new StripeService_1.StripeService();
@@ -54,20 +55,20 @@ class WalletService {
                 let { ref } = req.body;
                 let payment_details = yield this._stripeService.verify_payment(ref);
                 if ((payment_details.hasOwnProperty("err"))) {
-                    res.status(400).send((0, error_1.sendError)("Invalid transaction reference", 400));
+                    res.status(402).send((0, error_1.sendError)("Invalid transaction reference", 400));
                     return null;
                 }
                 if (yield StripeModel_1.default.findOne({ where: { ref } })) {
                     res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
                     return null;
                 }
-                let { amount, currency } = payment_details;
+                let { amount, currency } = payment_details["data"];
                 let stripe = yield StripeModel_1.default.create({
                     ref, data: payment_details
                 });
                 let user = yield (0, methods_1.getUser)(req);
                 if (!user) {
-                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    res.status(409).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
                 let { id } = user;
@@ -176,7 +177,7 @@ class WalletService {
                     return null;
                 }
                 let { amount, account } = req.body;
-                account = !account ? "stripe" : "paypal";
+                account = !account ? "stripe" : account;
                 if (account == "paypal") {
                     res.status(500).send((0, error_1.sendError)("Paypal withdrawal is not yet implemented"));
                     return null;
@@ -188,24 +189,45 @@ class WalletService {
                     ] });
                 let wallet = yield this.query_wallet(req, res);
                 if (!wallet) {
-                    res.status(500).send((0, error_1.sendError)("Error connecting to wallet, please try again"));
+                    res.status(409).send((0, error_1.sendError)("Error connecting to wallet, please try again"));
                     return null;
                 }
                 amount = parseFloat(amount);
                 let balance = parseFloat(wallet["balance"]);
                 (0, console_1.log)(balance);
-                if (balance < amount) {
-                    res.status(402).send((0, error_1.sendError)("Insufficient fund"));
-                    return null;
-                }
+                // if (balance < amount) {
+                //     res.status(402).send(sendError("Insufficient fund"));
+                //     return null
+                // }
                 let customer = raw_user ? raw_user["StripeCustomer"] : null;
                 if (!customer) {
-                    res.status(400).send((0, error_1.sendError)("Please link you stripe account"));
+                    res.status(400).send((0, error_1.sendError)("Please link your stripe account"));
                     return null;
                 }
                 let raw_wallet = yield WalletModel_1.default.findOne({ where: { id: wallet.id } });
-                yield (raw_wallet === null || raw_wallet === void 0 ? void 0 : raw_wallet.update({ balance: balance - amount }));
-                return raw_wallet;
+                if (!raw_wallet) {
+                    res.status(409).send((0, error_1.sendError)("Error fetching wallet"));
+                    return null;
+                }
+                yield raw_wallet.update({ balance: (balance - amount) });
+                // stripe payment to customer
+                let withdrawal = yield Withdrawal_1.default.create({ amount });
+                if (!withdrawal) {
+                    yield raw_wallet.update({ balance: (balance + amount) });
+                    res.status(409).send((0, error_1.sendError)("Error initiating withdrawal request"));
+                    return null;
+                }
+                if (!(yield withdrawal.setStripeCustomer(customer))) {
+                    yield raw_wallet.update({ balance: (balance + amount) });
+                    res.status(409).send((0, error_1.sendError)("Error assigning withdrawal request"));
+                    withdrawal.destroy();
+                    return null;
+                }
+                let history = yield TransactionHistoryModel_1.default.create({
+                    amount: (amount * (-1)), data: withdrawal,
+                });
+                yield history.setWallet(raw_wallet);
+                return withdrawal;
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

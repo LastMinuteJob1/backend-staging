@@ -56,7 +56,7 @@ export async function getUser(req:Request): Promise<User> {
 }
 
 export function getCharges(price:number) {
-    return (10*price)/100
+    return (7.5*price)/100
 }
 
 export function generateReferralCode(options?:any) {
