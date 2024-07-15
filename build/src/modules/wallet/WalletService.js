@@ -62,7 +62,7 @@ class WalletService {
                     res.status(401).send((0, error_1.sendError)(`Duplicate transaction detected`));
                     return null;
                 }
-                let { amount, currency } = payment_details["data"];
+                let { amount, currency } = payment_details;
                 let stripe = yield StripeModel_1.default.create({
                     ref, data: payment_details
                 });

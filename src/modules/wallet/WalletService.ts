@@ -62,7 +62,7 @@ export class WalletService {
                 return null;
             }
 
-            let {amount, currency} = payment_details["data"];
+            let {amount, currency} = payment_details;
 
             let stripe = await StripePayment.create({
                 ref, data:payment_details
