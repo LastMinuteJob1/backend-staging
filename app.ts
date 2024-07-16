@@ -37,7 +37,7 @@ const port = 3000 || process.env.PORT;
 let mailController:MailController;
 
 // Body parser middleware
-app.use(express.json());
+// app.use(express.json());
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 

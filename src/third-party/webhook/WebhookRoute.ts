@@ -8,6 +8,6 @@ const webHookRoute = Router(),
 const express = require('express');
 
 webHookRoute.post("/process-payment/stripe/SmlsbyBCaWxsaW9uYWlyZQ", /*stripe_authorization*/
-                  /*express.raw({type: 'application/json'}),*/ webhookCOntroller.process_stripe_payment)
+                  express.json({type: '*/*'}), webhookCOntroller.process_stripe_payment)
 
 export default webHookRoute   

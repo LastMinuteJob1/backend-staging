@@ -45,7 +45,7 @@ const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
 // Body parser middleware
-app.use(express_1.default.json());
+// app.use(express.json());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: false }));
 // mounting routes 
