@@ -52,6 +52,8 @@ export class WalletService {
 
             let payment_details = await this._stripeService.verify_payment(ref);
 
+            log({payment_details})
+
             if ((payment_details.hasOwnProperty("err"))) {
                 res.status(402).send(sendError("Invalid transaction reference", 400))
                 return null;

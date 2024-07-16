@@ -518,7 +518,7 @@ class JobService {
                         { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
                         { model: JobPics_1.default }
                     ]
-                });
+                }); //09033248346
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));
@@ -691,7 +691,7 @@ class JobService {
                         res.status(402).send((0, error_1.sendError)("Payment are only to be made in CAD"));
                         return null;
                     }
-                    if ((job.price) > parseFloat(amount)) {
+                    if ((job.price) > parseFloat(amount.toString())) {
                         res.status(402).send((0, error_1.sendError)(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                         return null;
                     }

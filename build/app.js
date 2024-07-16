@@ -37,7 +37,6 @@ const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"
 const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
 const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
-const StripeService_1 = require("./src/third-party/stripe-payment/StripeService");
 const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
@@ -84,8 +83,8 @@ db_1.default.sync({ alter: false, force: false })
     console.log("Email service ready");
     app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
-        (0, console_1.log)("*****************Registering Webhook**********************");
-        (0, console_1.log)(yield new StripeService_1.StripeService().register_webhook());
+        // log("*****************Registering Webhook**********************")
+        // log(await new StripeService().register_webhook());
         // new MailService().send({
         //     from: EMAIL_USERNAME,
         //     to: 'chibuezeadeyemi@gmail.com',

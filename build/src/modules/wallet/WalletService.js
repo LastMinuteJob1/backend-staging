@@ -54,6 +54,7 @@ class WalletService {
             try {
                 let { ref } = req.body;
                 let payment_details = yield this._stripeService.verify_payment(ref);
+                (0, console_1.log)({ payment_details });
                 if ((payment_details.hasOwnProperty("err"))) {
                     res.status(402).send((0, error_1.sendError)("Invalid transaction reference", 400));
                     return null;

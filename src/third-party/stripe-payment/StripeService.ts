@@ -70,6 +70,10 @@ export class StripeService {
 
             return data
 
+            // const __data = {"amount": 1000, "currency": "CAD"}
+
+            // return __data
+
             // let data = await this.stripe.paymentIntents.retrieve(
             //     ref
             // );
@@ -87,10 +91,11 @@ export class StripeService {
             // return data
 
         } catch (error:any) {
-            // log(error)
+            log(error)
             return {
                 err: "Invalid transaction reference",
-                message: error.raw.message
+                message: error.raw.message, 
+                amount: 0, "currency": "CAD"
             }
         }
     }

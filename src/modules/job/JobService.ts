@@ -600,7 +600,7 @@ export class JobService {
                     {model: User, attributes: {exclude:["password", "verification_code", "token"]}},
                     {model: JobPics}
                 ]
-            })
+            }) //09033248346
             
         } catch (error:any) {
             res.status(500).send(sendError(error));
@@ -817,7 +817,7 @@ export class JobService {
                     return null;
                 }
 
-                if ((job.price) > parseFloat(amount)) {
+                if ((job.price) > parseFloat(amount.toString())) {
                     res.status(402).send(sendError(`You have paid ${(job.price) - parseFloat(currency)}USD lower than the price of the job`));
                     return null;
                 }
