@@ -144,6 +144,7 @@ export class StripeService {
         try {
             return await this.stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
         } catch (error) {
+            log({error})
             return null
         }
     }
