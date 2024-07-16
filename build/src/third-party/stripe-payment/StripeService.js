@@ -132,6 +132,7 @@ class StripeService {
                 return yield this.stripe.webhooks.constructEvent(body, signature, env_1.STRIPE_WEBHOOK_SECRET);
             }
             catch (error) {
+                (0, console_1.log)({ error });
                 return null;
             }
         });

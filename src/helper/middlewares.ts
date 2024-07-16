@@ -62,6 +62,8 @@ export async function stripe_authorization (req:Request, res:Response, next: Nex
 
   const sig = req.headers['stripe-signature'];
 
+  log({sig})
+
   let event;
 
   try {
@@ -81,6 +83,7 @@ export async function stripe_authorization (req:Request, res:Response, next: Nex
     next();
 
   } catch (err:any) {
+    log({err})
     res.status(400).send(sendError(`Webhook Error: ${err.message}`));
   }
 

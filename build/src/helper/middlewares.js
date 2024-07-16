@@ -84,6 +84,7 @@ const stripeService = new StripeService_1.StripeService();
 function stripe_authorization(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const sig = req.headers['stripe-signature'];
+        (0, console_1.log)({ sig });
         let event;
         try {
             event = yield stripeService.get_payment_event(req.body, sig); //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
@@ -98,6 +99,7 @@ function stripe_authorization(req, res, next) {
             next();
         }
         catch (err) {
+            (0, console_1.log)({ err });
             res.status(400).send((0, error_1.sendError)(`Webhook Error: ${err.message}`));
         }
     });
