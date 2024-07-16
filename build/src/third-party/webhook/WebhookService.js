@@ -22,10 +22,14 @@ class WebhookService {
         this.process_stripe_payment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const event = req.body;
+                (0, console_1.log)("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+                (0, console_1.log)({ event });
+                (0, console_1.log)("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 // Handle the event
                 switch (event.type) {
                     case 'payment_intent.succeeded':
                         const paymentIntent = event.data.object;
+                        (0, console_1.log)({ paymentIntent });
                         (0, console_1.log)("++++++++++++++++++++++++++++++++++++++++++++++++++++");
                         (0, console_1.log)("RECEIVED STRIP PAYMENT VIA WEBHOOK");
                         (0, console_1.log)(paymentIntent);
@@ -41,6 +45,7 @@ class WebhookService {
                         break;
                     case 'payment_method.attached':
                         const paymentMethod = event.data.object;
+                        (0, console_1.log)("Payment method attached");
                         res.status(402).send((0, error_1.sendError)("This event type is not supported yet on our platform"));
                         return null;
                         break;

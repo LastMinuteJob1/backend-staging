@@ -86,8 +86,8 @@ sequelize.sync({alter:false, force:false})
 
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
 
-        // log("*****************Registering Webhook**********************")
-        // log(await new StripeService().register_webhook());
+        log("*****************Registering Webhook**********************")
+        log(await new StripeService().register_webhook());
 
         // new MailService().send({
         //     from: EMAIL_USERNAME,

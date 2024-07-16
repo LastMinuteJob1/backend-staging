@@ -12,11 +12,16 @@ export class WebhookService {
 
             const event = req.body;
 
+            log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            log({event}) 
+            log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
             // Handle the event
             switch (event.type) {
 
                 case 'payment_intent.succeeded':
                       const paymentIntent = event.data.object;
+                      log({paymentIntent})
                     
                       log("++++++++++++++++++++++++++++++++++++++++++++++++++++")
                       log("RECEIVED STRIP PAYMENT VIA WEBHOOK")
@@ -40,6 +45,7 @@ export class WebhookService {
 
                 case 'payment_method.attached':
                       const paymentMethod = event.data.object;
+                      log("Payment method attached")
                       res.status(402).send(sendError("This event type is not supported yet on our platform"));
                       return null
                 
