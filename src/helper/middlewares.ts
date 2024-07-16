@@ -70,6 +70,7 @@ export async function stripe_authorization (req:Request, res:Response, next: Nex
 
     event = await stripeService.get_payment_event(req.body, sig) //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
 
+    log({event})
     if (!event) {
       res.status(400).json(sendError(`Webhook Error:`));
       log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
