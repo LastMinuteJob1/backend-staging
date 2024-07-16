@@ -2,15 +2,26 @@ import { log } from "console";
 import { sendError } from "../../helper/error";
 import { Request, Response } from "express";
 import StripeWebhookPayment from "../stripe-payment/StripeWebhookPaymentsModel";
+import { StripeService } from "../stripe-payment/StripeService";
 
 export class WebhookService {
 
     // private 
+    private stripeService = new StripeService()
 
     public process_stripe_payment = async (req:Request, res:Response) => {
         try {
 
-            const event = req.body;
+            const body = req.body,
+                  sig = req.headers['stripe-signature'],
+                  event = await this.stripeService.get_payment_event(body, sig) //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+
+            log({event})
+            if (!event) {
+                res.status(400).json(sendError(`Webhook Error:`));
+                log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                return;
+            }
 
             log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             log({event}) 

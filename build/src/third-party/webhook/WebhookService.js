@@ -16,12 +16,20 @@ exports.WebhookService = void 0;
 const console_1 = require("console");
 const error_1 = require("../../helper/error");
 const StripeWebhookPaymentsModel_1 = __importDefault(require("../stripe-payment/StripeWebhookPaymentsModel"));
+const StripeService_1 = require("../stripe-payment/StripeService");
 class WebhookService {
     constructor() {
         // private 
+        this.stripeService = new StripeService_1.StripeService();
         this.process_stripe_payment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const event = req.body;
+                const body = req.body, sig = req.headers['stripe-signature'], event = yield this.stripeService.get_payment_event(body, sig); //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+                (0, console_1.log)({ event });
+                if (!event) {
+                    res.status(400).json((0, error_1.sendError)(`Webhook Error:`));
+                    (0, console_1.log)("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+                    return;
+                }
                 (0, console_1.log)("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 (0, console_1.log)({ event });
                 (0, console_1.log)("xxxxxxxxxxxxxxxxxxxxxxxxxxxxWEBHOOKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");

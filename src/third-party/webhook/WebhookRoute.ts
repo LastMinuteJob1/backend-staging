@@ -5,6 +5,9 @@ import { stripe_authorization } from "../../helper/middlewares";
 const webHookRoute = Router(), 
       webhookCOntroller = new WebhookController()
 
-webHookRoute.post("/process-payment/stripe/SmlsbyBCaWxsaW9uYWlyZQ", stripe_authorization, webhookCOntroller.process_stripe_payment)
+const express = require('express');
 
-export default webHookRoute
+webHookRoute.post("/process-payment/stripe/SmlsbyBCaWxsaW9uYWlyZQ", /*stripe_authorization*/
+                  express.raw({type: 'application/json'}), webhookCOntroller.process_stripe_payment)
+
+export default webHookRoute   
