@@ -88,6 +88,7 @@ function stripe_authorization(req, res, next) {
         let event;
         try {
             event = yield stripeService.get_payment_event(req.body, sig); //stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+            (0, console_1.log)({ event });
             if (!event) {
                 res.status(400).json((0, error_1.sendError)(`Webhook Error:`));
                 (0, console_1.log)("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");

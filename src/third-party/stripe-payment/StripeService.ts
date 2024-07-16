@@ -142,7 +142,7 @@ export class StripeService {
 
     public get_payment_event = async (body:any, signature:any) => {
         try {
-            return await this.stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
+            return await this.stripe.webhooks.constructEvent(JSON.stringify(body), signature, STRIPE_WEBHOOK_SECRET);
         } catch (error) {
             log({error})
             return null
