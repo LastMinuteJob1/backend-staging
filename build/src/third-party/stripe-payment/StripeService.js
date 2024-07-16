@@ -129,6 +129,7 @@ class StripeService {
         });
         this.get_payment_event = (body, signature) => __awaiter(this, void 0, void 0, function* () {
             try {
+                (0, console_1.log)({ body });
                 return yield this.stripe.webhooks.constructEvent(body.toString(), signature, env_1.STRIPE_WEBHOOK_SECRET);
             }
             catch (error) {

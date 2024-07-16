@@ -142,6 +142,7 @@ export class StripeService {
 
     public get_payment_event = async (body:any, signature:any) => {
         try {
+            log({body})
             return await this.stripe.webhooks.constructEvent(body.toString(), signature, STRIPE_WEBHOOK_SECRET);
         } catch (error) {
             log({error})
