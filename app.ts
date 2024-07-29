@@ -29,6 +29,7 @@ import { MailService } from './src/modules/mailer/MailService';
 import adminDashboardRoute from './src/modules/admin-dashboard/AdminDashboardRoute';
 import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel';
 import Withdrawal from './src/modules/wallet/Withdrawal';
+import { hashPassword } from './src/helper/methods';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -96,6 +97,13 @@ sequelize.sync({alter:false, force:false})
         //     subject: 'Testing',
         //     html: "Jilo Billionaire"
         // });
+
+        let user = await User.findOne({where:{
+            email: "test@gmail.com"
+        }})
+        await user?.update({
+            password: hashPassword("mypassword")
+        })
 
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
