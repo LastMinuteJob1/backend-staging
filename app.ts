@@ -99,13 +99,6 @@ sequelize.sync({alter:false, force:false})
         // });
         log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
-        let user = await User.findOne({where:{
-            email: "test@gmail.com"
-        }})
-        await user?.update({
-            password: hashPassword("mypassword")
-        })
-
         setInterval(() => {
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);

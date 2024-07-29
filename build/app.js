@@ -40,7 +40,6 @@ const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/Webhoo
 const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
-const methods_1 = require("./src/helper/methods");
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -94,12 +93,6 @@ db_1.default.sync({ alter: false, force: false })
         //     html: "Jilo Billionaire"
         // });
         (0, console_1.log)({ EMAIL_USERNAME: env_1.EMAIL_USERNAME, EMAIL_PASSWORD: env_1.EMAIL_PASSWORD });
-        let user = yield UserModel_1.default.findOne({ where: {
-                email: "test@gmail.com"
-            } });
-        yield (user === null || user === void 0 ? void 0 : user.update({
-            password: (0, methods_1.hashPassword)("mypassword")
-        }));
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
         }, 1000 * 60);
