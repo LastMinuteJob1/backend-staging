@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { ACCESS_KEY, APP_VERSION,EMAIL_USERNAME,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
+import { ACCESS_KEY, APP_VERSION,EMAIL_PASSWORD,EMAIL_USERNAME,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
 SECRET_KEY,
 STRIPE_SECRET_KEY} from './src/config/env';
 import User from './src/modules/user/UserModel';
@@ -70,7 +70,7 @@ sequelize.sync({alter:false, force:false})
     await StripePayment.sync();
     await StripeCustomer.sync();
 
-    await Wallet.sync();
+    await Wallet.sync(); 
     await TransactionHistory.sync();
     await Withdrawal.sync();
  
@@ -97,6 +97,7 @@ sequelize.sync({alter:false, force:false})
         //     subject: 'Testing',
         //     html: "Jilo Billionaire"
         // });
+        log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
         let user = await User.findOne({where:{
             email: "test@gmail.com"
@@ -116,4 +117,4 @@ sequelize.sync({alter:false, force:false})
 .finally(async () => { }); 
 
 const storage_path = path.join(__dirname + "/storage")
-export { mailController, storage_path }   
+export { mailController, storage_path }    

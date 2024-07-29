@@ -93,6 +93,7 @@ db_1.default.sync({ alter: false, force: false })
         //     subject: 'Testing',
         //     html: "Jilo Billionaire"
         // });
+        (0, console_1.log)({ EMAIL_USERNAME: env_1.EMAIL_USERNAME, EMAIL_PASSWORD: env_1.EMAIL_PASSWORD });
         let user = yield UserModel_1.default.findOne({ where: {
                 email: "test@gmail.com"
             } });
