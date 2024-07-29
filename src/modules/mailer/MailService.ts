@@ -12,7 +12,7 @@ export class MailService {
            port: 2525,//587,
            secure: false,
            auth: {
-            user: EMAIL_USERNAME,
+            user: EMAIL_USERNAME, 
             pass: EMAIL_PASSWORD
            }
         });
