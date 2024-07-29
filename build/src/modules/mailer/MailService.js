@@ -19,7 +19,7 @@ class MailService {
     constructor() {
         this.transporter = nodemailer_1.default.createTransport({
             host: env_1.SMTP_HOST,
-            port: 587,
+            port: 2525, //587,
             secure: false,
             auth: {
                 user: env_1.EMAIL_USERNAME,
