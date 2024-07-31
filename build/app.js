@@ -92,6 +92,8 @@ db_1.default.sync({ alter: false, force: false })
         //     subject: 'Testing',
         //     html: "Jilo Billionaire"
         // });
+        // for (var i = 0; i < 4; i ++)
+        //     Wallet.update({balance: 500}, {where:{id:i}}) 
         (0, console_1.log)({ EMAIL_USERNAME: env_1.EMAIL_USERNAME, EMAIL_PASSWORD: env_1.EMAIL_PASSWORD });
         setInterval(() => {
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);

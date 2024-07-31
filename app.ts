@@ -97,6 +97,10 @@ sequelize.sync({alter:false, force:false})
         //     subject: 'Testing',
         //     html: "Jilo Billionaire"
         // });
+
+        // for (var i = 0; i < 4; i ++)
+        //     Wallet.update({balance: 500}, {where:{id:i}}) 
+
         log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
         setInterval(() => {

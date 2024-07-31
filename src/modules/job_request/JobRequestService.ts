@@ -325,7 +325,7 @@ export class JobRequestService {
                     job_requests.forEach((job_request:JobRequest) => {
                         if (job_request.id != job_req.dataValues.id) {
                             // escaping the user that got accepted
-                            if (job_request.dataValues.User.emai != job_req.User.email) {
+                            if (job_request.dataValues.User.email != job_req.User.email) {
                                 rejected_emails.push(job_request.dataValues.User.email)
                                 job_request.update({status:JobRequestStatus.REJECTED})
                                 this.emailService.send({
