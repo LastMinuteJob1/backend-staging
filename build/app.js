@@ -79,18 +79,18 @@ db_1.default.sync({ alter: false, force: false })
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models");
-    // preparing mailing service
+    // preparing mailing service 
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
     app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
         // log("*****************Registering Webhook**********************")
-        // log(await new StripeService().register_webhook());
+        // log(await new StripeService().register_webhook()); 
         // new MailService().send({
         //     from: EMAIL_USERNAME,
         //     to: 'chibuezeadeyemi@gmail.com',
         //     subject: 'Testing',
-        //     html: "Jilo Billionaire"
+        //     html: "Jilo Billionaire - From LMJ backend"
         // });
         // for (var i = 0; i < 4; i ++)
         //     Wallet.update({balance: 500}, {where:{id:i}}) 

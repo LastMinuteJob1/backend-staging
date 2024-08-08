@@ -80,7 +80,7 @@ sequelize.sync({alter:false, force:false})
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models") 
-    // preparing mailing service
+    // preparing mailing service 
     mailController = new MailController()
     console.log("Email service ready"); 
 
@@ -89,13 +89,13 @@ sequelize.sync({alter:false, force:false})
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
 
         // log("*****************Registering Webhook**********************")
-        // log(await new StripeService().register_webhook());
+        // log(await new StripeService().register_webhook()); 
 
         // new MailService().send({
         //     from: EMAIL_USERNAME,
         //     to: 'chibuezeadeyemi@gmail.com',
         //     subject: 'Testing',
-        //     html: "Jilo Billionaire"
+        //     html: "Jilo Billionaire - From LMJ backend"
         // });
 
         // for (var i = 0; i < 4; i ++)

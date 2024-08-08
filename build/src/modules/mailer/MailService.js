@@ -17,28 +17,28 @@ const env_1 = require("../../config/env");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 class MailService {
     constructor() {
+        // this.transporter = nodemailer.createTransport({
+        //    host: SMTP_HOST,
+        //    port: 465,//587,
+        //    secure: true,
+        //    auth: {
+        //     user: EMAIL_USERNAME, 
+        //     pass: EMAIL_PASSWORD
+        //    }
+        // });
         this.transporter = nodemailer_1.default.createTransport({
             host: env_1.SMTP_HOST,
-            port: 2525, //587,
-            secure: false,
+            port: 465,
+            secure: true,
+            tls: {
+                rejectUnauthorized: false,
+                ciphers: 'HIGH:!SSLv2:!aNULL:!eNULL:!IDEA:!LOW:!MD5:!PSK:!RC4:!SEED:!3DES:!SRP:!EXP:!FALLBACK_SCSV' // Supported ciphers
+            },
             auth: {
                 user: env_1.EMAIL_USERNAME,
                 pass: env_1.EMAIL_PASSWORD
             }
         });
-        // this.transporter = nodemailer.createTransport({
-        //     host: SMTP_HOST,
-        //     port: 465,
-        //     secure: true, 
-        //     tls: {
-        //      rejectUnauthorized: false, 
-        //      ciphers: 'HIGH:!SSLv2:!aNULL:!eNULL:!IDEA:!LOW:!MD5:!PSK:!RC4:!SEED:!3DES:!SRP:!EXP:!FALLBACK_SCSV' // Supported ciphers
-        //     },
-        //     auth: {
-        //      user: EMAIL_USERNAME,
-        //      pass: EMAIL_PASSWORD 
-        //     }
-        //  }); 
         // this.transporter = nodemailer.createTransport(
         // {
         //     service: "Gmail",
