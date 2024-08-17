@@ -10,7 +10,7 @@ const dbConfig = {
       port: MYSQL_PORT,
       dialect: 'postgres',
       models: [],
-      dialectOptions: {
+      dialectOptions: { 
         ssl: {
           require: true,
           rejectUnauthorized: false, // You can set this to true if you want to validate the certificate

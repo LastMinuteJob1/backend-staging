@@ -6,7 +6,7 @@ import { ProfileService } from "./ProfileService"
 export class ProfileController {
     private profileService = new ProfileService()
     public viewProfile = async(req:Request, res:Response) => {
-        let data = await this.profileService.viewProfile(req, res)
+        let data = await this.profileService.openProfile(req, res)
         if (data != null)
             res.send(sendResponse(data))
     }

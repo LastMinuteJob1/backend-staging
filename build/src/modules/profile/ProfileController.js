@@ -16,7 +16,7 @@ class ProfileController {
     constructor() {
         this.profileService = new ProfileService_1.ProfileService();
         this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            let data = yield this.profileService.viewProfile(req, res);
+            let data = yield this.profileService.openProfile(req, res);
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });

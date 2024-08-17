@@ -21,17 +21,54 @@ const console_1 = require("console");
 const UserInterface_1 = require("../user/UserInterface");
 const StorageService_1 = require("../../../storage/StorageService");
 const StripeCustomerModel_1 = __importDefault(require("../../third-party/stripe-payment/StripeCustomerModel"));
+const JobModel_1 = __importDefault(require("../job/JobModel"));
 class ProfileService {
     constructor() {
         this.storageService = new StorageService_1.StorageService("profile-uploads");
-        this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.openProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let user = yield (0, methods_1.getUser)(req), uid = UserModel_1.default.findOne({ where: { email: user.email }, include: [{
+                let user = yield (0, methods_1.getUser)(req), uid = yield UserModel_1.default.findOne({ where: { email: user.email }, include: [{
                             model: ProfileModel_1.default
                         }, {
                             model: StripeCustomerModel_1.default
                         }],
                     attributes: { exclude: ["password", "verification_code"] } });
+                if (!uid) {
+                    res.status(400).send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    return null;
+                }
+                const jobs = yield JobModel_1.default.count({
+                    include: [
+                        {
+                            model: UserModel_1.default, where: {
+                                id: uid.id
+                            }
+                        }
+                    ]
+                });
+                return {
+                    "User": uid, "Job": {
+                        count: jobs
+                    }
+                };
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.viewProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let user = yield (0, methods_1.getUser)(req), uid = yield UserModel_1.default.findOne({ where: { email: user.email }, include: [{
+                            model: ProfileModel_1.default
+                        }, {
+                            model: StripeCustomerModel_1.default
+                        }],
+                    attributes: { exclude: ["password", "verification_code"] } });
+                if (!uid) {
+                    res.status(400).send((0, error_1.sendError)("Unfortunately something went wrong"));
+                    return null;
+                }
                 return uid;
             }
             catch (error) {
@@ -91,7 +128,7 @@ class ProfileService {
                 let { type } = req.body;
                 (0, console_1.log)({ body: req.body }, { type });
                 if (type != "pics" && type != "prove") {
-                    res.status(400).send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
+                    res.status(409).send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
                     return null;
                 }
                 let { status, data } = yield this.storageService.uploadPicture(file, filename);

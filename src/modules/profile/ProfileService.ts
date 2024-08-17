@@ -7,21 +7,64 @@ import { log } from "console"
 import { IUserAccountStatus } from "../user/UserInterface"
 import { StorageService } from "../../../storage/StorageService"
 import StripeCustomer from "../../third-party/stripe-payment/StripeCustomerModel"
+import Job from "../job/JobModel"
 
 export class ProfileService {
 
     private storageService = new StorageService("profile-uploads")
 
-    public viewProfile = async(req:Request, res:Response) => {
+    public openProfile = async(req:Request, res:Response) => {
         try {
 
             let user = await getUser(req),
-                uid = User.findOne({where:{email:user.email}, include:[{
+                uid = await User.findOne({where:{email:user.email}, include:[{
                     model: Profile
                 }, {
                     model: StripeCustomer
                 }],
                 attributes:{exclude:["password", "verification_code"]}})
+
+            if (!uid) {
+                res.status(400).send(sendError("Unfortunately something went wrong"));
+                return null;
+            }
+
+            const jobs:number = await Job.count({
+                include: [
+                    {
+                        model: User, where: {
+                            id: uid.id
+                        }
+                    }
+                ]
+            });
+
+            return {
+                "User": uid, "Job": {
+                    count: jobs
+                }
+            }
+            
+        } catch (error:any) {
+            res.status(500).send(sendError(error));
+            return null
+        }
+    }
+    public viewProfile = async(req:Request, res:Response) => {
+        try {
+
+            let user = await getUser(req),
+                uid = await User.findOne({where:{email:user.email}, include:[{
+                    model: Profile
+                }, {
+                    model: StripeCustomer
+                }],
+                attributes:{exclude:["password", "verification_code"]}})
+
+            if (!uid) {
+                res.status(400).send(sendError("Unfortunately something went wrong"));
+                return null;
+            }
 
             return uid;
             
@@ -30,6 +73,7 @@ export class ProfileService {
             return null
         }
     }
+
     public addProfile = async (req: Request, res: Response) => {
         try {
             
@@ -104,7 +148,7 @@ export class ProfileService {
             log({body:req.body}, {type})
 
             if (type != "pics" && type != "prove") {
-                res.status(400).send(sendError("upload type must either be 'pics' or 'prove'"));
+                res.status(409).send(sendError("upload type must either be 'pics' or 'prove'"));
                 return null;
             }
 
