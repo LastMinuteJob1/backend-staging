@@ -40,6 +40,7 @@ const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/Webhoo
 const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
+const geofencing_route_1 = __importDefault(require("./src/third-party/geofencing/geofencing-route"));
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
@@ -58,6 +59,7 @@ app.use("/storage", StorageRoute_1.default);
 app.use("/wallet", WalletRoute_1.default);
 app.use("/webhook", WebhookRoute_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
+app.use("/geofencing", geofencing_route_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // await JobRequest.drop(); 

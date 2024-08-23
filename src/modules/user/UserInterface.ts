@@ -10,6 +10,8 @@ export interface SignupRequest {
     pronoun:string, 
     city:string, 
     postal_code:number,
+    dob: Date,
+    province: string
 }
 
 export enum IUserAccountStatus {

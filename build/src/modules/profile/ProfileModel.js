@@ -30,6 +30,9 @@ Profile.init({
     certifications: {
         type: sequelize_1.DataTypes.STRING,
     },
+    kyc_docs: {
+        type: sequelize_1.DataTypes.STRING,
+    },
     other_jobs: {
         type: sequelize_1.DataTypes.STRING,
     },
@@ -47,6 +50,10 @@ Profile.init({
     },
     referal_code: {
         type: sequelize_1.DataTypes.STRING,
+    },
+    is_kyc_verified: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, { sequelize: db_1.default, tableName: "profile" });
 UserModel_1.default.hasOne(Profile);

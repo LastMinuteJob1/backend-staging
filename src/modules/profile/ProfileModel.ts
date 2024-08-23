@@ -20,6 +20,8 @@ class Profile extends Model {
  declare profile_pics:string;
  declare prove_of_location:string;
  declare referal_code:string;
+ declare is_kyc_verified:boolean;
+ declare kyc_docs:string;
 }
 
 Profile.init({
@@ -40,6 +42,9 @@ Profile.init({
  certifications: {
     type: DataTypes.STRING,
  },
+ kyc_docs: {
+    type: DataTypes.STRING,
+ },
  other_jobs: {
     type: DataTypes.STRING,
  },
@@ -57,6 +62,10 @@ Profile.init({
  },
  referal_code: {
     type: DataTypes.STRING,
+ },
+ is_kyc_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
  }
 }, { sequelize, tableName: "profile" });
 

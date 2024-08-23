@@ -23,7 +23,7 @@ export class UserService {
             let payload:SignupRequest = request.body;
             let {
                 fullname, email, phone_number, pronoun, city, postal_code,
-                address, password, isGmail, token_id
+                address, password, isGmail, token_id, dob, province
             } = payload
             let token = await generateToken(payload)
             let verification_code = generateRandomNumber()
@@ -38,6 +38,7 @@ export class UserService {
             let data = {
                 fullname, email, phone_number, address, verification_code,
                 password: hashPassword(password), pronoun, city, postal_code,
+                dob, province,
                 is_verified: false, token: isGmail ? token : null
             };
 
@@ -142,6 +143,8 @@ export class UserService {
                     await (<any>wallet).setUser(user.id);
                 }
             }
+
+            await User.update({verification_code}, {where: {email}})
 
             return reg_user;
 

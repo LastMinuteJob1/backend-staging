@@ -127,7 +127,7 @@ class ProfileService {
                 const file = req.file, { filename } = file;
                 let { type } = req.body;
                 (0, console_1.log)({ body: req.body }, { type });
-                if (type != "pics" && type != "prove") {
+                if (type != "pics" && type != "prove" && type != "kyc") {
                     res.status(409).send((0, error_1.sendError)("upload type must either be 'pics' or 'prove'"));
                     return null;
                 }
@@ -137,7 +137,9 @@ class ProfileService {
                     (0, console_1.log)("Error uploading");
                 }
                 let file_name = data === null || data === void 0 ? void 0 : data.Location;
-                let data_ = type == "pics" ? {
+                let data_ = type == "kyc" ? {
+                    kyc_docs: file_name
+                } : type == "pics" ? {
                     profile_pics: file_name
                 } : {
                     prove_of_location: file_name

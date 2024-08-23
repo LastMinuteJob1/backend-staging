@@ -18,6 +18,8 @@ class User extends Model {
   declare active: boolean;
   declare reason: string;
   declare firebase_token: string;
+  declare dob: Date;
+  declare province: string;
 }
 
 User.init({
@@ -46,6 +48,12 @@ User.init({
   city: {
     type: DataTypes.STRING,
     allowNull: false
+  }, 
+  dob: {
+    type: DataTypes.DATE,
+  }, 
+  province: {
+    type: DataTypes.STRING,
   }, 
   phone_number: {
     type: DataTypes.STRING,

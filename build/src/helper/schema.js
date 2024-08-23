@@ -13,6 +13,8 @@ exports.userSchema = joi_1.default.object({
     address: joi_1.default.string().min(10).required(),
     pronoun: joi_1.default.string().min(2).required(),
     city: joi_1.default.string().min(2).required(),
+    province: joi_1.default.string().required(),
+    dob: joi_1.default.date().required(),
     postal_code: joi_1.default.string().required(),
     isGmail: joi_1.default.bool().required(),
     token_id: joi_1.default.string().optional()

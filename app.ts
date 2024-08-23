@@ -30,6 +30,7 @@ import adminDashboardRoute from './src/modules/admin-dashboard/AdminDashboardRou
 import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel';
 import Withdrawal from './src/modules/wallet/Withdrawal';
 import { hashPassword } from './src/helper/methods';
+import geofencingRoute from './src/third-party/geofencing/geofencing-route';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -52,6 +53,7 @@ app.use("/storage", storageRoute)
 app.use("/wallet", walletRoute) 
 app.use("/webhook", webHookRoute) 
 app.use("/admin-dashboard", adminDashboardRoute)
+app.use("/geofencing", geofencingRoute)
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    

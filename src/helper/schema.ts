@@ -8,6 +8,8 @@ export const userSchema = Joi.object({
     address:  Joi.string().min(10).required(),
     pronoun:  Joi.string().min(2).required(),
     city:  Joi.string().min(2).required(),
+    province:  Joi.string().required(),
+    dob:  Joi.date().required(),
     postal_code:  Joi.string().required(),
     isGmail: Joi.bool().required(),
     token_id: Joi.string().optional()

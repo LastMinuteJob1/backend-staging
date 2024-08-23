@@ -34,6 +34,12 @@ User.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    dob: {
+        type: sequelize_1.DataTypes.DATE,
+    },
+    province: {
+        type: sequelize_1.DataTypes.STRING,
+    },
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
         unique: true,

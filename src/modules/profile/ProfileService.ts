@@ -147,7 +147,7 @@ export class ProfileService {
 
             log({body:req.body}, {type})
 
-            if (type != "pics" && type != "prove") {
+            if (type != "pics" && type != "prove" && type != "kyc") {
                 res.status(409).send(sendError("upload type must either be 'pics' or 'prove'"));
                 return null;
             }
@@ -159,7 +159,9 @@ export class ProfileService {
                 }
                 let file_name = data?.Location;
 
-            let data_ = type == "pics" ? {
+            let data_ = type == "kyc" ? {
+                kyc_docs:file_name
+            } : type == "pics" ? {
                 profile_pics:file_name
             } : {
                 prove_of_location:file_name

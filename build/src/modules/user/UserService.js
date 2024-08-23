@@ -31,7 +31,7 @@ class UserService {
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payload = request.body;
-                let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, token_id } = payload;
+                let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, token_id, dob, province } = payload;
                 let token = yield (0, methods_1.generateToken)(payload);
                 let verification_code = (0, methods_1.generateRandomNumber)();
                 console.log({ verification_code });
@@ -45,6 +45,7 @@ class UserService {
                 let data = {
                     fullname, email, phone_number, address, verification_code,
                     password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
+                    dob, province,
                     is_verified: false, token: isGmail ? token : null
                 };
                 let is_email_verified = false;
@@ -140,6 +141,7 @@ class UserService {
                         yield wallet.setUser(user.id);
                     }
                 }
+                yield UserModel_1.default.update({ verification_code }, { where: { email } });
                 return reg_user;
             }
             catch (error) {
