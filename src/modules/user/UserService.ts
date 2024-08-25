@@ -18,6 +18,32 @@ export class UserService {
     private _googleOAuthService = new GoogleOAuthService();
     private _stripeService = new StripeService()
 
+    public partial_signup = async (request:Request, response:Response) => {
+        try {
+
+            let {body} = request
+
+            const user = await getUser(request)
+
+            if (!user) {
+                response.status(401).send(sendError("Oops something unexpected occured"));
+                return null
+            }
+
+            let real_user = await User.findOne({where:{email:user.email}})
+
+            await real_user?.update({...body})
+
+            return await User.findOne({where:{email: user.email}, attributes: {
+                exclude: ["password", "verification_code"]
+            }})
+
+        } catch (error:any) {
+            response.status(500).send(sendError(error));
+            return null
+        }
+    }
+
     public signup = async (request:Request, response:Response) => {
         try {
             let payload:SignupRequest = request.body;
@@ -391,14 +417,14 @@ export class UserService {
      public verify_google_oauth_token_id = async (request:Request, response:Response) => {
         try {
 
-            let {token_id} = request.query;
+            let {token_id, firebase_token} = request.query;
 
             if (!token_id) {
                 response.status(409).send(sendError("Please supply your token ID"));
                 return null;
             }
 
-            let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+            let {email, name, sub} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
 
             if (email == null) {
                 response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
@@ -410,7 +436,41 @@ export class UserService {
                 return null;
             } 
 
-            return {email, name}
+            // create the user
+
+            let user = await User.findOne({where:{email}})
+            
+            if (user) {
+                log("+++++++++++++ Updating Credentials +++++++++++++++")
+                if (user.phone_number) {
+                    response.status(409).send(sendError("Please signup instead"))
+                    return null
+                }
+
+                const token = await generateToken(user)
+                await user.update({token})
+                return await User.findOne({where:{email}, attributes: {
+                    exclude: ["password", "verification_code"]
+                }})
+            }
+
+            log(" +++++++++++++ Creating Credentials +++++++++++ ")
+            let new_user = await User.create({
+                email, fullname: name, is_verified: true,
+                token: "", password: hashPassword(sub), 
+                verification_code: generateRandomNumber(),
+                firebase_token
+            })
+
+            const token = await generateToken(new_user)
+
+            log(token)
+
+            await new_user.update({token})
+
+            return await User.findOne({where:{email}, attributes: {
+                exclude: ["password", "verification_code"]
+            }})
             
         } catch (error:any) {
             response.status(500).send(sendError(error))

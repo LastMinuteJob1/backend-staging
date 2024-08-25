@@ -20,6 +20,11 @@ class UserController {
             if (data != null)
                 response.send((0, methods_1.sendResponse)(data));
         });
+        this.partial_signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.userService.partial_signup(request, response);
+            if (data != null)
+                response.send((0, methods_1.sendResponse)(data));
+        });
         this.check_otp_validity = (request, response) => __awaiter(this, void 0, void 0, function* () {
             let data = yield this.userService.check_otp_validity(request, response);
             if (data != null)

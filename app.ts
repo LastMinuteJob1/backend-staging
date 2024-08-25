@@ -84,6 +84,7 @@ sequelize.sync({alter:false, force:false})
     // Job.findAll().then(async (job:any) => console.log(job))
     console.log("Synced Models") 
     // preparing mailing service 
+    // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
     mailController = new MailController()
     console.log("Email service ready"); 
 

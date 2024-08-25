@@ -39,15 +39,15 @@ User.init({
   },
   pronoun: {
     type: DataTypes.STRING,
-    allowNull: false
+    // allowNull: false
   },
   postal_code: {
     type: DataTypes.STRING,
-    allowNull: false
+    // allowNull: false
   },
   city: {
     type: DataTypes.STRING,
-    allowNull: false
+    // allowNull: false
   }, 
   dob: {
     type: DataTypes.DATE,
@@ -58,19 +58,19 @@ User.init({
   phone_number: {
     type: DataTypes.STRING,
     unique: true,
-    allowNull: false,
+    // allowNull: false,
   },
   address: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
   verification_code: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
   },
   is_verified: {
     type: DataTypes.BOOLEAN,

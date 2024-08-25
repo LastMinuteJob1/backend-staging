@@ -35,7 +35,7 @@ class GoogleOAuthService {
                     }
                 });
                 return {
-                    email: data.email, name: data.name
+                    email: data.email, name: data.name, sub: data.sub
                 };
             }
             catch (e) {

@@ -12,6 +12,12 @@ export class UserController {
             response.send(sendResponse(data))
     }
 
+    public partial_signup = async (request:Request, response:Response) => {
+        let data = await this.userService.partial_signup(request, response)
+        if (data != null)
+            response.send(sendResponse(data))
+    }
+
     public check_otp_validity = async (request:Request, response:Response) => {
         let data = await this.userService.check_otp_validity(request, response)
         if (data != null)

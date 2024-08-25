@@ -16,4 +16,5 @@ userRouter.post("/recover-password", userController.password_recovery);
 userRouter.post("/verify-google-oauth-token-id", userController.verify_google_oauth_token_id);
 userRouter.use(middlewares_1.authorization);
 userRouter.post("/add-stripe-account", userController.add_stripe_customer);
+userRouter.post("/partial-sign-up", userController.partial_signup);
 exports.default = userRouter;

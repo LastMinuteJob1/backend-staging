@@ -24,15 +24,15 @@ User.init({
     },
     pronoun: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        // allowNull: false
     },
     postal_code: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        // allowNull: false
     },
     city: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        // allowNull: false
     },
     dob: {
         type: sequelize_1.DataTypes.DATE,
@@ -43,19 +43,19 @@ User.init({
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
         unique: true,
-        allowNull: false,
+        // allowNull: false,
     },
     address: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
     },
     password: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
     },
     verification_code: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
     },
     is_verified: {
         type: sequelize_1.DataTypes.BOOLEAN,

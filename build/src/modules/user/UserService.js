@@ -28,6 +28,25 @@ class UserService {
     constructor() {
         this._googleOAuthService = new GoogleOauthService_1.GoogleOAuthService();
         this._stripeService = new StripeService_1.StripeService();
+        this.partial_signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { body } = request;
+                const user = yield (0, methods_1.getUser)(request);
+                if (!user) {
+                    response.status(401).send((0, error_1.sendError)("Oops something unexpected occured"));
+                    return null;
+                }
+                let real_user = yield UserModel_1.default.findOne({ where: { email: user.email } });
+                yield (real_user === null || real_user === void 0 ? void 0 : real_user.update(Object.assign({}, body)));
+                return yield UserModel_1.default.findOne({ where: { email: user.email }, attributes: {
+                        exclude: ["password", "verification_code"]
+                    } });
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
         this.signup = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let payload = request.body;
@@ -338,12 +357,12 @@ class UserService {
         });
         this.verify_google_oauth_token_id = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { token_id } = request.query;
+                let { token_id, firebase_token } = request.query;
                 if (!token_id) {
                     response.status(409).send((0, error_1.sendError)("Please supply your token ID"));
                     return null;
                 }
-                let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
+                let { email, name, sub } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
                 if (email == null) {
                     response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));
                     return null;
@@ -352,7 +371,33 @@ class UserService {
                     response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'name' up, please try again later"));
                     return null;
                 }
-                return { email, name };
+                // create the user
+                let user = yield UserModel_1.default.findOne({ where: { email } });
+                if (user) {
+                    (0, console_1.log)("+++++++++++++ Updating Credentials +++++++++++++++");
+                    if (user.phone_number) {
+                        response.status(409).send((0, error_1.sendError)("Please signup instead"));
+                        return null;
+                    }
+                    const token = yield (0, methods_1.generateToken)(user);
+                    yield user.update({ token });
+                    return yield UserModel_1.default.findOne({ where: { email }, attributes: {
+                            exclude: ["password", "verification_code"]
+                        } });
+                }
+                (0, console_1.log)(" +++++++++++++ Creating Credentials +++++++++++ ");
+                let new_user = yield UserModel_1.default.create({
+                    email, fullname: name, is_verified: true,
+                    token: "", password: (0, methods_1.hashPassword)(sub),
+                    verification_code: (0, methods_1.generateRandomNumber)(),
+                    firebase_token
+                });
+                const token = yield (0, methods_1.generateToken)(new_user);
+                (0, console_1.log)(token);
+                yield new_user.update({ token });
+                return yield UserModel_1.default.findOne({ where: { email }, attributes: {
+                        exclude: ["password", "verification_code"]
+                    } });
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));
