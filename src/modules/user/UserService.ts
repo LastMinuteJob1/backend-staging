@@ -391,7 +391,12 @@ export class UserService {
      public verify_google_oauth_token_id = async (request:Request, response:Response) => {
         try {
 
-            let {token_id} = request.body;
+            let {token_id} = request.query;
+
+            if (!token_id) {
+                response.status(409).send(sendError("Please supply your token ID"));
+                return null;
+            }
 
             let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
 

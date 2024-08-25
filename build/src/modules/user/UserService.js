@@ -338,7 +338,11 @@ class UserService {
         });
         this.verify_google_oauth_token_id = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
-                let { token_id } = request.body;
+                let { token_id } = request.query;
+                if (!token_id) {
+                    response.status(409).send((0, error_1.sendError)("Please supply your token ID"));
+                    return null;
+                }
                 let { email, name } = yield this._googleOAuthService.verifyGoogleIdToken(token_id);
                 if (email == null) {
                     response.status(400).send((0, error_1.sendError)("Unfortunately we couldn't pick your 'email' up, please try again later"));

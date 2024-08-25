@@ -1,4 +1,14 @@
+import { Request, Response } from "express";
+import { GoogleOAuthService } from "./GoogleOauthService";
+
+
 export class GoogleOAuthController {
+
+  private googleOauthAuthService = new GoogleOAuthService()
+
+  public firebase_verification = async (req:Request, res: Response) => {
+     res.send(await this.googleOauthAuthService.firebaseIdTokenVerification(req.body.token_id))
+  }
 
 /*
 // Google Oauth

@@ -31,6 +31,7 @@ import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel
 import Withdrawal from './src/modules/wallet/Withdrawal';
 import { hashPassword } from './src/helper/methods';
 import geofencingRoute from './src/third-party/geofencing/geofencing-route';
+// import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
@@ -116,4 +117,5 @@ sequelize.sync({alter:false, force:false})
 .finally(async () => { }); 
 
 const storage_path = path.join(__dirname + "/storage")
-export { mailController, storage_path }    
+// const firebase_app_instance = initializeApp();
+export { mailController, storage_path, /*firebase_app_instance*/ }    

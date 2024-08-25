@@ -41,6 +41,7 @@ const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashb
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
 const geofencing_route_1 = __importDefault(require("./src/third-party/geofencing/geofencing-route"));
+// import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;

@@ -8,35 +8,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoogleOAuthService = void 0;
+const axios_1 = __importDefault(require("axios"));
 const console_1 = require("console");
 const google_auth_library_1 = require("google-auth-library");
 class GoogleOAuthService {
     constructor() {
         this._oauthClient = new google_auth_library_1.OAuth2Client();
     }
+    // not applicable for now: ignore
+    firebaseIdTokenVerification(idToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return idToken;
+        });
+    }
     verifyGoogleIdToken(idToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                (0, console_1.log)({ idToken });
-                const response = yield this._oauthClient.verifyIdToken({
-                    idToken,
-                    audience: [
-                        "1:201897428364:android:8ac9269ab35340a9fb02a9",
-                        "1:201897428364:ios:200483f37aecef4ffb02a9"
-                    ],
+                let { data } = yield axios_1.default.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`
+                    }
                 });
-                const payload = response.getPayload();
-                if (payload) {
-                    const { email, name } = payload;
-                    return { email, name };
-                }
-                else {
-                    console.log('token is invalid!');
-                    (0, console_1.log)("*****************Google OAuth Bad Token********************");
-                    return { email: null, name: null };
-                }
+                return {
+                    email: data.email, name: data.name
+                };
             }
             catch (e) {
                 (0, console_1.log)("*****************Google OAuth Failed********************");
