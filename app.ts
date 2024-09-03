@@ -31,6 +31,7 @@ import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel
 import Withdrawal from './src/modules/wallet/Withdrawal';
 import { hashPassword } from './src/helper/methods';
 import geofencingRoute from './src/third-party/geofencing/geofencing-route';
+import { Socket } from 'socket.io';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -38,6 +39,15 @@ const app = express();
 const port = 3000 || process.env.PORT;
 
 let mailController:MailController;
+
+const server = require('http').createServer(app);
+
+// socket io
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*"
+    }
+});
 
 // Body parser middleware
 // app.use(express.json());
@@ -88,7 +98,7 @@ sequelize.sync({alter:false, force:false})
     mailController = new MailController()
     console.log("Email service ready"); 
 
-    app.listen(port, async () => {
+    server.listen(port, async () => {
 
         console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
 
@@ -102,14 +112,52 @@ sequelize.sync({alter:false, force:false})
         //     html: "Jilo Billionaire - From LMJ backend"
         // });
 
-        // for (var i = 0; i < 4; i ++)
-        //     Wallet.update({balance: 500}, {where:{id:i}}) 
+        // for (var i = 0; i < 100; i ++)
+        //     Wallet.update({balance: 50000}, {where:{id:i}}) 
 
-        log({EMAIL_USERNAME, EMAIL_PASSWORD})
+        // log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
-        setInterval(() => {
+        async function get_all_jobs () {
+            let all_jobs = await (<any> Job).paginate({
+                    page:1, paginate:25,
+                    order:[['id', "DESC"]],
+                    where:{
+                        active: true,
+                        published: true
+                    },
+                    include: [
+                        {
+                            model: JobPics
+                        },{
+                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
+                        include: [
+                            {
+                                model: Profile
+                            }
+                        ]
+                    }] 
+                });
+
+                return all_jobs
+        }
+
+        setInterval(async () => {
+            io.emit("jobs", await get_all_jobs())
             log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
-        }, 1000 * 60);
+        }, 1000 * 60)
+
+        log("Attempting websocket connection")
+        io.on("connection", async (socket: Socket) => {
+            try {
+
+                const all_jobs = await get_all_jobs()
+                io.emit("jobs", all_jobs)
+                log("=======Socket Connected=======")
+
+            } catch (e) {
+                log("Internal Socket Error:", e)
+            }
+        })
 
     }); 
     

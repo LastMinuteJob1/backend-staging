@@ -46,6 +46,13 @@ const geofencing_route_1 = __importDefault(require("./src/third-party/geofencing
 const app = (0, express_1.default)();
 const port = 3000 || process.env.PORT;
 let mailController;
+const server = require('http').createServer(app);
+// socket io
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*"
+    }
+});
 // Body parser middleware
 // app.use(express.json());
 app.use(body_parser_1.default.json());
@@ -86,7 +93,7 @@ db_1.default.sync({ alter: false, force: false })
     // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
     exports.mailController = mailController = new MailController_1.MailController();
     console.log("Email service ready");
-    app.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
+    server.listen(port, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`Server listening on port ${port} - App version ${env_1.APP_VERSION}`);
         // log("*****************Registering Webhook**********************")
         // log(await new StripeService().register_webhook()); 
@@ -96,12 +103,49 @@ db_1.default.sync({ alter: false, force: false })
         //     subject: 'Testing',
         //     html: "Jilo Billionaire - From LMJ backend"
         // });
-        // for (var i = 0; i < 4; i ++)
-        //     Wallet.update({balance: 500}, {where:{id:i}}) 
-        (0, console_1.log)({ EMAIL_USERNAME: env_1.EMAIL_USERNAME, EMAIL_PASSWORD: env_1.EMAIL_PASSWORD });
-        setInterval(() => {
+        // for (var i = 0; i < 100; i ++)
+        //     Wallet.update({balance: 50000}, {where:{id:i}}) 
+        // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+        function get_all_jobs() {
+            return __awaiter(this, void 0, void 0, function* () {
+                let all_jobs = yield JobModel_1.default.paginate({
+                    page: 1, paginate: 25,
+                    order: [['id', "DESC"]],
+                    where: {
+                        active: true,
+                        published: true
+                    },
+                    include: [
+                        {
+                            model: JobPics_1.default
+                        }, {
+                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                            include: [
+                                {
+                                    model: ProfileModel_1.default
+                                }
+                            ]
+                        }
+                    ]
+                });
+                return all_jobs;
+            });
+        }
+        setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+            io.emit("jobs", yield get_all_jobs());
             (0, console_1.log)(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
-        }, 1000 * 60);
+        }), 1000 * 60);
+        (0, console_1.log)("Attempting websocket connection");
+        io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const all_jobs = yield get_all_jobs();
+                io.emit("jobs", all_jobs);
+                (0, console_1.log)("=======Socket Connected=======");
+            }
+            catch (e) {
+                (0, console_1.log)("Internal Socket Error:", e);
+            }
+        }));
     }));
 }))
     .catch((error) => console.error('Unable to connect to the database:', error))
