@@ -36,7 +36,7 @@ import { Socket } from 'socket.io';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
-const port = 3000 || process.env.PORT;
+const port: any = 3000 || process.env.PORT;
 
 let mailController:MailController;
 
