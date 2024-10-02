@@ -614,7 +614,7 @@ export class JobService {
 
             let {id} = req.query;
 
-            return await JobPics.destroy({where:{id}});
+            return await JobPics.destroy({where:{id}}); 
 
         } catch (error:any) {
             res.status(500).send(sendError(error));
@@ -637,8 +637,13 @@ export class JobService {
                 return null
             }
 
-            if (!job.paid) {
-                res.status(401).send(sendError("You have to publish pay for this job, before publishing"));
+            // *************************************
+            // comment this part after live
+            await job.update({paid: true})
+            // *************************************
+
+            if (!job.paid) { 
+                res.status(402).send(sendError("You have to publish pay for this job, before publishing"));
                 return null;
             }
 

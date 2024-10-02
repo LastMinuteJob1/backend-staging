@@ -545,8 +545,12 @@ class JobService {
                     res.status(404).send((0, error_1.sendError)("Unable to find job"));
                     return null;
                 }
+                // *************************************
+                // comment this part after live
+                yield job.update({ paid: true });
+                // *************************************
                 if (!job.paid) {
-                    res.status(401).send((0, error_1.sendError)("You have to publish pay for this job, before publishing"));
+                    res.status(402).send((0, error_1.sendError)("You have to publish pay for this job, before publishing"));
                     return null;
                 }
                 yield job.update({ published: true });
