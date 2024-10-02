@@ -449,7 +449,9 @@ export class UserService {
 
                 const token = await generateToken(user)
                 await user.update({token})
-                return await User.findOne({where:{email}, attributes: {
+                return await User.findOne({where:{email}, include: [{
+                    model: Profile
+                }], attributes: {
                     exclude: ["password", "verification_code"]
                 }})
             }
@@ -468,8 +470,10 @@ export class UserService {
 
             await new_user.update({token})
 
-            return await User.findOne({where:{email}, attributes: {
-                exclude: ["password", "verification_code"]
+            return await User.findOne({where:{email}, include: [{
+                model: Profile
+            }], attributes: {
+                exclude: ["password", "verification_code"],
             }})
             
         } catch (error:any) {

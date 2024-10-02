@@ -381,7 +381,9 @@ class UserService {
                     }
                     const token = yield (0, methods_1.generateToken)(user);
                     yield user.update({ token });
-                    return yield UserModel_1.default.findOne({ where: { email }, attributes: {
+                    return yield UserModel_1.default.findOne({ where: { email }, include: [{
+                                model: ProfileModel_1.default
+                            }], attributes: {
                             exclude: ["password", "verification_code"]
                         } });
                 }
@@ -395,8 +397,10 @@ class UserService {
                 const token = yield (0, methods_1.generateToken)(new_user);
                 (0, console_1.log)(token);
                 yield new_user.update({ token });
-                return yield UserModel_1.default.findOne({ where: { email }, attributes: {
-                        exclude: ["password", "verification_code"]
+                return yield UserModel_1.default.findOne({ where: { email }, include: [{
+                            model: ProfileModel_1.default
+                        }], attributes: {
+                        exclude: ["password", "verification_code"],
                     } });
             }
             catch (error) {
