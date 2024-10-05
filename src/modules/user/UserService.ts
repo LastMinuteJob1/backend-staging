@@ -442,18 +442,17 @@ export class UserService {
             
             if (user) {
                 log("+++++++++++++ Updating Credentials +++++++++++++++")
-                if (user.phone_number) {
-                    response.status(409).send(sendError("Please signup instead"))
-                    return null
-                }
-
-                const token = await generateToken(user)
+                // if (user.phone_number) {
+                //     response.status(409).send(sendError("Please signup instead"))
+                //     return null
+                // }
+                let _user: User = user; _user.fullname = _user.email
+                const token = await generateToken(_user)
                 await user.update({token})
-                return await User.findOne({where:{email}, include: [{
-                    model: Profile
-                }], attributes: {
-                    exclude: ["password", "verification_code"]
-                }})
+                return await User.findOne({where:{email}, 
+                include: [
+                    {model: Profile}
+                ], attributes:{exclude:["verification_code", "password"]}})
             }
 
             log(" +++++++++++++ Creating Credentials +++++++++++ ")
