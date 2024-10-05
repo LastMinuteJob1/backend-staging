@@ -375,17 +375,18 @@ class UserService {
                 let user = yield UserModel_1.default.findOne({ where: { email } });
                 if (user) {
                     (0, console_1.log)("+++++++++++++ Updating Credentials +++++++++++++++");
-                    if (user.phone_number) {
-                        response.status(409).send((0, error_1.sendError)("Please signup instead"));
-                        return null;
-                    }
-                    const token = yield (0, methods_1.generateToken)(user);
+                    // if (user.phone_number) {
+                    //     response.status(409).send(sendError("Please signup instead"))
+                    //     return null
+                    // }
+                    let _user = user;
+                    _user.fullname = _user.email;
+                    const token = yield (0, methods_1.generateToken)(_user);
                     yield user.update({ token });
-                    return yield UserModel_1.default.findOne({ where: { email }, include: [{
-                                model: ProfileModel_1.default
-                            }], attributes: {
-                            exclude: ["password", "verification_code"]
-                        } });
+                    return yield UserModel_1.default.findOne({ where: { email },
+                        include: [
+                            { model: ProfileModel_1.default }
+                        ], attributes: { exclude: ["verification_code", "password"] } });
                 }
                 (0, console_1.log)(" +++++++++++++ Creating Credentials +++++++++++ ");
                 let new_user = yield UserModel_1.default.create({

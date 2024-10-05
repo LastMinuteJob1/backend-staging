@@ -419,6 +419,8 @@ export class UserService {
 
             let {token_id, firebase_token} = request.query;
 
+            log({token_id, firebase_token})
+
             if (!token_id) {
                 response.status(409).send(sendError("Please supply your token ID"));
                 return null;
