@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReferralCode = exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.generateOTP = exports.generateReferralCode = exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
 const env_1 = require("../config/env");
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const authorization_1 = require("./authorization");
@@ -97,3 +97,14 @@ function generateReferralCode(options) {
     return prefix + settings.separator + code;
 }
 exports.generateReferralCode = generateReferralCode;
+function generateOTP(length = 4) {
+    const digits = '0123456789';
+    let otp = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * digits.length);
+        const randomDigit = digits[randomIndex];
+        otp += randomDigit;
+    }
+    return otp;
+}
+exports.generateOTP = generateOTP;

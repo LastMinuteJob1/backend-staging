@@ -32,11 +32,14 @@ import Withdrawal from './src/modules/wallet/Withdrawal';
 import { hashPassword } from './src/helper/methods';
 import geofencingRoute from './src/third-party/geofencing/geofencing-route';
 import { Socket } from 'socket.io';
+import Interac from './src/modules/interac/interac-model';
+import InteracPayment from './src/modules/interac/interac-payment-model';
+import interacRoute from './src/modules/interac/interac-route';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
-const port: any = 3000 || process.env.PORT;
+const port: any = process.env.PORT || 3000;
 
 let mailController:MailController;
 
@@ -65,6 +68,7 @@ app.use("/wallet", walletRoute)
 app.use("/webhook", webHookRoute) 
 app.use("/admin-dashboard", adminDashboardRoute)
 app.use("/geofencing", geofencingRoute)
+app.use("/interac", interacRoute)
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    
@@ -86,6 +90,9 @@ sequelize.sync({alter:false, force:false})
     await Wallet.sync(); 
     await TransactionHistory.sync();
     await Withdrawal.sync();
+
+    await Interac.sync();
+    await InteracPayment.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 

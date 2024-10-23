@@ -83,3 +83,17 @@ export function generateReferralCode(options?:any) {
     // Combine the components
     return prefix + settings.separator + code;
   }
+
+  
+export function generateOTP(length: number = 4) {
+  const digits = '0123456789';
+  let otp = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * digits.length);
+    const randomDigit = digits[randomIndex];
+    otp += randomDigit;
+  }
+
+  return otp;
+}

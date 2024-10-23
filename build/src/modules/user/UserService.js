@@ -358,6 +358,7 @@ class UserService {
         this.verify_google_oauth_token_id = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { token_id, firebase_token } = request.query;
+                (0, console_1.log)({ token_id, firebase_token });
                 if (!token_id) {
                     response.status(409).send((0, error_1.sendError)("Please supply your token ID"));
                     return null;

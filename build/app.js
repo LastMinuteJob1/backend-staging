@@ -41,10 +41,13 @@ const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashb
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
 const geofencing_route_1 = __importDefault(require("./src/third-party/geofencing/geofencing-route"));
+const interac_model_1 = __importDefault(require("./src/modules/interac/interac-model"));
+const interac_payment_model_1 = __importDefault(require("./src/modules/interac/interac-payment-model"));
+const interac_route_1 = __importDefault(require("./src/modules/interac/interac-route"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
-const port = 3000 || process.env.PORT;
+const port = process.env.PORT || 3000;
 let mailController;
 const server = require('http').createServer(app);
 // socket io
@@ -68,6 +71,7 @@ app.use("/wallet", WalletRoute_1.default);
 app.use("/webhook", WebhookRoute_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
 app.use("/geofencing", geofencing_route_1.default);
+app.use("/interac", interac_route_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // await JobRequest.drop(); 
@@ -84,6 +88,8 @@ db_1.default.sync({ alter: false, force: false })
     yield WalletModel_1.default.sync();
     yield TransactionHistoryModel_1.default.sync();
     yield Withdrawal_1.default.sync();
+    yield interac_model_1.default.sync();
+    yield interac_payment_model_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
