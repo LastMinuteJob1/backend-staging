@@ -72,6 +72,31 @@ class InteracSercvice {
                 res.status(500).send((0, error_1.sendError)(error));
             }
         });
+        this.verifyInteracEmail = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { email } = req.body;
+                let existing_interac_Account = yield interac_model_1.default.findOne({ where: { email } });
+                if (!existing_interac_Account) {
+                    res.status(404).send((0, error_1.sendError)("Email not attached to an Interac account yet"));
+                    return null;
+                }
+                if (!existing_interac_Account.is_verified) {
+                    (0, console_1.log)("+++++++++++Non Existing Account+++++++++++++");
+                    res.status(401).send((0, error_1.sendError)("This email is yet to be verified with an Interac account"));
+                    return null;
+                }
+                return yield interac_model_1.default.findOne({
+                    where: { id: existing_interac_Account.id },
+                    attributes: {
+                        exclude: ["verification_code"]
+                    }
+                });
+            }
+            catch (error) {
+                (0, console_1.log)({ error });
+                res.status(500).send((0, error_1.sendError)(error));
+            }
+        });
         this.verifyAddAccountToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { token } = req.body;

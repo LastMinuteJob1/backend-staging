@@ -12,6 +12,12 @@ export class InteracController {
             res.send(sendResponse(data))
     }
 
+    public verifyInteracEmail = async (req: Request, res: Response) => {
+        let data = await this._interacService.verifyInteracEmail(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
     public verifyAddAccountToken = async (req: Request, res: Response) => {
         let data = await this._interacService.verifyAddAccountToken(req, res)
         if (data != null)

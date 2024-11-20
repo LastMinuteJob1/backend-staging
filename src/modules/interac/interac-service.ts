@@ -71,6 +71,37 @@ export class InteracSercvice {
         }
     }
 
+    public verifyInteracEmail = async (req: Request, res: Response) => {
+        try {
+
+            let { email } = req.body;
+
+            let existing_interac_Account = await Interac.findOne({ where: { email } });
+
+            if (!existing_interac_Account) {
+                res.status(404).send(sendError("Email not attached to an Interac account yet"))
+                return null
+            }
+
+            if (!existing_interac_Account.is_verified) {
+                log("+++++++++++Non Existing Account+++++++++++++")
+                res.status(401).send(sendError("This email is yet to be verified with an Interac account"))
+                return null
+            }
+
+            return await Interac.findOne({
+                where: { id: existing_interac_Account.id },
+                attributes: {
+                    exclude: ["verification_code"]
+                }
+            });
+
+        } catch (error: any) {
+            log({ error })
+            res.status(500).send(sendError(error))
+        }
+    }
+
     public verifyAddAccountToken = async (req: Request, res: Response) => {
         try {
 

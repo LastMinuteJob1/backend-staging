@@ -20,6 +20,11 @@ class InteracController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.verifyInteracEmail = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._interacService.verifyInteracEmail(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
         this.verifyAddAccountToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
             let data = yield this._interacService.verifyAddAccountToken(req, res);
             if (data != null)
