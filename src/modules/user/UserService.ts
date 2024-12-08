@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { IUserAccountStatus, SignupRequest } from "./UserInterface";
 import User from "./UserModel";
 import { /*AppError,*/ sendError } from "../../helper/error";
-import { generateRandomNumber, generateToken, getUser, hashPassword, sendResponse } from "../../helper/methods";
+import { comparePassword, generateRandomNumber, generateToken, getUser, hashPassword, sendResponse } from "../../helper/methods";
 import { mailController } from "../../../app";
 import { EMAIL_USERNAME } from "../../config/env";
 import { log } from "console";
@@ -341,14 +341,14 @@ export class UserService {
 
                 }
 
-            password = hashPassword(password)
+            // password = hashPassword(password)
 
             let user = await User.findOne({
-                where: {email, password}
+                where: {email}
             })
 
             if (user == null) {
-                response.status(404).send(sendError("Invalid email address or password"))
+                response.status(404).send(sendError("Invalid email address"))
                 return null
             }
 
@@ -359,6 +359,11 @@ export class UserService {
 
             if (!user.active) {
                 response.status(400).send(sendError("Your account is no longer active"))
+                return null
+            }
+
+            if (!await comparePassword(password, user.password)) {
+                response.status(401).send(sendError("Incorrect password"))
                 return null
             }
 

@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateOTP = exports.generateReferralCode = exports.getCharges = exports.getUser = exports.generateRandomNumber = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.generateOTP = exports.generateReferralCode = exports.getCharges = exports.generateUUID = exports.getAdmin = exports.getUser = exports.generateRandomNumber = exports.comparePassword = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
 const env_1 = require("../config/env");
+const admin_model_1 = __importDefault(require("../modules/admin/onboarding/admin-model"));
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
 const authorization_1 = require("./authorization");
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 function sendResponse(data, message = "OK", status = 200) {
     return {
         message, result: data, status
@@ -43,12 +45,20 @@ function validateToken(token) {
 }
 exports.validateToken = validateToken;
 function hashPassword(password) {
-    const hash = crypto.createHash('sha256');
-    hash.update(password);
-    const value = hash.digest('hex');
-    return value;
+    return __awaiter(this, void 0, void 0, function* () {
+        const saltOrRounds = 10;
+        const hash = yield bcrypt.hash(password, saltOrRounds);
+        return hash;
+    });
 }
 exports.hashPassword = hashPassword;
+function comparePassword(password, hash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const status = yield bcrypt.compare(password, hash);
+        return status;
+    });
+}
+exports.comparePassword = comparePassword;
 // export async function disableToken(token:string) {
 //     if (validateToken(token)) {
 //         jwt.disableToken(token)
@@ -72,6 +82,21 @@ function getUser(req) {
     });
 }
 exports.getUser = getUser;
+function getAdmin(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const headers = req["headers"];
+        let user_req = headers["admin"];
+        if (user_req == null)
+            return new admin_model_1.default();
+        else
+            return JSON.parse(user_req);
+    });
+}
+exports.getAdmin = getAdmin;
+function generateUUID() {
+    return crypto.randomUUID();
+}
+exports.generateUUID = generateUUID;
 function getCharges(price) {
     return (7.5 * price) / 100;
 }

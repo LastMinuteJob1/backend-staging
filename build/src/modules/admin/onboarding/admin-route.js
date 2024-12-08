@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const admin_controller_1 = require("./admin-controller");
+const middlewares_1 = require("../../../helper/middlewares");
+const adminRoute = (0, express_1.Router)();
+let adminController = new admin_controller_1.AdminController();
+adminRoute.post("/login", adminController.loginAdmin);
+adminRoute.use(middlewares_1.authorization_admin);
+adminRoute.get("/", adminController.listAdmin);
+adminRoute.patch("/2Fa", adminController.add2FAuthAdmin);
+adminRoute.patch("/set-password", adminController.setPasswordAdmin);
+adminRoute.use(middlewares_1.google_authorization);
+adminRoute.use(middlewares_1.superadmin_authorization);
+adminRoute.post("/add", adminController.addAdmin);
+adminRoute.patch("/activation-status/:username", adminController.deactivateAdmin);
+adminRoute.delete("/remove/:username", adminController.removeAdmin);
+exports.default = adminRoute;

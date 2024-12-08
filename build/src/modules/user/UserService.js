@@ -298,12 +298,12 @@ class UserService {
                                 ], attributes: { exclude: ["verification_code", "password"] } });
                         }
                     }
-                password = (0, methods_1.hashPassword)(password);
+                // password = hashPassword(password)
                 let user = yield UserModel_1.default.findOne({
-                    where: { email, password }
+                    where: { email }
                 });
                 if (user == null) {
-                    response.status(404).send((0, error_1.sendError)("Invalid email address or password"));
+                    response.status(404).send((0, error_1.sendError)("Invalid email address"));
                     return null;
                 }
                 if (!user.is_verified) {
@@ -312,6 +312,10 @@ class UserService {
                 }
                 if (!user.active) {
                     response.status(400).send((0, error_1.sendError)("Your account is no longer active"));
+                    return null;
+                }
+                if (!(yield (0, methods_1.comparePassword)(password, user.password))) {
+                    response.status(401).send((0, error_1.sendError)("Incorrect password"));
                     return null;
                 }
                 let token = yield (0, methods_1.generateToken)({

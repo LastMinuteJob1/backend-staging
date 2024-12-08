@@ -33,3 +33,8 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // SERVER DETAILS
 export const SERVER_BASE_URL = process.env.SERVER_BASE_URL || "";
+
+// SUPER ADMIN
+export const SUPER_ADMIN_UID = process.env.SUPER_ADMIN_UID || "";
+export const SUPER_ADMIN_PWD = process.env.SUPER_ADMIN_PWD || "";
+

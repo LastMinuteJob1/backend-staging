@@ -3,7 +3,9 @@ import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
 import { ACCESS_KEY, APP_VERSION,EMAIL_PASSWORD,EMAIL_USERNAME,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
 SECRET_KEY,
-STRIPE_SECRET_KEY} from './src/config/env';
+STRIPE_SECRET_KEY,
+SUPER_ADMIN_PWD,
+SUPER_ADMIN_UID} from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';
 import { MailController } from './src/modules/mailer/MailController';
@@ -26,7 +28,7 @@ import TransactionHistory from './src/modules/wallet/TransactionHistoryModel';
 import webHookRoute from './src/third-party/webhook/WebhookRoute';
 import { StripeService } from './src/third-party/stripe-payment/StripeService';
 import { MailService } from './src/modules/mailer/MailService';
-import adminDashboardRoute from './src/modules/admin-dashboard/AdminDashboardRoute';
+import adminDashboardRoute from './src/modules/admin/AdminDashboardRoute';
 import StripeCustomer from './src/third-party/stripe-payment/StripeCustomerModel';
 import Withdrawal from './src/modules/wallet/Withdrawal';
 import { hashPassword } from './src/helper/methods';
@@ -35,6 +37,9 @@ import { Socket } from 'socket.io';
 import Interac from './src/modules/interac/interac-model';
 import InteracPayment from './src/modules/interac/interac-payment-model';
 import interacRoute from './src/modules/interac/interac-route';
+import Admin from './src/modules/admin/onboarding/admin-model';
+import adminRoute from './src/modules/admin/onboarding/admin-route';
+import AdminLink from './src/modules/admin/onboarding/admin-link-model';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -67,6 +72,7 @@ app.use("/storage", storageRoute)
 app.use("/wallet", walletRoute) 
 app.use("/webhook", webHookRoute) 
 app.use("/admin-dashboard", adminDashboardRoute)
+app.use("/admin", adminRoute)
 app.use("/geofencing", geofencingRoute)
 app.use("/interac", interacRoute)
 
@@ -93,13 +99,26 @@ sequelize.sync({alter:false, force:false})
 
     await Interac.sync();
     await InteracPayment.sync();
+
+    await Admin.sync()
+    await AdminLink.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 
- 
+
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
+    // await Admin.destroy({where: {id: 3}});
     console.log("Synced Models") 
+    if (!await Admin.findOne({where: {username: SUPER_ADMIN_UID}})) {
+        log("Creating new admin");
+        await Admin.create({
+            password: await hashPassword(SUPER_ADMIN_PWD),
+            username: SUPER_ADMIN_UID,
+            email: "admin@lastminutejob.ca",
+            roles: ["superadmin"]
+        })
+    }
     // preparing mailing service 
     // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
     mailController = new MailController()

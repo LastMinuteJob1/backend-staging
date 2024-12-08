@@ -37,13 +37,17 @@ const WalletRoute_1 = __importDefault(require("./src/modules/wallet/WalletRoute"
 const WalletModel_1 = __importDefault(require("./src/modules/wallet/WalletModel"));
 const TransactionHistoryModel_1 = __importDefault(require("./src/modules/wallet/TransactionHistoryModel"));
 const WebhookRoute_1 = __importDefault(require("./src/third-party/webhook/WebhookRoute"));
-const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin-dashboard/AdminDashboardRoute"));
+const AdminDashboardRoute_1 = __importDefault(require("./src/modules/admin/AdminDashboardRoute"));
 const StripeCustomerModel_1 = __importDefault(require("./src/third-party/stripe-payment/StripeCustomerModel"));
 const Withdrawal_1 = __importDefault(require("./src/modules/wallet/Withdrawal"));
+const methods_1 = require("./src/helper/methods");
 const geofencing_route_1 = __importDefault(require("./src/third-party/geofencing/geofencing-route"));
 const interac_model_1 = __importDefault(require("./src/modules/interac/interac-model"));
 const interac_payment_model_1 = __importDefault(require("./src/modules/interac/interac-payment-model"));
 const interac_route_1 = __importDefault(require("./src/modules/interac/interac-route"));
+const admin_model_1 = __importDefault(require("./src/modules/admin/onboarding/admin-model"));
+const admin_route_1 = __importDefault(require("./src/modules/admin/onboarding/admin-route"));
+const admin_link_model_1 = __importDefault(require("./src/modules/admin/onboarding/admin-link-model"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
@@ -70,6 +74,7 @@ app.use("/storage", StorageRoute_1.default);
 app.use("/wallet", WalletRoute_1.default);
 app.use("/webhook", WebhookRoute_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
+app.use("/admin", admin_route_1.default);
 app.use("/geofencing", geofencing_route_1.default);
 app.use("/interac", interac_route_1.default);
 db_1.default.sync({ alter: false, force: false })
@@ -90,11 +95,23 @@ db_1.default.sync({ alter: false, force: false })
     yield Withdrawal_1.default.sync();
     yield interac_model_1.default.sync();
     yield interac_payment_model_1.default.sync();
+    yield admin_model_1.default.sync();
+    yield admin_link_model_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
+    // await Admin.destroy({where: {id: 3}});
     console.log("Synced Models");
+    if (!(yield admin_model_1.default.findOne({ where: { username: env_1.SUPER_ADMIN_UID } }))) {
+        (0, console_1.log)("Creating new admin");
+        yield admin_model_1.default.create({
+            password: yield (0, methods_1.hashPassword)(env_1.SUPER_ADMIN_PWD),
+            username: env_1.SUPER_ADMIN_UID,
+            email: "admin@lastminutejob.ca",
+            roles: ["superadmin"]
+        });
+    }
     // preparing mailing service 
     // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
     exports.mailController = mailController = new MailController_1.MailController();
