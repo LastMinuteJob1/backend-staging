@@ -40,6 +40,7 @@ import interacRoute from './src/modules/interac/interac-route';
 import Admin from './src/modules/admin/onboarding/admin-model';
 import adminRoute from './src/modules/admin/onboarding/admin-route';
 import AdminLink from './src/modules/admin/onboarding/admin-link-model';
+import adminUserRoute from './src/modules/admin/user/admin-user-route';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -71,10 +72,12 @@ app.use("/job-request", jobRequestRoute)
 app.use("/storage", storageRoute) 
 app.use("/wallet", walletRoute) 
 app.use("/webhook", webHookRoute) 
-app.use("/admin-dashboard", adminDashboardRoute)
-app.use("/admin", adminRoute)
 app.use("/geofencing", geofencingRoute)
 app.use("/interac", interacRoute)
+
+app.use("/admin-dashboard", adminDashboardRoute)
+app.use("/admin-user", adminUserRoute)
+app.use("/admin", adminRoute)
 
 sequelize.sync({alter:false, force:false}) 
 .then(async () => {    

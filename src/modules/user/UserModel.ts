@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/db";
 import { IUserAccountStatus } from "./UserInterface";
-
+const sequelizePaginate = require('sequelize-paginate')
 class User extends Model {
   declare id:number;
   declare email: string;
@@ -92,4 +92,5 @@ User.init({
   }
 }, { sequelize, tableName: "users" });
 
+sequelizePaginate.paginate(User)
 export default User
