@@ -49,6 +49,8 @@ const admin_model_1 = __importDefault(require("./src/modules/admin/onboarding/ad
 const admin_route_1 = __importDefault(require("./src/modules/admin/onboarding/admin-route"));
 const admin_link_model_1 = __importDefault(require("./src/modules/admin/onboarding/admin-link-model"));
 const admin_user_route_1 = __importDefault(require("./src/modules/admin/user/admin-user-route"));
+const admin_job_route_1 = __importDefault(require("./src/modules/admin/job/admin-job-route"));
+const admin_job_request_route_1 = __importDefault(require("./src/modules/admin/job-request/admin-job-request-route"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
@@ -78,6 +80,8 @@ app.use("/geofencing", geofencing_route_1.default);
 app.use("/interac", interac_route_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
 app.use("/admin-user", admin_user_route_1.default);
+app.use("/admin-job", admin_job_route_1.default);
+app.use("/admin-job-request", admin_job_request_route_1.default);
 app.use("/admin", admin_route_1.default);
 db_1.default.sync({ alter: false, force: false })
     .then(() => __awaiter(void 0, void 0, void 0, function* () {

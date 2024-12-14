@@ -155,6 +155,7 @@ class AdminService {
                         secret, url, token
                     };
                 }
+                yield admin.update({ token });
                 return yield admin_model_1.default.findOne({
                     where: { [sequelize_1.Op.or]: { username, email: username } }, attributes: {
                         exclude: [

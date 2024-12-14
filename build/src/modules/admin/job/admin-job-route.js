@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const middlewares_1 = require("../../../helper/middlewares");
+const admin_job_controller_1 = require("./admin-job-controller");
+const adminJobRoute = (0, express_1.Router)(), adminJobController = new admin_job_controller_1.AdminJobController();
+adminJobRoute.use(middlewares_1.authorization_admin);
+adminJobRoute.get("/", adminJobController.allJobs);
+adminJobRoute.get("/:slug", adminJobController.viewJob);
+adminJobRoute.use(middlewares_1.google_authorization);
+adminJobRoute.delete("/:slug", adminJobController.deleteJob);
+exports.default = adminJobRoute;

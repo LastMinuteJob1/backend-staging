@@ -41,6 +41,8 @@ import Admin from './src/modules/admin/onboarding/admin-model';
 import adminRoute from './src/modules/admin/onboarding/admin-route';
 import AdminLink from './src/modules/admin/onboarding/admin-link-model';
 import adminUserRoute from './src/modules/admin/user/admin-user-route';
+import adminJobRoute from './src/modules/admin/job/admin-job-route';
+import adminJobRequestRoute from './src/modules/admin/job-request/admin-job-request-route';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -77,6 +79,8 @@ app.use("/interac", interacRoute)
 
 app.use("/admin-dashboard", adminDashboardRoute)
 app.use("/admin-user", adminUserRoute)
+app.use("/admin-job", adminJobRoute)
+app.use("/admin-job-request", adminJobRequestRoute)
 app.use("/admin", adminRoute)
 
 sequelize.sync({alter:false, force:false}) 

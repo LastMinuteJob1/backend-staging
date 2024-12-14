@@ -118,11 +118,11 @@ class JobRequestService {
         this.open_request = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 // get the current user
-                const user = yield (0, methods_1.getUser)(req);
-                if (user == null) {
-                    res.status(401).send((0, error_1.sendError)("Authentication failed, please login again"));
-                    return null;
-                }
+                // const user = await getUser(req)
+                // if (user == null) {
+                //     res.status(401).send(sendError("Authentication failed, please login again"));
+                //     return null
+                // }
                 const { slug } = req.params;
                 // view request
                 const job_request = yield JobRequestModel_1.default.findOne({ where: { slug }, include: [{ model: JobModel_1.default, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }] });
@@ -170,6 +170,41 @@ class JobRequestService {
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
                             }, include: [{ model: UserModel_1.default, where: { email }, attributes: { exclude: ["password", "verification_code", "token"] } }] }
+                    ]
+                };
+                if (status_)
+                    clause.where = { status: status_ };
+                // view request
+                const job_request = yield JobRequestModel_1.default.paginate(clause);
+                return job_request;
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.list_all_request_proposals = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { page, limit, desc, q, status } = req.query;
+                let page_ = page ? parseInt(page) : 1;
+                let limit_ = limit ? parseInt(limit) : 10;
+                let desc_ = desc ? parseInt(desc) : 1;
+                let q_ = q ? q : "";
+                let status_ = status ? status : "";
+                let clause = {
+                    page: page_, paginate: limit_,
+                    order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    include: [
+                        {
+                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
+                            include: []
+                        },
+                        { model: JobModel_1.default, where: {
+                                [sequelize_1.Op.or]: [
+                                    // { title: { [Op.like]: `%${q_}%` } },
+                                    { description: { [sequelize_1.Op.like]: `%${q_}%` } },
+                                ]
+                            }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }
                     ]
                 };
                 if (status_)
@@ -259,6 +294,121 @@ class JobRequestService {
                     res.status(400).send((0, error_1.sendError)("Unauthorized to perform this action"));
                     return null;
                 }
+                // toggle job request
+                // if toggle == accept
+                const job = job_req.dataValues.Job;
+                if (status == JobRequestInterface_1.JobRequestStatus.ACCEPT) {
+                    if (!job.active) {
+                        res.status(404).send((0, error_1.sendError)("The current job request has been assigned to a user already"));
+                        return null;
+                    }
+                    // update job to false
+                    yield job.update({ active: false });
+                    // auto-reject all requests and add inapp notification
+                    let rejected_emails = [];
+                    JobRequestModel_1.default.findAll({
+                        include: [
+                            {
+                                model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                            },
+                            {
+                                model: JobModel_1.default,
+                                where: { slug: job.slug },
+                                include: [{
+                                        model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                    }]
+                            }
+                        ]
+                    }).then((job_requests) => {
+                        job_requests.forEach((job_request) => {
+                            if (job_request.id != job_req.dataValues.id) {
+                                // escaping the user that got accepted
+                                if (job_request.dataValues.User.email != job_req.User.email) {
+                                    rejected_emails.push(job_request.dataValues.User.email);
+                                    job_request.update({ status: JobRequestInterface_1.JobRequestStatus.REJECTED });
+                                    this.emailService.send({
+                                        from: env_1.EMAIL_USERNAME, to: job_request.dataValues.User.email,
+                                        text: `Dear ${job_request.dataValues.User.fullname} <br> we are sorry to inform you that your job application <b>${job_request.dataValues.Job.title}</b> was rejected.
+                                    <br>Ther are more jobs on our platform, we are sure you'll find your ideal job soon.
+                                    <br>Best regards`,
+                                        subject: "Job Application Update"
+                                    });
+                                    this.notificationService.add_notification({
+                                        from: "Last Minute Job", user: job_request.dataValues.User,
+                                        title: `Job Application Update`,
+                                        type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                                        content: `Your job application ${job_request.dataValues.Job.title} was rejected`
+                                    });
+                                }
+                            }
+                        });
+                    }).finally(() => {
+                        // disbuse rejection email
+                        // rejected_emails.forEach((rejected_email:string) => {
+                        // forward in app rejection and email rejection
+                        // updating the exact jpb request
+                        // job_req.update({status})
+                        // })
+                    });
+                }
+                let accepted_job_req = yield job_req.update({ status });
+                // disbuse acceptance email and in app notification to the owner of the request
+                this.emailService.send({
+                    from: env_1.EMAIL_USERNAME, to: job_req.dataValues.User.email,
+                    text: status == JobRequestInterface_1.JobRequestStatus.ACCEPT ? `Dear ${job_req.dataValues.User.fullname} 
+                <br>We are glad to inform you that your job application has been accepted
+                <br>Ensure you do a wonderful job
+                <br>Best Regards`
+                        :
+                            `Dear ${job_req.dataValues.User.fullname} 
+                <br> we are sorry to inform you that your job application <b>${job_req.dataValues.Job.title}</b> was rejected.
+                <br>There are more jobs on our platform, we are sure you'll find your ideal job soon.
+                <br>Best regards`,
+                    subject: "Job Application Update"
+                });
+                this.notificationService.add_notification({
+                    from: "Last Minute Job", user: job_req.dataValues.User,
+                    title: `Job Application Update`,
+                    type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
+                    content: status == JobRequestInterface_1.JobRequestStatus.ACCEPT ? `Your job application ${job_req.dataValues.Job.title} was accepted` : `Your job application ${job_req.dataValues.Job.title} was rejected`
+                });
+                return accepted_job_req;
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.toggle_request_proposals_admin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                // get user
+                // const user = await getUser(req)
+                // if (user == null) {
+                //     res.status(409).send(sendError("Authentication failed, please login again"));
+                //     return null
+                // }
+                const job_req_slug = req.params.slug;
+                let { status } = req.body;
+                status = parseInt(status);
+                // verify if the job belongs to the user
+                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
+                        {
+                            model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                        },
+                        {
+                            model: JobModel_1.default, include: [{
+                                    model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
+                                }]
+                        }
+                    ] });
+                if (job_req == null) {
+                    res.status(404).send((0, error_1.sendError)("This job request doen't exist"));
+                    return null;
+                }
+                // if (job_req.dataValues.Job.dataValues.User.id != user.id) {
+                //     res.status(400).send(sendError("Unauthorized to perform this action"));
+                //     return null
+                // }
                 // toggle job request
                 // if toggle == accept
                 const job = job_req.dataValues.Job;

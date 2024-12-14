@@ -109,7 +109,7 @@ export class JobService {
             })
 
             if (job == null) {
-                res.status(400).send(sendError("Job not found"));
+                res.status(404).send(sendError("Job not found"));
                 return null
             }
 

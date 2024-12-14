@@ -99,7 +99,7 @@ class JobService {
                     ]
                 });
                 if (job == null) {
-                    res.status(400).send((0, error_1.sendError)("Job not found"));
+                    res.status(404).send((0, error_1.sendError)("Job not found"));
                     return null;
                 }
                 return job;

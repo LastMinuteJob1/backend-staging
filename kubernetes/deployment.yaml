@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lmj-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lmj-api
+  template:
+    metadata:
+      labels:
+        app: lmj-api
+    spec:
+      containers:
+      - name: lmj-container
+        image: nginx:latest
+        limit: 500
+        ports:
+        - containerPort: 80

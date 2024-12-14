@@ -171,6 +171,8 @@ export class AdminService {
                 }
             }
 
+            await admin.update({ token });
+
             return await Admin.findOne({
                 where: { [Op.or]: {username, email:username} }, attributes: {
                     exclude: [
