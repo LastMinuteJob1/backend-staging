@@ -51,6 +51,8 @@ const admin_link_model_1 = __importDefault(require("./src/modules/admin/onboardi
 const admin_user_route_1 = __importDefault(require("./src/modules/admin/user/admin-user-route"));
 const admin_job_route_1 = __importDefault(require("./src/modules/admin/job/admin-job-route"));
 const admin_job_request_route_1 = __importDefault(require("./src/modules/admin/job-request/admin-job-request-route"));
+const terms_route_1 = __importDefault(require("./src/modules/admin/terms-and-condition/terms-route"));
+const terms_model_1 = __importDefault(require("./src/modules/admin/terms-and-condition/terms-model"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
@@ -78,6 +80,7 @@ app.use("/wallet", WalletRoute_1.default);
 app.use("/webhook", WebhookRoute_1.default);
 app.use("/geofencing", geofencing_route_1.default);
 app.use("/interac", interac_route_1.default);
+app.use("/admin-documentations", terms_route_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
 app.use("/admin-user", admin_user_route_1.default);
 app.use("/admin-job", admin_job_route_1.default);
@@ -103,6 +106,7 @@ db_1.default.sync({ alter: false, force: false })
     yield interac_payment_model_1.default.sync();
     yield admin_model_1.default.sync();
     yield admin_link_model_1.default.sync();
+    yield terms_model_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});

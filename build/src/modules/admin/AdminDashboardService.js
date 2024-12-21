@@ -8,33 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminDashboardService = void 0;
 const error_1 = require("../../helper/error");
 const console_1 = require("console");
+const terms_model_1 = __importDefault(require("./terms-and-condition/terms-model"));
 class AdminDashboardService {
     constructor() {
         this.load_faq = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { q } = req.query;
-                return [
-                    {
-                        "title": "Dummy title",
-                        "text": "Dummy text"
-                    },
-                    {
-                        "title": "Dummy title",
-                        "text": "Dummy text"
-                    },
-                    {
-                        "title": "Dummy title",
-                        "text": "Dummy text"
-                    },
-                    {
-                        "title": "Dummy title",
-                        "text": "Dummy text"
-                    },
-                ];
+                return yield terms_model_1.default.findOne({ where: { id: 1 } });
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

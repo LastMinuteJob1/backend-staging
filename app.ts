@@ -43,6 +43,8 @@ import AdminLink from './src/modules/admin/onboarding/admin-link-model';
 import adminUserRoute from './src/modules/admin/user/admin-user-route';
 import adminJobRoute from './src/modules/admin/job/admin-job-route';
 import adminJobRequestRoute from './src/modules/admin/job-request/admin-job-request-route';
+import adminTermsAndConditionRoute from './src/modules/admin/terms-and-condition/terms-route';
+import TermsAndConditions from './src/modules/admin/terms-and-condition/terms-model';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -77,6 +79,7 @@ app.use("/webhook", webHookRoute)
 app.use("/geofencing", geofencingRoute)
 app.use("/interac", interacRoute)
 
+app.use("/admin-documentations", adminTermsAndConditionRoute)
 app.use("/admin-dashboard", adminDashboardRoute)
 app.use("/admin-user", adminUserRoute)
 app.use("/admin-job", adminJobRoute)
@@ -109,6 +112,7 @@ sequelize.sync({alter:false, force:false})
 
     await Admin.sync()
     await AdminLink.sync();
+    await TermsAndConditions.sync();
  
     User.hasMany(Job) 
     Job.belongsTo(User) 
