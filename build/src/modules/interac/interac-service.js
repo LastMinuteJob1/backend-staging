@@ -198,6 +198,49 @@ class InteracSercvice {
                 res.status(500).send((0, error_1.sendError)(error));
             }
         });
+        this.listAllAccount = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { page, limit, desc, q } = req.query;
+                let page_ = page ? parseInt(page) : 1;
+                let limit_ = limit ? parseInt(limit) : 10;
+                let desc_ = desc ? parseInt(desc) : 1;
+                let q_ = q ? q : "";
+                return yield interac_model_1.default.paginate({
+                    page: page_, paginate: limit_,
+                    order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where: {
+                        email: {
+                            [sequelize_1.Op.like]: `%${q_}%`
+                        }
+                    },
+                    include: [
+                        {
+                            model: UserModel_1.default,
+                            where: {
+                                [sequelize_1.Op.or]: {
+                                    email: {
+                                        [sequelize_1.Op.like]: `%${q_}%`
+                                    },
+                                    fullname: {
+                                        [sequelize_1.Op.like]: `%${q_}%`
+                                    },
+                                    phone_number: {
+                                        [sequelize_1.Op.like]: `%${q_}%`
+                                    },
+                                }
+                            },
+                            attributes: {
+                                exclude: ["token", "firebase_token", "password", "verification_code"]
+                            }
+                        }
+                    ]
+                });
+            }
+            catch (error) {
+                (0, console_1.log)({ error });
+                res.status(500).send((0, error_1.sendError)(error));
+            }
+        });
         this.resolvePayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { ref, interac_email } = req.body;
@@ -288,6 +331,47 @@ class InteracSercvice {
                                         exclude: ["token", "firebase_token", "password", "verification_code"]
                                     },
                                     where: { id: user.id }
+                                }
+                            ]
+                        }
+                    ]
+                });
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+            }
+        });
+        this.allInteracPayments = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { page, limit, desc, q, status } = req.query;
+                let page_ = page ? parseInt(page) : 1;
+                let limit_ = limit ? parseInt(limit) : 10;
+                let desc_ = desc ? parseInt(desc) : 1;
+                let status_ = status ? parseInt(status) : 1;
+                let q_ = q ? q : "";
+                let user = yield (0, methods_1.getUser)(req);
+                if (!user) {
+                    res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                return yield interac_payment_model_1.default.paginate({
+                    page: page_, paginate: limit_,
+                    order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                    where: {
+                        ref: {
+                            [sequelize_1.Op.like]: `%${q_}%`
+                        },
+                        deposited: status_ == 1
+                    },
+                    include: [
+                        {
+                            model: interac_model_1.default,
+                            include: [
+                                {
+                                    model: UserModel_1.default,
+                                    attributes: {
+                                        exclude: ["token", "firebase_token", "password", "verification_code"]
+                                    }
                                 }
                             ]
                         }

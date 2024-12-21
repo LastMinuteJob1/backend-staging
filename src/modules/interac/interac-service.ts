@@ -224,6 +224,53 @@ export class InteracSercvice {
         }
     }
 
+    public listAllAccount = async (req: Request, res: Response) => {
+        try {
+
+            let { page, limit, desc, q } = req.query;
+
+            let page_ = page ? parseInt(page as string) : 1;
+            let limit_ = limit ? parseInt(limit as string) : 10;
+            let desc_ = desc ? parseInt(desc as string) : 1;
+            let q_ = q ? q : "";
+
+            return await (<any>Interac).paginate({
+                page: page_, paginate: limit_,
+                order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                where: {
+                    email: {
+                        [Op.like]: `%${q_}%`
+                    }
+                },
+                include: [
+                    {
+                        model: User,
+                        where: {
+                            [Op.or]: {
+                                email: {
+                                    [Op.like]: `%${q_}%`
+                                },
+                                fullname: {
+                                    [Op.like]: `%${q_}%`
+                                },
+                                phone_number: {
+                                    [Op.like]: `%${q_}%`
+                                },
+                            }
+                        },
+                        attributes: {
+                            exclude: ["token", "firebase_token", "password", "verification_code"]
+                        }
+                    }
+                ]
+            });
+
+        } catch (error: any) {
+            log({ error })
+            res.status(500).send(sendError(error))
+        }
+    }
+
     public resolvePayment = async (req: Request, res: Response) => {
         try {
 
@@ -329,6 +376,53 @@ export class InteracSercvice {
                                     exclude: ["token", "firebase_token", "password", "verification_code"]
                                 },
                                 where: { id: user.id }
+                            }
+                        ]
+                    }
+                ]
+            });
+
+        } catch (error: any) {
+            res.status(500).send(sendError(error))
+        }
+    }
+
+    public allInteracPayments = async (req: Request, res: Response) => {
+        try {
+
+            let { page, limit, desc, q, status } = req.query;
+
+            let page_ = page ? parseInt(page as string) : 1;
+            let limit_ = limit ? parseInt(limit as string) : 10;
+            let desc_ = desc ? parseInt(desc as string) : 1;
+            let status_ = status ? parseInt(status as string) : 1;
+            let q_ = q ? q : "";
+
+            let user = await getUser(req);
+
+            if (!user) {
+                res.status(400).send(sendError("Something went wrong, please login"))
+                return null
+            }
+
+            return await (<any>InteracPayment).paginate({
+                page: page_, paginate: limit_,
+                order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
+                where: {
+                    ref: {
+                        [Op.like]: `%${q_}%`
+                    },
+                    deposited: status_ == 1
+                },
+                include: [
+                    {
+                        model: Interac,
+                        include: [
+                            {
+                                model: User,
+                                attributes: {
+                                    exclude: ["token", "firebase_token", "password", "verification_code"]
+                                }
                             }
                         ]
                     }

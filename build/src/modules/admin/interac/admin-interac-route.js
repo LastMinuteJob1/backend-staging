@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const middlewares_1 = require("../../../helper/middlewares");
+const admin_interac_controller_1 = require("./admin-interac-controller");
+const adminInteracRoute = (0, express_1.Router)(), adminInteracController = new admin_interac_controller_1.AdminInteracController();
+adminInteracRoute.use(middlewares_1.authorization_admin);
+adminInteracRoute.get("/all-accounts", adminInteracController.listAllInteracAccounts);
+adminInteracRoute.get("/all-payments", adminInteracController.listAllInteracPayments);
+exports.default = adminInteracRoute;

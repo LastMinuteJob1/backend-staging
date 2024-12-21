@@ -45,6 +45,7 @@ import adminJobRoute from './src/modules/admin/job/admin-job-route';
 import adminJobRequestRoute from './src/modules/admin/job-request/admin-job-request-route';
 import adminTermsAndConditionRoute from './src/modules/admin/terms-and-condition/terms-route';
 import TermsAndConditions from './src/modules/admin/terms-and-condition/terms-model';
+import adminInteracRoute from './src/modules/admin/interac/admin-interac-route';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -80,6 +81,7 @@ app.use("/geofencing", geofencingRoute)
 app.use("/interac", interacRoute)
 
 app.use("/admin-documentations", adminTermsAndConditionRoute)
+app.use("/admin-interac", adminInteracRoute)
 app.use("/admin-dashboard", adminDashboardRoute)
 app.use("/admin-user", adminUserRoute)
 app.use("/admin-job", adminJobRoute)
