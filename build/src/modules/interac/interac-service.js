@@ -241,6 +241,46 @@ class InteracSercvice {
                 res.status(500).send((0, error_1.sendError)(error));
             }
         });
+        this.togglePayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { ref } = req.params, { status } = req.body;
+                const interacPayment = yield interac_payment_model_1.default.findOne({
+                    where: { ref }, include: [
+                        {
+                            model: interac_model_1.default,
+                            include: [
+                                {
+                                    model: UserModel_1.default,
+                                    attributes: {
+                                        exclude: ["token", "firebase_token", "password", "verification_code"]
+                                    },
+                                }
+                            ]
+                        }
+                    ]
+                });
+                if (!interacPayment) {
+                    res.status(404).send((0, error_1.sendError)("Reference not found !"));
+                    return null;
+                }
+                yield interacPayment.update({ status });
+                let user = interacPayment["Interac"]["User"];
+                let { email, fullname } = user;
+                // update wallet
+                this.mailController.send({
+                    from: env_1.EMAIL_USERNAME, to: email,
+                    text: status == 0 ? `Dear ${fullname.split(" ")[0]}<br>
+                Your payment have been confirmed.<br>Thank you.` : `Dear ${fullname.split(" ")[0]}<br>
+                Your payment have been rejected.<br>Thank you.`,
+                    subject: status == 0 ? "Interac Payment Rejected" : "Interac Payment Successful"
+                });
+                return interacPayment;
+            }
+            catch (error) {
+                (0, console_1.log)({ error });
+                res.status(500).send((0, error_1.sendError)(error));
+            }
+        });
         this.resolvePayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { ref, interac_email } = req.body;
@@ -278,7 +318,7 @@ class InteracSercvice {
                 yield interac_payment.setInterac(interac_account);
                 // forward email
                 this.mailController.send({
-                    from: env_1.EMAIL_USERNAME, to: "support@lastminutejob.xyz",
+                    from: env_1.EMAIL_USERNAME, to: "support@lastminutejob.ca",
                     text: `Hello Admin<br><br>
                       There's a new deposite on Interac, these are the details. Kindly review: <br>
                       Reference: ${ref} <br>

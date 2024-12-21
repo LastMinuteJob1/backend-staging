@@ -7,4 +7,6 @@ const adminInteracRoute = (0, express_1.Router)(), adminInteracController = new 
 adminInteracRoute.use(middlewares_1.authorization_admin);
 adminInteracRoute.get("/all-accounts", adminInteracController.listAllInteracAccounts);
 adminInteracRoute.get("/all-payments", adminInteracController.listAllInteracPayments);
+// adminInteracRoute.use(google_authorization);
+adminInteracRoute.post("/toggle-payment/:ref", adminInteracController.toggleInteracPayment);
 exports.default = adminInteracRoute;

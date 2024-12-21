@@ -6,7 +6,7 @@ import { log } from "console";
 import { MailController } from "../mailer/MailController";
 import { EMAIL_USERNAME } from "../../config/env";
 import User from "../user/UserModel";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import InteracPayment from "./interac-payment-model";
 
 export class InteracSercvice {
@@ -271,6 +271,56 @@ export class InteracSercvice {
         }
     }
 
+    public togglePayment = async (req: Request, res: Response) => {
+        try {
+
+            let { ref } = req.params, { status } = req.body;
+
+            const interacPayment = await InteracPayment.findOne({
+                where: { ref }, include: [
+                    {
+                        model: Interac,
+                        include: [
+                            {
+                                model: User, 
+                                attributes: {
+                                    exclude: ["token", "firebase_token", "password", "verification_code"]
+                                },
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            if (!interacPayment) {
+                res.status(404).send(sendError("Reference not found !"))
+                return null
+            }
+
+            await interacPayment.update({ status });
+
+            let user = (<any> interacPayment)["Interac"]["User"];
+
+            let { email, fullname } = user;
+
+            // update wallet
+
+            this.mailController.send({
+                from: EMAIL_USERNAME, to: email,
+                text: status == 0 ? `Dear ${fullname.split(" ")[0]}<br>
+                Your payment have been confirmed.<br>Thank you.` : `Dear ${fullname.split(" ")[0]}<br>
+                Your payment have been rejected.<br>Thank you.`,
+                subject: status == 0 ? "Interac Payment Rejected" : "Interac Payment Successful"
+            });
+
+            return interacPayment;
+
+        } catch (error: any) {
+            log({error})
+            res.status(500).send(sendError(error))
+        }
+    }
+
     public resolvePayment = async (req: Request, res: Response) => {
         try {
 
@@ -316,7 +366,7 @@ export class InteracSercvice {
 
             // forward email
             this.mailController.send({
-                from: EMAIL_USERNAME, to: "support@lastminutejob.xyz",
+                from: EMAIL_USERNAME, to: "support@lastminutejob.ca",
                 text: `Hello Admin<br><br>
                       There's a new deposite on Interac, these are the details. Kindly review: <br>
                       Reference: ${ref} <br>

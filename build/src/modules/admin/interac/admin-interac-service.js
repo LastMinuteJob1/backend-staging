@@ -36,6 +36,16 @@ class AdminInteracService {
                 return null;
             }
         });
+        this.toggleInteracPayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.interacService.togglePayment(req, res);
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
     }
 }
 exports.AdminInteracService = AdminInteracService;

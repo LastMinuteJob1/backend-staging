@@ -27,4 +27,16 @@ export class AdminInteracService {
         }
     }
 
+    public toggleInteracPayment = async (req: Request, res: Response) => {
+        try {
+
+            return await this.interacService.togglePayment(req, res);
+            
+        } catch (error: any) {
+            res.status(500).send(sendError(error));
+            log({error});
+            return null;
+        }
+    }
+
 }

@@ -25,6 +25,11 @@ class AdminInteracController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.toggleInteracPayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.adminInteracService.toggleInteracPayment(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.AdminInteracController = AdminInteracController;

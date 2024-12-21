@@ -14,4 +14,9 @@ export class AdminInteracController {
         if (data != null)
             res.send(sendResponse(data))
     }
+    public toggleInteracPayment = async (req: Request, res: Response) => {
+        let data = await this.adminInteracService.toggleInteracPayment(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
 }
