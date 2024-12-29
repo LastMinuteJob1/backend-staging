@@ -3,8 +3,9 @@ import { sendError } from "../../../helper/error";
 import { Op } from "sequelize";
 import Profile from "../../profile/ProfileModel";
 import User from "../../user/UserModel";
-import { required } from "joi";
+// import { required } from "joi";
 export class KYCService {
+
     public allKycs = async (req: Request, res: Response) => {
         try {
 
@@ -131,6 +132,7 @@ export class KYCService {
             return null
         }
     }
+
     public toogleKyc = async (req: Request, res: Response) => {
         try {
             let { email } = req.params; let { status } = req.body;
@@ -153,6 +155,7 @@ export class KYCService {
             return null
         }
     }
+
     public verifyKYC = async (req: Request, res: Response) => {
         try {
 
@@ -165,4 +168,5 @@ export class KYCService {
             return null
         }
     }
+    
 }

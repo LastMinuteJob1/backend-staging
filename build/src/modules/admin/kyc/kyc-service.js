@@ -17,6 +17,7 @@ const error_1 = require("../../../helper/error");
 const sequelize_1 = require("sequelize");
 const ProfileModel_1 = __importDefault(require("../../profile/ProfileModel"));
 const UserModel_1 = __importDefault(require("../../user/UserModel"));
+// import { required } from "joi";
 class KYCService {
     constructor() {
         this.allKycs = (req, res) => __awaiter(this, void 0, void 0, function* () {
