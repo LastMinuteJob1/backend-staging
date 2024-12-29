@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const middlewares_1 = require("../../../helper/middlewares");
+const kyc_controller_1 = require("./kyc-controller");
+const adminKycRoute = (0, express_1.Router)();
+adminKycRoute.use(middlewares_1.authorization_admin);
+let kycController = new kyc_controller_1.KYCController();
+adminKycRoute.get("/", kycController.allKycs);
+adminKycRoute.use(middlewares_1.google_authorization);
+adminKycRoute.post("/", kycController.verifyKYC);
+adminKycRoute.patch("/:email", kycController.toggleKycs);
+exports.default = adminKycRoute;

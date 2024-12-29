@@ -335,7 +335,8 @@ class UserService {
         this.password_recovery = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { email, password, verification_code } = request.body;
-                password = (0, methods_1.hashPassword)(password);
+                password = yield (0, methods_1.hashPassword)(password);
+                (0, console_1.log)({ password });
                 let user = yield UserModel_1.default.findOne({
                     where: { email, verification_code }
                 });

@@ -54,6 +54,7 @@ const admin_job_request_route_1 = __importDefault(require("./src/modules/admin/j
 const terms_route_1 = __importDefault(require("./src/modules/admin/terms-and-condition/terms-route"));
 const terms_model_1 = __importDefault(require("./src/modules/admin/terms-and-condition/terms-model"));
 const admin_interac_route_1 = __importDefault(require("./src/modules/admin/interac/admin-interac-route"));
+const kyc_route_1 = __importDefault(require("./src/modules/admin/kyc/kyc-route"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
@@ -85,6 +86,7 @@ app.use("/admin-documentations", terms_route_1.default);
 app.use("/admin-interac", admin_interac_route_1.default);
 app.use("/admin-dashboard", AdminDashboardRoute_1.default);
 app.use("/admin-user", admin_user_route_1.default);
+app.use("/admin-kyc", kyc_route_1.default);
 app.use("/admin-job", admin_job_route_1.default);
 app.use("/admin-job-request", admin_job_request_route_1.default);
 app.use("/admin", admin_route_1.default);

@@ -46,6 +46,7 @@ import adminJobRequestRoute from './src/modules/admin/job-request/admin-job-requ
 import adminTermsAndConditionRoute from './src/modules/admin/terms-and-condition/terms-route';
 import TermsAndConditions from './src/modules/admin/terms-and-condition/terms-model';
 import adminInteracRoute from './src/modules/admin/interac/admin-interac-route';
+import adminKycRoute from './src/modules/admin/kyc/kyc-route';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -84,6 +85,7 @@ app.use("/admin-documentations", adminTermsAndConditionRoute)
 app.use("/admin-interac", adminInteracRoute)
 app.use("/admin-dashboard", adminDashboardRoute)
 app.use("/admin-user", adminUserRoute)
+app.use("/admin-kyc", adminKycRoute)
 app.use("/admin-job", adminJobRoute)
 app.use("/admin-job-request", adminJobRequestRoute)
 app.use("/admin", adminRoute)

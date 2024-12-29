@@ -52,6 +52,25 @@ class JobService {
                     res.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
                     return null;
                 }
+                // check for kyc verification
+                let _user = yield UserModel_1.default.findOne({
+                    where: { email: user.email }, include: [{
+                            model: ProfileModel_1.default
+                        }],
+                    attributes: { exclude: ["password", "verification_code"] }
+                });
+                if (!_user) {
+                    res.status(403).send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                // let { Profile } = user;
+                let profile = _user["Profile"];
+                const { is_kyc_verified, prove_of_location, kyc_docs } = profile;
+                if (!is_kyc_verified) {
+                    res.status(401).send((0, error_1.sendError)(`Your KYC status is still pending, kindly upload or verify the following documents 'Prove of location' and 'National ID'`));
+                    return null;
+                }
+                // const profile: Profile = _user["Profile"];
                 let slug = (0, slugify_1.default)(description.substring(0, 10) + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
                 let obj = {
                     slug, description, price,

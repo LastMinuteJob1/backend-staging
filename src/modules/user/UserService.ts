@@ -389,7 +389,9 @@ export class UserService {
 
             let {email, password, verification_code} = request.body
 
-            password = hashPassword(password)
+            password = await hashPassword(password)
+
+            log({password})
 
             let user = await User.findOne({
                 where: {email, verification_code}
