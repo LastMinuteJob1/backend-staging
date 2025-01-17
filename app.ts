@@ -1,11 +1,13 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import userRouter from './src/modules/user/UserRoute';
-import { ACCESS_KEY, APP_VERSION,EMAIL_PASSWORD,EMAIL_USERNAME,JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/ 
-SECRET_KEY,
-STRIPE_SECRET_KEY,
-SUPER_ADMIN_PWD,
-SUPER_ADMIN_UID} from './src/config/env';
+import {
+    ACCESS_KEY, APP_VERSION, EMAIL_PASSWORD, EMAIL_USERNAME, JWT_SECRET_KEY,/*, EMAIL_PASSWORD, EMAIL_SERVICE, EMAIL_USERNAME*/
+    SECRET_KEY,
+    STRIPE_SECRET_KEY,
+    SUPER_ADMIN_PWD,
+    SUPER_ADMIN_UID
+} from './src/config/env';
 import User from './src/modules/user/UserModel';
 import sequelize from './src/config/db';
 import { MailController } from './src/modules/mailer/MailController';
@@ -53,7 +55,7 @@ import adminKycRoute from './src/modules/admin/kyc/kyc-route';
 const app = express();
 const port: any = process.env.PORT || 3000;
 
-let mailController:MailController;
+let mailController: MailController;
 
 const server = require('http').createServer(app);
 
@@ -66,7 +68,15 @@ const io = require('socket.io')(server, {
 
 // Body parser middleware
 // app.use(express.json());
-app.use(bodyParser.json()); 
+var cors = require('cors')
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+}))
+
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // mounting routes 
@@ -74,10 +84,10 @@ app.use("/user", userRouter)
 app.use("/profile", profileRoute)
 app.use("/job", jobRoute)
 app.use("/notification", notificationRoute)
-app.use("/job-request", jobRequestRoute) 
-app.use("/storage", storageRoute) 
-app.use("/wallet", walletRoute) 
-app.use("/webhook", webHookRoute) 
+app.use("/job-request", jobRequestRoute)
+app.use("/storage", storageRoute)
+app.use("/wallet", walletRoute)
+app.use("/webhook", webHookRoute)
 app.use("/geofencing", geofencingRoute)
 app.use("/interac", interacRoute)
 
@@ -90,121 +100,121 @@ app.use("/admin-job", adminJobRoute)
 app.use("/admin-job-request", adminJobRequestRoute)
 app.use("/admin", adminRoute)
 
-sequelize.sync({alter:false, force:false}) 
-.then(async () => {    
-    // await JobRequest.drop(); 
-    console.log('Connection to database established successfully.\n');
-    // syncing models 
-    await User.sync()
-    await Job.sync()
-    await JobPics.sync()
-    
-    await NotificationModel.sync()
-    await JobRequest.sync()
- 
-    await Profile.sync()
- 
-    await StripePayment.sync();
-    await StripeCustomer.sync();
+sequelize.sync({ alter: false, force: false })
+    .then(async () => {
+        // await JobRequest.drop(); 
+        console.log('Connection to database established successfully.\n');
+        // syncing models 
+        await User.sync()
+        await Job.sync()
+        await JobPics.sync()
 
-    await Wallet.sync(); 
-    await TransactionHistory.sync();
-    await Withdrawal.sync();
+        await NotificationModel.sync()
+        await JobRequest.sync()
 
-    await Interac.sync();
-    await InteracPayment.sync();
+        await Profile.sync()
 
-    await Admin.sync()
-    await AdminLink.sync();
-    await TermsAndConditions.sync();
- 
-    User.hasMany(Job) 
-    Job.belongsTo(User) 
+        await StripePayment.sync();
+        await StripeCustomer.sync();
 
-    // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
-    // Job.findAll().then(async (job:any) => console.log(job))
-    // await Admin.destroy({where: {id: 3}});
-    console.log("Synced Models") 
-    if (!await Admin.findOne({where: {username: SUPER_ADMIN_UID}})) {
-        log("Creating new admin");
-        await Admin.create({
-            password: await hashPassword(SUPER_ADMIN_PWD),
-            username: SUPER_ADMIN_UID,
-            email: "admin@lastminutejob.ca",
-            roles: ["superadmin"]
-        })
-    }
-    // preparing mailing service 
-    // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
-    mailController = new MailController()
-    console.log("Email service ready"); 
+        await Wallet.sync();
+        await TransactionHistory.sync();
+        await Withdrawal.sync();
 
-    server.listen(port, async () => {
+        await Interac.sync();
+        await InteracPayment.sync();
 
-        console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
+        await Admin.sync()
+        await AdminLink.sync();
+        await TermsAndConditions.sync();
 
-        // log("*****************Registering Webhook**********************")
-        // log(await new StripeService().register_webhook()); 
+        User.hasMany(Job)
+        Job.belongsTo(User)
 
-        // new MailService().send({
-        //     from: EMAIL_USERNAME,
-        //     to: 'chibuezeadeyemi@gmail.com',
-        //     subject: 'Testing',
-        //     html: "Jilo Billionaire - From LMJ backend"
-        // });
+        // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
+        // Job.findAll().then(async (job:any) => console.log(job))
+        // await Admin.destroy({where: {id: 3}});
+        console.log("Synced Models")
+        if (!await Admin.findOne({ where: { username: SUPER_ADMIN_UID } })) {
+            log("Creating new admin");
+            await Admin.create({
+                password: await hashPassword(SUPER_ADMIN_PWD),
+                username: SUPER_ADMIN_UID,
+                email: "admin@lastminutejob.ca",
+                roles: ["superadmin"]
+            })
+        }
+        // preparing mailing service 
+        // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
+        mailController = new MailController()
+        console.log("Email service ready");
 
-        // for (var i = 0; i < 100; i ++)
-        //     Wallet.update({balance: 50000}, {where:{id:i}}) 
+        server.listen(port, async () => {
 
-        // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+            console.log(`Server listening on port ${port} - App version ${APP_VERSION}`);
 
-        async function get_all_jobs () {
-            let all_jobs = await (<any> Job).paginate({
-                    page:1, paginate:25,
-                    order:[['id', "DESC"]],
-                    where:{
+            // log("*****************Registering Webhook**********************")
+            // log(await new StripeService().register_webhook()); 
+
+            // new MailService().send({
+            //     from: EMAIL_USERNAME,
+            //     to: 'chibuezeadeyemi@gmail.com',
+            //     subject: 'Testing',
+            //     html: "Jilo Billionaire - From LMJ backend"
+            // });
+
+            // for (var i = 0; i < 100; i ++)
+            //     Wallet.update({balance: 50000}, {where:{id:i}}) 
+
+            // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+
+            async function get_all_jobs() {
+                let all_jobs = await (<any>Job).paginate({
+                    page: 1, paginate: 25,
+                    order: [['id', "DESC"]],
+                    where: {
                         active: true,
                         published: true
                     },
                     include: [
                         {
                             model: JobPics
-                        },{
-                        model: User, attributes:{exclude:["password", "verification_code", "token"]},
-                        include: [
-                            {
-                                model: Profile
-                            }
-                        ]
-                    }] 
+                        }, {
+                            model: User, attributes: { exclude: ["password", "verification_code", "token"] },
+                            include: [
+                                {
+                                    model: Profile
+                                }
+                            ]
+                        }]
                 });
 
                 return all_jobs
-        }
-
-        setInterval(async () => {
-            io.emit("jobs", await get_all_jobs())
-            log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
-        }, 1000 * 60)
-
-        log("Attempting websocket connection")
-        io.on("connection", async (socket: Socket) => {
-            try {
-
-                const all_jobs = await get_all_jobs()
-                io.emit("jobs", all_jobs)
-                log("=======Socket Connected=======")
-
-            } catch (e) {
-                log("Internal Socket Error:", e)
             }
-        })
 
-    }); 
-    
-})
-.catch((error) => console.error('Unable to connect to the database:', error))
-.finally(async () => { }); 
+            setInterval(async () => {
+                io.emit("jobs", await get_all_jobs())
+                log(`Every 60 seconds heart-beat ${new Date().toISOString()}`);
+            }, 1000 * 60)
+
+            log("Attempting websocket connection")
+            io.on("connection", async (socket: Socket) => {
+                try {
+
+                    const all_jobs = await get_all_jobs()
+                    io.emit("jobs", all_jobs)
+                    log("=======Socket Connected=======")
+
+                } catch (e) {
+                    log("Internal Socket Error:", e)
+                }
+            })
+
+        });
+
+    })
+    .catch((error) => console.error('Unable to connect to the database:', error))
+    .finally(async () => { });
 
 const storage_path = path.join(__dirname + "/storage")
 // const firebase_app_instance = initializeApp();
