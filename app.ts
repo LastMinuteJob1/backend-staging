@@ -53,7 +53,7 @@ import adminKycRoute from './src/modules/admin/kyc/kyc-route';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
-const port: any = process.env.PORT || 3000;
+const port: any = process.env.PORT || 3003;
 
 let mailController: MailController;
 
