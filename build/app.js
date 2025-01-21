@@ -60,6 +60,13 @@ const kyc_route_1 = __importDefault(require("./src/modules/admin/kyc/kyc-route")
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3003;
 let mailController;
+var cors = require('cors');
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+}));
+app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({ extended: false }));
 const server = require('http').createServer(app);
 // socket io
 const io = require('socket.io')(server, {
@@ -69,15 +76,6 @@ const io = require('socket.io')(server, {
 });
 // Body parser middleware
 // app.use(express.json());
-var cors = require('cors');
-app.use(cors({
-    "origin": "*",
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-    "preflightContinue": true,
-    "optionsSuccessStatus": 204
-}));
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: false }));
 // mounting routes 
 app.use("/user", UserRoute_1.default);
 app.use("/profile", ProfileRoute_1.default);

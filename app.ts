@@ -57,6 +57,15 @@ const port: any = process.env.PORT || 3003;
 
 let mailController: MailController;
 
+var cors = require('cors')
+app.use(cors({ 
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+}))
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 const server = require('http').createServer(app);
 
 // socket io
@@ -68,16 +77,6 @@ const io = require('socket.io')(server, {
 
 // Body parser middleware
 // app.use(express.json());
-var cors = require('cors')
-app.use(cors({
-    "origin": "*",
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-    "preflightContinue": true,
-    "optionsSuccessStatus": 204
-}))
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 // mounting routes 
 app.use("/user", userRouter)
