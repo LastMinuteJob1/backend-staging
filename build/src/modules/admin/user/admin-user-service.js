@@ -81,9 +81,15 @@ class AdminUserService {
             try {
                 let { status } = req.body;
                 let { email } = req.params;
-                yield UserModel_1.default.update({ active: status == "true" }, { where: { email } });
+                let user = yield UserModel_1.default.findOne({ where: { email } });
+                if (!user) {
+                    res.status(404).send((0, error_1.sendError)("User not found !"));
+                    return null;
+                }
+                yield UserModel_1.default.update({ active: user.active ? false : true }, { where: { email } });
+                let updated_user = yield UserModel_1.default.findOne({ where: { email } });
                 return {
-                    message: `User account successfully ${status == 'true' ? "activated" : "deactivated"}`,
+                    message: `User account successfully ${(updated_user === null || updated_user === void 0 ? void 0 : updated_user.active) ? "activated" : "deactivated"}`,
                     status: "Successful"
                 };
             }

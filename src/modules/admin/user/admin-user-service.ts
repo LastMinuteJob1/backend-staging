@@ -72,13 +72,22 @@ export class AdminUserService {
     public toggle_user_Account = async (req: Request, res: Response) => {
         try {
 
-            let {status} = req.body;
-            let {email} = req.params;
+            let { status } = req.body;
+            let { email } = req.params;
 
-            await User.update({ active: status == "true" }, {where:{email}})
-            
+            let user = await User.findOne({ where: { email } });
+
+            if (!user) {
+                res.status(404).send(sendError("User not found !"));
+                return null
+            }
+
+            await User.update({ active: user.active ? false : true }, { where: { email } });
+
+            let updated_user = await User.findOne({ where: { email } });
+
             return {
-                message: `User account successfully ${status == 'true' ? "activated" : "deactivated"}`,
+                message: `User account successfully ${ updated_user?.active ? "activated" : "deactivated"}`,
                 status: "Successful"
             }
 
