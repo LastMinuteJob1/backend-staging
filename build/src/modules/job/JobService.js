@@ -113,7 +113,9 @@ class JobService {
                 const job = yield JobModel_1.default.findOne({
                     where: { slug },
                     include: [
-                        { model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } },
+                        { model: UserModel_1.default, include: [
+                                { model: ProfileModel_1.default }
+                            ], attributes: { exclude: ["password", "verification_code", "token"] } },
                         { model: JobPics_1.default }
                     ]
                 });

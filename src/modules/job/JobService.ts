@@ -128,7 +128,9 @@ export class JobService {
             const job = await Job.findOne({
                 where: { slug },
                 include: [
-                    { model: User, attributes: { exclude: ["password", "verification_code", "token"] } },
+                    { model: User, include: [
+                        { model: Profile }
+                    ], attributes: { exclude: ["password", "verification_code", "token"] } },
                     { model: JobPics }
                 ]
             })
