@@ -22,6 +22,7 @@ const env_1 = require("../../config/env");
 const UserModel_1 = __importDefault(require("../user/UserModel"));
 const sequelize_1 = require("sequelize");
 const interac_payment_model_1 = __importDefault(require("./interac-payment-model"));
+const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 class InteracSercvice {
     constructor() {
         this.mailController = new MailController_1.MailController();
@@ -229,6 +230,9 @@ class InteracSercvice {
                                     },
                                 }
                             },
+                            include: [
+                                { model: ProfileModel_1.default }
+                            ],
                             attributes: {
                                 exclude: ["token", "firebase_token", "password", "verification_code"]
                             }
@@ -254,6 +258,9 @@ class InteracSercvice {
                                     attributes: {
                                         exclude: ["token", "firebase_token", "password", "verification_code"]
                                     },
+                                    include: [
+                                        { model: ProfileModel_1.default }
+                                    ]
                                 }
                             ]
                         }
@@ -370,7 +377,10 @@ class InteracSercvice {
                                     attributes: {
                                         exclude: ["token", "firebase_token", "password", "verification_code"]
                                     },
-                                    where: { id: user.id }
+                                    where: { id: user.id },
+                                    include: [
+                                        { model: ProfileModel_1.default }
+                                    ]
                                 }
                             ]
                         }
@@ -411,7 +421,10 @@ class InteracSercvice {
                                     model: UserModel_1.default,
                                     attributes: {
                                         exclude: ["token", "firebase_token", "password", "verification_code"]
-                                    }
+                                    },
+                                    include: [
+                                        { model: ProfileModel_1.default }
+                                    ]
                                 }
                             ]
                         }

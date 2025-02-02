@@ -8,6 +8,7 @@ import { EMAIL_USERNAME } from "../../config/env";
 import User from "../user/UserModel";
 import { Op, where } from "sequelize";
 import InteracPayment from "./interac-payment-model";
+import Profile from "../profile/ProfileModel";
 
 export class InteracSercvice {
 
@@ -258,6 +259,9 @@ export class InteracSercvice {
                                 },
                             }
                         },
+                        include: [
+                            { model: Profile }
+                        ],
                         attributes: {
                             exclude: ["token", "firebase_token", "password", "verification_code"]
                         }
@@ -286,6 +290,9 @@ export class InteracSercvice {
                                 attributes: {
                                     exclude: ["token", "firebase_token", "password", "verification_code"]
                                 },
+                                include: [
+                                    { model: Profile }
+                                ]
                             }
                         ]
                     }
@@ -425,7 +432,10 @@ export class InteracSercvice {
                                 attributes: {
                                     exclude: ["token", "firebase_token", "password", "verification_code"]
                                 },
-                                where: { id: user.id }
+                                where: { id: user.id },
+                                include: [
+                                    { model: Profile }
+                                ]
                             }
                         ]
                     }
@@ -472,7 +482,10 @@ export class InteracSercvice {
                                 model: User,
                                 attributes: {
                                     exclude: ["token", "firebase_token", "password", "verification_code"]
-                                }
+                                },
+                                include: [
+                                    { model: Profile }
+                                ]
                             }
                         ]
                     }
