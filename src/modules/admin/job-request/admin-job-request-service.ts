@@ -28,7 +28,10 @@ export class AdminJobRequestService {
     deleteJobRequest = async (req: Request, res: Response) => {
         try {
             let { slug } = req.params
-            return await JobRequest.destroy({where: {slug}})
+            await JobRequest.destroy({where: {slug}});
+            return {
+                message: "Job request deleted successfully"
+            }
         } catch (error: any) {
             res.status(500).send(sendError(error));
             return null;

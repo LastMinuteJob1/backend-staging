@@ -40,7 +40,10 @@ class AdminJobRequestService {
         this.deleteJobRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { slug } = req.params;
-                return yield JobRequestModel_1.default.destroy({ where: { slug } });
+                yield JobRequestModel_1.default.destroy({ where: { slug } });
+                return {
+                    message: "Job request deleted successfully"
+                };
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

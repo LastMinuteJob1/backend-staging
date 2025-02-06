@@ -15,4 +15,4 @@ adminUserRoute.use(google_authorization)
 // adminUserRoute.use(superadmin_authorization)
 adminUserRoute.patch("/:email", adminUserController.toggle_user_Account);
 
-export default adminUserRoute;
+export default adminUserRoute; 

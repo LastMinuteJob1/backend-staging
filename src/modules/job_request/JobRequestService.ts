@@ -578,7 +578,7 @@ export class JobRequestService {
                 content: status == JobRequestStatus.ACCEPT ? `Your job application ${job_req.dataValues.Job.title} was accepted` : `Your job application ${job_req.dataValues.Job.title} was rejected`
             })
 
-            return accepted_job_req
+            return { message: "Action successful", accepted_job_req}
 
         } catch (error: any) {
             res.status(500).send(sendError(error));

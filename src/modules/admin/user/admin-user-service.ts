@@ -4,6 +4,8 @@ import User from "../../user/UserModel";
 import Profile from "../../profile/ProfileModel";
 import { Op } from "sequelize";
 import { log } from "console";
+import Job from "../../job/JobModel";
+import JobRequest from "../../job_request/JobRequestModel";
 
 export class AdminUserService {
     // view all users
@@ -100,8 +102,20 @@ export class AdminUserService {
     public stats = async (req: Request, res: Response) => {
         try {
 
+            let user_count = await User.count();
+            let job_count = await Job.count();
+            let job_requests = await JobRequest.count({where: {status: 1}});
+            let users = await User.findAll({limit: 10, include: [
+                {
+                    model: Profile
+                }
+            ]});
+            let completed_job_requests = await JobRequest.count({where: {status: 5}});
+
             return {
-                users: "1k", jobs: "500k", payments: "$2.5M"
+                user_count, jobs: job_count, payments: "$2.5M",
+                job: 10, approved_job_request: job_requests, users,
+                completed_jobs: completed_job_requests
             }
 
         } catch (error: any) {

@@ -519,7 +519,7 @@ class JobRequestService {
                     type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_REJECT_NOTIFICATION,
                     content: status == JobRequestInterface_1.JobRequestStatus.ACCEPT ? `Your job application ${job_req.dataValues.Job.title} was accepted` : `Your job application ${job_req.dataValues.Job.title} was rejected`
                 });
-                return accepted_job_req;
+                return { message: "Action successful", accepted_job_req };
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

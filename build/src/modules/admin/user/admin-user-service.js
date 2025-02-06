@@ -18,6 +18,8 @@ const UserModel_1 = __importDefault(require("../../user/UserModel"));
 const ProfileModel_1 = __importDefault(require("../../profile/ProfileModel"));
 const sequelize_1 = require("sequelize");
 const console_1 = require("console");
+const JobModel_1 = __importDefault(require("../../job/JobModel"));
+const JobRequestModel_1 = __importDefault(require("../../job_request/JobRequestModel"));
 class AdminUserService {
     constructor() {
         // view all users
@@ -101,8 +103,19 @@ class AdminUserService {
         // usage statistics
         this.stats = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
+                let user_count = yield UserModel_1.default.count();
+                let job_count = yield JobModel_1.default.count();
+                let job_requests = yield JobRequestModel_1.default.count({ where: { status: 1 } });
+                let users = yield UserModel_1.default.findAll({ limit: 10, include: [
+                        {
+                            model: ProfileModel_1.default
+                        }
+                    ] });
+                let completed_job_requests = yield JobRequestModel_1.default.count({ where: { status: 5 } });
                 return {
-                    users: "1k", jobs: "500k", payments: "$2.5M"
+                    user_count, jobs: job_count, payments: "$2.5M",
+                    job: 10, approved_job_request: job_requests, users,
+                    completed_jobs: completed_job_requests
                 };
             }
             catch (error) {
