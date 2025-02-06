@@ -32,7 +32,7 @@ class TermsAndConditionService {
                         existing_faqs.push(_faq);
                     yield terms.update({ faq: existing_faqs });
                 }
-                return terms;
+                return { message: "FAQ update successfully", terms };
             }
             catch (error) {
                 (0, console_1.log)(error);
