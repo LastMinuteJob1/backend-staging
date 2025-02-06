@@ -26,6 +26,7 @@ const MailService_1 = require("../mailer/MailService");
 const env_1 = require("../../config/env");
 const NotificationInterface_1 = require("../notification/NotificationInterface");
 const StripeService_1 = require("../../third-party/stripe-payment/StripeService");
+const ProfileModel_1 = __importDefault(require("../profile/ProfileModel"));
 class JobRequestService {
     constructor() {
         this.notificationService = new NotificationService_1.NotificationService();
@@ -96,7 +97,8 @@ class JobRequestService {
                     text: `Dear ${job.dataValues.User["fullname"].split(" ")[0]} <br> ${user["fullname"]} just sent a proposal regarding your job`,
                     subject: "Job Application"
                 });
-                return yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
+                return yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug }, include: [
                         {
                             model: UserModel_1.default,
                             attributes: { exclude: ["password", "verification_code", "token"] },
@@ -108,7 +110,8 @@ class JobRequestService {
                                     attributes: { exclude: ["password", "verification_code", "token"] },
                                 }]
                         }
-                    ] });
+                    ]
+                });
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));
@@ -164,12 +167,14 @@ class JobRequestService {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
                             include: []
                         },
-                        { model: JobModel_1.default, where: {
+                        {
+                            model: JobModel_1.default, where: {
                                 [sequelize_1.Op.or]: [
                                     // { title: { [Op.like]: `%${q_}%` } },
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
-                            }, include: [{ model: UserModel_1.default, where: { email }, attributes: { exclude: ["password", "verification_code", "token"] } }] }
+                            }, include: [{ model: UserModel_1.default, where: { email }, attributes: { exclude: ["password", "verification_code", "token"] } }]
+                        }
                     ]
                 };
                 if (status_)
@@ -196,15 +201,36 @@ class JobRequestService {
                     order: [['id', desc_ == 1 ? "DESC" : "ASC"]],
                     include: [
                         {
+                            // applicant of the job request
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] },
-                            include: []
+                            include: [
+                                {
+                                    // applicant's profile
+                                    model: ProfileModel_1.default
+                                }
+                            ]
                         },
-                        { model: JobModel_1.default, where: {
+                        // the job it's self
+                        {
+                            model: JobModel_1.default, where: {
                                 [sequelize_1.Op.or]: [
                                     // { title: { [Op.like]: `%${q_}%` } },
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
-                            }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }
+                            }, include: [
+                                // job owner
+                                {
+                                    model: UserModel_1.default,
+                                    attributes: { exclude: ["password", "verification_code", "token"] },
+                                    // profile of the job owner
+                                    include: [
+                                        {
+                                            model: ProfileModel_1.default
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
                     ]
                 };
                 if (status_)
@@ -245,12 +271,14 @@ class JobRequestService {
                             model: UserModel_1.default, where: { email }, attributes: { exclude: ["password", "verification_code", "token"] },
                             include: []
                         },
-                        { model: JobModel_1.default, where: {
+                        {
+                            model: JobModel_1.default, where: {
                                 [sequelize_1.Op.or]: [
                                     // { title: { [Op.like]: `%${q_}%` } },
                                     { description: { [sequelize_1.Op.like]: `%${q_}%` } },
                                 ]
-                            }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }] }
+                            }, include: [{ model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] } }]
+                        }
                     ]
                 };
                 if (status_)
@@ -276,7 +304,8 @@ class JobRequestService {
                 let { status } = req.body;
                 status = parseInt(status);
                 // verify if the job belongs to the user
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
+                let job_req = yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug }, include: [
                         {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                         },
@@ -285,7 +314,8 @@ class JobRequestService {
                                     model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                                 }]
                         }
-                    ] });
+                    ]
+                });
                 if (job_req == null) {
                     res.status(404).send((0, error_1.sendError)("This job request doen't exist"));
                     return null;
@@ -391,7 +421,8 @@ class JobRequestService {
                 let { status } = req.body;
                 status = parseInt(status);
                 // verify if the job belongs to the user
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
+                let job_req = yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug }, include: [
                         {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                         },
@@ -400,7 +431,8 @@ class JobRequestService {
                                     model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                                 }]
                         }
-                    ] });
+                    ]
+                });
                 if (job_req == null) {
                     res.status(404).send((0, error_1.sendError)("This job request doen't exist"));
                     return null;
@@ -504,7 +536,8 @@ class JobRequestService {
                 }
                 const job_req_slug = req.params.slug;
                 // finding the job request
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.ACCEPT }, include: [
+                let job_req = yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.ACCEPT }, include: [
                         // the applicant
                         {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
@@ -515,7 +548,8 @@ class JobRequestService {
                                     model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                                 }]
                         }
-                    ] });
+                    ]
+                });
                 if (job_req == null) {
                     res.send((0, error_1.sendError)("This job hasn't been assigned to a last minute app user"));
                     return null;
@@ -542,7 +576,8 @@ class JobRequestService {
                     text: `Dear ${job_owner["fullname"].split(" ")[0]} <br> your on-going job has been submitted for review. kindly review the submission`,
                     subject: "Job Submission"
                 });
-                return yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug }, include: [
+                return yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug }, include: [
                         // the applicant
                         {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
@@ -553,7 +588,8 @@ class JobRequestService {
                                     model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                                 }]
                         }
-                    ] });
+                    ]
+                });
             }
             catch (error) {
                 res.send((0, error_1.sendError)(error));
@@ -576,7 +612,8 @@ class JobRequestService {
                 }
                 status = parseInt(status);
                 // verify if the job belongs to the user
-                let job_req = yield JobRequestModel_1.default.findOne({ where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.COMPLETED_PENDING }, include: [
+                let job_req = yield JobRequestModel_1.default.findOne({
+                    where: { slug: job_req_slug, status: JobRequestInterface_1.JobRequestStatus.COMPLETED_PENDING }, include: [
                         {
                             model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                         },
@@ -585,7 +622,8 @@ class JobRequestService {
                                     model: UserModel_1.default, attributes: { exclude: ["password", "verification_code", "token"] }
                                 }]
                         }
-                    ] });
+                    ]
+                });
                 if (job_req == null) {
                     res.send((0, error_1.sendError)("This job hasn't been submitted for review yet"));
                     return null;

@@ -27,7 +27,7 @@ export class TermsAndConditionService {
 
             }
 
-            return {message: "FAQ update successfully", terms};
+            return { message: "FAQ update successfully", terms };
 
         } catch (error: any) {
             log(error)
