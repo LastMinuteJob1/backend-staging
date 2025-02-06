@@ -12,11 +12,20 @@ export class TermsAndConditionService {
 
             let { faq } = req.body;
 
-            let terms = await this.termsAndConditionModel.findOne({where: {id: 1}});
+            let terms = await this.termsAndConditionModel.findOne({ where: { id: 1 } });
 
-            if (!terms) terms = await this.termsAndConditionModel.create();
+            if (!terms) { terms = await this.termsAndConditionModel.create({ faq }); }
 
-            await terms.update({faq})
+            else {
+
+                let existing_faqs = terms.faq;
+
+                for (const _faq of faq)
+                    existing_faqs.push(_faq);
+
+                await terms.update({ faq: existing_faqs });
+
+            }
 
             return terms;
 
@@ -32,7 +41,7 @@ export class TermsAndConditionService {
 
             // let { faq } = req.body;
 
-            let terms = await this.termsAndConditionModel.findOne({where: {id: 1}});
+            let terms = await this.termsAndConditionModel.findOne({ where: { id: 1 } });
 
             if (!terms) terms = await this.termsAndConditionModel.create();
 

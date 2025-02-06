@@ -23,9 +23,15 @@ class TermsAndConditionService {
             try {
                 let { faq } = req.body;
                 let terms = yield this.termsAndConditionModel.findOne({ where: { id: 1 } });
-                if (!terms)
-                    terms = yield this.termsAndConditionModel.create();
-                yield terms.update({ faq });
+                if (!terms) {
+                    terms = yield this.termsAndConditionModel.create({ faq });
+                }
+                else {
+                    let existing_faqs = terms.faq;
+                    for (const _faq of faq)
+                        existing_faqs.push(_faq);
+                    yield terms.update({ faq: existing_faqs });
+                }
                 return terms;
             }
             catch (error) {
