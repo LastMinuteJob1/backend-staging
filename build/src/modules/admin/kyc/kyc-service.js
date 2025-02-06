@@ -157,7 +157,14 @@ class KYCService {
                     res.status(404).send((0, error_1.sendError)("Please contact user to upload profile"));
                     return null;
                 }
-                return yield profile.update({ is_kyc_verified: status });
+                if (yield profile.update({ is_kyc_verified: status }))
+                    return {
+                        message: "KYC update successful"
+                    };
+                else {
+                    res.status(409).send((0, error_1.sendError)("Error updating KYC status"));
+                    return null;
+                }
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));

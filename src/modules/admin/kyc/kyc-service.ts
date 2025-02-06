@@ -149,7 +149,12 @@ export class KYCService {
                 res.status(404).send(sendError("Please contact user to upload profile"));
                 return null
             }
-            return await profile.update({ is_kyc_verified: status })
+            if (await profile.update({ is_kyc_verified: status })) return {
+                message: "KYC update successful"
+            }; else {
+                res.status(409).send(sendError("Error updating KYC status"));
+            return null
+            }
         } catch (error: any) {
             res.status(500).send(sendError(error));
             return null
