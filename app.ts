@@ -49,6 +49,7 @@ import adminTermsAndConditionRoute from './src/modules/admin/terms-and-condition
 import TermsAndConditions from './src/modules/admin/terms-and-condition/terms-model';
 import adminInteracRoute from './src/modules/admin/interac/admin-interac-route';
 import adminKycRoute from './src/modules/admin/kyc/kyc-route';
+import Faq from './src/modules/admin/terms-and-condition/faq-model';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
@@ -126,6 +127,7 @@ sequelize.sync({ alter: false, force: false })
         await Admin.sync()
         await AdminLink.sync();
         await TermsAndConditions.sync();
+        await Faq.sync();
 
         User.hasMany(Job)
         Job.belongsTo(User)

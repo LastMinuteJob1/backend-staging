@@ -55,6 +55,7 @@ const terms_route_1 = __importDefault(require("./src/modules/admin/terms-and-con
 const terms_model_1 = __importDefault(require("./src/modules/admin/terms-and-condition/terms-model"));
 const admin_interac_route_1 = __importDefault(require("./src/modules/admin/interac/admin-interac-route"));
 const kyc_route_1 = __importDefault(require("./src/modules/admin/kyc/kyc-route"));
+const faq_model_1 = __importDefault(require("./src/modules/admin/terms-and-condition/faq-model"));
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
@@ -116,6 +117,7 @@ db_1.default.sync({ alter: false, force: false })
     yield admin_model_1.default.sync();
     yield admin_link_model_1.default.sync();
     yield terms_model_1.default.sync();
+    yield faq_model_1.default.sync();
     UserModel_1.default.hasMany(JobModel_1.default);
     JobModel_1.default.belongsTo(UserModel_1.default);
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
