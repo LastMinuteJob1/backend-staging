@@ -54,7 +54,7 @@ import Faq from './src/modules/admin/terms-and-condition/faq-model';
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 
 const app = express();
-const port: any = process.env.PORT || 3003;
+const port: any = process.env.PORT || 3000;
 
 let mailController: MailController;
 

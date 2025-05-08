@@ -1,13 +1,18 @@
 import { Request, Response } from "express";
 import { sendError } from "../../../helper/error";
 import Admin from "./admin-model";
-import { comparePassword, generateToken, generateUUID, getAdmin, hashPassword } from "../../../helper/methods";
+import { comparePassword, generateRandomNumber, generateToken, generateUUID, getAdmin, hashPassword } from "../../../helper/methods";
 import { log } from "console";
 import { generate2FASecret, verify2FAToken } from "../../../helper/2FA";
 import { Op } from "sequelize";
 import AdminLink from "./admin-link-model";
+import { mailController } from "../../../../app";
+import { EMAIL_USERNAME } from "../../../config/env";
+import { StorageService } from "../../../../storage/StorageService";
 
 export class AdminService {
+
+    private storageService = new StorageService("job-pics");
     // super admin only
     public addAdmin = async (req: Request, res: Response) => {
         try {
@@ -91,7 +96,7 @@ export class AdminService {
             });
 
             return {
-                message: `${username} has been ${ status == 'true' ? "activated" : "deactivated" } successfully`,
+                message: `${username} has been ${status == 'true' ? "activated" : "deactivated"} successfully`,
                 status: "successful"
             }
 
@@ -129,7 +134,7 @@ export class AdminService {
                 }
             });
 
-            log({admin})
+            log({ admin })
 
             if (!admin) {
                 res.status(404).send(sendError("Unable to find username or email"));
@@ -174,7 +179,7 @@ export class AdminService {
             await admin.update({ token });
 
             return await Admin.findOne({
-                where: { [Op.or]: {username, email:username} }, attributes: {
+                where: { [Op.or]: { username, email: username } }, attributes: {
                     exclude: [
                         "verification_code", "password",
                         "two_factor_temp_secret",
@@ -244,6 +249,145 @@ export class AdminService {
 
         } catch (error: any) {
             res.status(500).send(sendError(error));
+            return null
+        }
+    }
+    public requestOTP = async (request: Request, response: Response) => {
+        try {
+
+            let { email } = request.body
+
+            let admin = await Admin.findOne({
+                where: { email }
+            })
+
+            if (admin == null) {
+                response.status(404).send(sendError("Invalid email address"))
+                return null
+            }
+
+            let code = generateRandomNumber();
+
+            log({ code })
+
+            await admin.update({
+                verification_code: code,
+                where: { email }
+            })
+
+            mailController.send({
+                from: EMAIL_USERNAME, to: email,
+                text: "Your password reset token is: " + code + " valid within 5 minutes",
+                subject: "Password Reset"
+            }).catch(err => log({ err }));
+
+            setTimeout(async () => {
+                if (admin != null)
+                    await admin.update({
+                        verification_code: generateRandomNumber(),
+                        where: { email }
+                    })
+                console.log("code updated")
+            }, 1000 * 60 * 5)
+
+            return await Admin.findOne({
+                where: { email },
+                attributes: {
+                    exclude: ["verification_code", "password"]
+                }
+            })
+
+
+        } catch (error: any) {
+            response.status(500).send(sendError(error));
+            log({ error })
+            return null
+        }
+    }
+    public changePassword = async (request: Request, response: Response) => {
+        try {
+
+            let { email, password, verification_code } = request.body
+
+            password = await hashPassword(password)
+
+            log({ password })
+
+            let admin = await Admin.findOne({
+                where: { email, verification_code }
+            })
+
+            if (admin == null) {
+                response.status(404).send(sendError("Invalid verification code"))
+                return null
+            }
+
+            await admin.update({
+                password, verification_code: generateRandomNumber(), where: { email }
+            })
+
+            // run on another thread
+            mailController.send({
+                from: EMAIL_USERNAME, to: email,
+                text: "Your password reset was successful, kindly notify us if you never initated this process",
+                subject: "Password Recovery"
+            }).catch(err => log(err))
+
+            return await Admin.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password", "token"] } })
+
+        } catch (error: any) {
+            response.status(500).send(sendError(error));
+            return null
+        }
+    }
+    public addProfile = async (request: Request, response: Response) => {
+        try {
+
+            let data = request.body;
+
+            let _admin = await getAdmin(request)
+
+            // let { otp } = request.body;
+
+            await Admin.update(data, { where: { id: _admin.id } });
+
+            return await Admin.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } })
+
+        } catch (error: any) {
+            response.status(500).send(sendError(error));
+            return null
+        }
+    }
+    public upload_pics = async (req: any, res: Response) => {
+        try {
+
+            //
+            let _admin = await getAdmin(req)
+
+            let { files } = req;
+
+            for (let file of files) {
+                let { filename } = file;
+                // get signed URL
+                // let url = await this.storageService.signedUploadURL(filename);
+                // upload pics
+                log({ type: typeof file, file });
+                let { status, data } = await this.storageService.uploadPicture(file, filename);
+                console.log({ data });
+                if (!status) {
+                    log("Error uploading");
+                    continue;
+                }
+                let file_name = data?.Location;
+                log(file_name)
+                await Admin.update({pics: filename}, {where: {id: _admin.id}});
+            }
+
+            return await Admin.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } })
+
+        } catch (error: any) {
+            res.status(500).send(sendError(error));
+            log({ error })
             return null
         }
     }

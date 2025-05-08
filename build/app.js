@@ -59,7 +59,7 @@ const faq_model_1 = __importDefault(require("./src/modules/admin/terms-and-condi
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 const app = (0, express_1.default)();
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3000;
 let mailController;
 var cors = require('cors');
 app.use(cors({

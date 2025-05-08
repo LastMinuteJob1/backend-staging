@@ -30,6 +30,10 @@ Admin.init({
         type: sequelize_1.DataTypes.STRING,
         // allowNull: false
     },
+    pics: {
+        type: sequelize_1.DataTypes.STRING,
+        // allowNull: false
+    },
     email: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
@@ -56,6 +60,14 @@ Admin.init({
         // allowNull: false
     },
     two_factor_temp_secret_ascii: {
+        type: sequelize_1.DataTypes.STRING,
+        // allowNull: false
+    },
+    otp: {
+        type: sequelize_1.DataTypes.STRING,
+        // allowNull: false
+    },
+    verification_code: {
         type: sequelize_1.DataTypes.STRING,
         // allowNull: false
     },

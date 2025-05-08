@@ -20,8 +20,12 @@ const console_1 = require("console");
 const _2FA_1 = require("../../../helper/2FA");
 const sequelize_1 = require("sequelize");
 const admin_link_model_1 = __importDefault(require("./admin-link-model"));
+const app_1 = require("../../../../app");
+const env_1 = require("../../../config/env");
+const StorageService_1 = require("../../../../storage/StorageService");
 class AdminService {
     constructor() {
+        this.storageService = new StorageService_1.StorageService("job-pics");
         // super admin only
         this.addAdmin = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -214,6 +218,118 @@ class AdminService {
             }
             catch (error) {
                 res.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.requestOTP = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { email } = request.body;
+                let admin = yield admin_model_1.default.findOne({
+                    where: { email }
+                });
+                if (admin == null) {
+                    response.status(404).send((0, error_1.sendError)("Invalid email address"));
+                    return null;
+                }
+                let code = (0, methods_1.generateRandomNumber)();
+                (0, console_1.log)({ code });
+                yield admin.update({
+                    verification_code: code,
+                    where: { email }
+                });
+                app_1.mailController.send({
+                    from: env_1.EMAIL_USERNAME, to: email,
+                    text: "Your password reset token is: " + code + " valid within 5 minutes",
+                    subject: "Password Reset"
+                }).catch(err => (0, console_1.log)({ err }));
+                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    if (admin != null)
+                        yield admin.update({
+                            verification_code: (0, methods_1.generateRandomNumber)(),
+                            where: { email }
+                        });
+                    console.log("code updated");
+                }), 1000 * 60 * 5);
+                return yield admin_model_1.default.findOne({
+                    where: { email },
+                    attributes: {
+                        exclude: ["verification_code", "password"]
+                    }
+                });
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
+        this.changePassword = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { email, password, verification_code } = request.body;
+                password = yield (0, methods_1.hashPassword)(password);
+                (0, console_1.log)({ password });
+                let admin = yield admin_model_1.default.findOne({
+                    where: { email, verification_code }
+                });
+                if (admin == null) {
+                    response.status(404).send((0, error_1.sendError)("Invalid verification code"));
+                    return null;
+                }
+                yield admin.update({
+                    password, verification_code: (0, methods_1.generateRandomNumber)(), where: { email }
+                });
+                // run on another thread
+                app_1.mailController.send({
+                    from: env_1.EMAIL_USERNAME, to: email,
+                    text: "Your password reset was successful, kindly notify us if you never initated this process",
+                    subject: "Password Recovery"
+                }).catch(err => (0, console_1.log)(err));
+                return yield admin_model_1.default.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password", "token"] } });
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.addProfile = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let data = request.body;
+                let _admin = yield (0, methods_1.getAdmin)(request);
+                // let { otp } = request.body;
+                yield admin_model_1.default.update(data, { where: { id: _admin.id } });
+                return yield admin_model_1.default.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } });
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
+        this.upload_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                //
+                let _admin = yield (0, methods_1.getAdmin)(req);
+                let { files } = req;
+                for (let file of files) {
+                    let { filename } = file;
+                    // get signed URL
+                    // let url = await this.storageService.signedUploadURL(filename);
+                    // upload pics
+                    (0, console_1.log)({ type: typeof file, file });
+                    let { status, data } = yield this.storageService.uploadPicture(file, filename);
+                    console.log({ data });
+                    if (!status) {
+                        (0, console_1.log)("Error uploading");
+                        continue;
+                    }
+                    let file_name = data === null || data === void 0 ? void 0 : data.Location;
+                    (0, console_1.log)(file_name);
+                    yield admin_model_1.default.update({ pics: filename }, { where: { id: _admin.id } });
+                }
+                return yield admin_model_1.default.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } });
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
                 return null;
             }
         });

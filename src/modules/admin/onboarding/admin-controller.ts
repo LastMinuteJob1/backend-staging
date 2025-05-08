@@ -42,4 +42,26 @@ export class AdminController {
         if (data != null)
             res.send(sendResponse(data))
     }
+    public requestOTP = async (req: Request, res: Response) => {
+        let data = await this._adminService.requestOTP(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+    public changePassword = async (req: Request, res: Response) => {
+        let data = await this._adminService.changePassword(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+    public addProfile = async (req: Request, res: Response) => {
+        let data = await this._adminService.addProfile(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
+    public upload_pics = async (req: Request, res: Response) => {
+        let data = await this._adminService.upload_pics(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
 }

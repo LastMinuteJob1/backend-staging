@@ -52,6 +52,26 @@ class AdminController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.requestOTP = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._adminService.requestOTP(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._adminService.changePassword(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.addProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._adminService.addProfile(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
+        this.upload_pics = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._adminService.upload_pics(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.AdminController = AdminController;

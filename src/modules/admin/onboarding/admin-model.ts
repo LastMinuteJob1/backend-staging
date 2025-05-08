@@ -11,11 +11,14 @@ class Admin extends Model {
   declare phone_number:string;
   declare dob:Date;
   declare address:string;
+  declare pics:string;
   declare bio:string;
   declare two_factor_temp_secret:string;
   declare two_factor_temp_secret_ascii:string;
   declare token:string;
   declare roles:string[];
+  declare otp:string;
+  declare verification_code: string
   declare active:boolean;
   declare is2FA_active:boolean;
 }
@@ -40,6 +43,10 @@ Admin.init({
     // allowNull: false
   },
   last_name: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  pics: {
     type: DataTypes.STRING,
     // allowNull: false
   },
@@ -69,6 +76,14 @@ Admin.init({
     // allowNull: false
   },
   two_factor_temp_secret_ascii: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  otp: {
+    type: DataTypes.STRING,
+    // allowNull: false
+  },
+  verification_code: {
     type: DataTypes.STRING,
     // allowNull: false
   },

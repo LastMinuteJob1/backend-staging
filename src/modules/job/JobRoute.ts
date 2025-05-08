@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
       cb(null, slugify("job-pics " + generateRandomNumber() + " " + file.originalname)); // Customize filename if needed
     }
 });
-   
+  
 const upload = multer({ storage });
 
 jobRoute.put("/upload/pics/:slug", upload.array("file"), jobController.upload_pics)

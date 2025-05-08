@@ -38,9 +38,11 @@ class UserService {
                 }
                 let real_user = yield UserModel_1.default.findOne({ where: { email: user.email } });
                 yield (real_user === null || real_user === void 0 ? void 0 : real_user.update(Object.assign({}, body)));
-                return yield UserModel_1.default.findOne({ where: { email: user.email }, attributes: {
+                return yield UserModel_1.default.findOne({
+                    where: { email: user.email }, attributes: {
                         exclude: ["password", "verification_code"]
-                    } });
+                    }
+                });
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));
@@ -292,10 +294,12 @@ class UserService {
                                 email: user.email, name: user.fullname
                             });
                             yield user.update({ token, firebase_token, where: { email } });
-                            return yield UserModel_1.default.findOne({ where: { email },
+                            return yield UserModel_1.default.findOne({
+                                where: { email },
                                 include: [
                                     { model: ProfileModel_1.default }
-                                ], attributes: { exclude: ["verification_code", "password"] } });
+                                ], attributes: { exclude: ["verification_code", "password"] }
+                            });
                         }
                     }
                 // password = hashPassword(password)
@@ -322,10 +326,12 @@ class UserService {
                     email: user.email, name: user.fullname
                 });
                 yield user.update({ token, firebase_token, where: { email } });
-                return yield UserModel_1.default.findOne({ where: { email },
+                return yield UserModel_1.default.findOne({
+                    where: { email },
                     include: [
                         { model: ProfileModel_1.default }
-                    ], attributes: { exclude: ["verification_code", "password"] } });
+                    ], attributes: { exclude: ["verification_code", "password"] }
+                });
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));
@@ -389,10 +395,12 @@ class UserService {
                     _user.fullname = _user.email;
                     const token = yield (0, methods_1.generateToken)(_user);
                     yield user.update({ token });
-                    return yield UserModel_1.default.findOne({ where: { email },
+                    return yield UserModel_1.default.findOne({
+                        where: { email },
                         include: [
                             { model: ProfileModel_1.default }
-                        ], attributes: { exclude: ["verification_code", "password"] } });
+                        ], attributes: { exclude: ["verification_code", "password"] }
+                    });
                 }
                 (0, console_1.log)(" +++++++++++++ Creating Credentials +++++++++++ ");
                 let new_user = yield UserModel_1.default.create({
@@ -404,11 +412,13 @@ class UserService {
                 const token = yield (0, methods_1.generateToken)(new_user);
                 (0, console_1.log)(token);
                 yield new_user.update({ token });
-                return yield UserModel_1.default.findOne({ where: { email }, include: [{
+                return yield UserModel_1.default.findOne({
+                    where: { email }, include: [{
                             model: ProfileModel_1.default
                         }], attributes: {
                         exclude: ["password", "verification_code"],
-                    } });
+                    }
+                });
             }
             catch (error) {
                 response.status(500).send((0, error_1.sendError)(error));
@@ -427,9 +437,11 @@ class UserService {
                     (0, console_1.log)(">>>>>>>>>>>>>>>>>>>Getting user default email>>>>>>>>>>>>>>>>>>");
                     email = user.email;
                 }
-                let raw_user = yield UserModel_1.default.findOne({ where: { email }, include: [
+                let raw_user = yield UserModel_1.default.findOne({
+                    where: { email }, include: [
                         { model: StripeCustomerModel_1.default }
-                    ] });
+                    ]
+                });
                 let data = yield this._stripeService.add_customers(username, email);
                 let customer = yield StripeCustomerModel_1.default.create({ data });
                 let prev_data = raw_user["StripeCustomer"];

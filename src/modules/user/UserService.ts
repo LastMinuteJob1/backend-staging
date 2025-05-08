@@ -18,10 +18,10 @@ export class UserService {
     private _googleOAuthService = new GoogleOAuthService();
     private _stripeService = new StripeService()
 
-    public partial_signup = async (request:Request, response:Response) => {
+    public partial_signup = async (request: Request, response: Response) => {
         try {
 
-            let {body} = request
+            let { body } = request
 
             const user = await getUser(request)
 
@@ -30,30 +30,32 @@ export class UserService {
                 return null
             }
 
-            let real_user = await User.findOne({where:{email:user.email}})
+            let real_user = await User.findOne({ where: { email: user.email } })
 
-            await real_user?.update({...body})
+            await real_user?.update({ ...body })
 
-            return await User.findOne({where:{email: user.email}, attributes: {
-                exclude: ["password", "verification_code"]
-            }})
+            return await User.findOne({
+                where: { email: user.email }, attributes: {
+                    exclude: ["password", "verification_code"]
+                }
+            })
 
-        } catch (error:any) {
+        } catch (error: any) {
             response.status(500).send(sendError(error));
             return null
         }
     }
 
-    public signup = async (request:Request, response:Response) => {
+    public signup = async (request: Request, response: Response) => {
         try {
-            let payload:SignupRequest = request.body;
+            let payload: SignupRequest = request.body;
             let {
                 fullname, email, phone_number, pronoun, city, postal_code,
                 address, password, isGmail, token_id, dob, province
             } = payload
             let token = await generateToken(payload)
             let verification_code = generateRandomNumber()
-            console.log({verification_code});
+            console.log({ verification_code });
             // password = isGmail ? (generateRandomNumber() + generateRandomNumber()) : password
             if (address) {
                 if (address.length < 10) {
@@ -78,15 +80,15 @@ export class UserService {
                         return null;
                     } else {
                         // verify token ID
-                        let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+                        let { email, name } = await this._googleOAuthService.verifyGoogleIdToken(token_id);
                         if (email == null) {
                             response.status(409).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
                             return null;
                         }
-                        if (name == null) { 
+                        if (name == null) {
                             response.status(409).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
                             return null;
-                        } 
+                        }
                         log("*****************Google OAuth Successful********************")
                         data["fullname"] = name;
                         data["email"] = email;
@@ -97,7 +99,7 @@ export class UserService {
             data["is_verified"] = is_email_verified
 
             // check if phone number is unique
-            let user_by_tel = await User.findOne({where:{phone_number}});
+            let user_by_tel = await User.findOne({ where: { phone_number } });
 
             if (user_by_tel) {
                 if (user_by_tel.email != email) {
@@ -105,27 +107,27 @@ export class UserService {
                     response.status(409).send(sendError("Phone number already exists"))
                     return null;
                 } else {
-                    if (user_by_tel.is_verified) { 
+                    if (user_by_tel.is_verified) {
                         log("verified")
                         response.status(409).send(sendError("User already exists with phone number " + phone_number));
                         return null;
                     }
-                } 
+                }
                 log("Can proceed process")
             }
 
-            let user = await User.findOne({where:{email}})
-            
+            let user = await User.findOne({ where: { email } })
+
             if (user) {
 
-                log("found", {user})
-                if (user.is_verified) { 
+                log("found", { user })
+                if (user.is_verified) {
                     log("verified")
                     response.status(409).send(sendError("User already exists with email " + email));
                     return null;
                 }
 
-            } else user = await User.create(data) 
+            } else user = await User.create(data)
 
             if (!user) {
                 response.status(500).send(sendError("Something went wrong " + email));
@@ -142,15 +144,15 @@ export class UserService {
             setTimeout(async () => {
                 await user.update({
                     verification_code: generateRandomNumber(),
-                    where: {email}
+                    where: { email }
                 })
                 console.log("code updated")
             }, 1000 * 60 * 5)
 
             let reg_user = await User.findOne({
-                where: {email},
+                where: { email },
                 include: [
-                    {model: Profile}
+                    { model: Profile }
                 ],
                 attributes: {
                     exclude: ["password", "verification_code"]
@@ -161,32 +163,32 @@ export class UserService {
                 // generate a wallet for the user
                 let wallet = await Wallet.findOne({
                     include: [
-                        {model:User, where:{id: reg_user.id}, attributes: ["id"]}
+                        { model: User, where: { id: reg_user.id }, attributes: ["id"] }
                     ]
                 })
                 if (!wallet) {
-                    wallet = await Wallet.create({balance:0})
+                    wallet = await Wallet.create({ balance: 0 })
                     await (<any>wallet).setUser(user.id);
                 }
             }
 
-            await User.update({verification_code}, {where: {email}})
+            await User.update({ verification_code }, { where: { email } })
 
             return reg_user;
 
-        } catch (error:any) {
+        } catch (error: any) {
             response.status(500).send(sendError(error));
             return null
         }
     }
 
-    public check_otp_validity = async (request:Request, response:Response) => {
+    public check_otp_validity = async (request: Request, response: Response) => {
         try {
 
             let { email, verification_code } = request.body
 
             let user = await User.findOne({
-                where: {email, verification_code}, attributes: {
+                where: { email, verification_code }, attributes: {
                     exclude: ["password", "verification_code"]
                 }
             })
@@ -197,20 +199,20 @@ export class UserService {
             }
 
             return user;
-            
-        } catch (error:any) {
+
+        } catch (error: any) {
             response.status(500).send(sendError(error));
             return null
         }
     }
 
-    public verify_email = async (request:Request, response:Response) => {
+    public verify_email = async (request: Request, response: Response) => {
         try {
-            
+
             let { email, verification_code } = request.body
 
             let user = await User.findOne({
-                where: {email, verification_code}
+                where: { email, verification_code }
             })
 
             if (user == null) {
@@ -226,29 +228,29 @@ export class UserService {
                 is_verified: true,
                 token,
                 verification_code: generateRandomNumber(),
-                where: {email}
+                where: { email }
             })
 
             return await User.findOne({
-                where: {email},
+                where: { email },
                 attributes: {
                     exclude: ["password", "verification_code"]
                 }
             })
 
-        } catch (error:any) {
+        } catch (error: any) {
             response.status(500).send(sendError(error))
             return null
         }
     }
 
-    public request_verification_code = async (request:Request, response:Response) => {
+    public request_verification_code = async (request: Request, response: Response) => {
         try {
 
-            let {email} = request.body
+            let { email } = request.body
 
             let user = await User.findOne({
-                where: {email}
+                where: { email }
             })
 
             if (user == null) {
@@ -257,10 +259,10 @@ export class UserService {
             }
 
             let code = generateRandomNumber()
-            
+
             await user.update({
                 verification_code: code,
-                where: {email}
+                where: { email }
             })
 
             await mailController.send({
@@ -269,38 +271,38 @@ export class UserService {
                 subject: "Email Verification"
             })
 
-            setTimeout(async () => { 
+            setTimeout(async () => {
                 if (user != null)
-                await user.update({
-                    verification_code: generateRandomNumber(),
-                    where: {email}
-                })
+                    await user.update({
+                        verification_code: generateRandomNumber(),
+                        where: { email }
+                    })
                 console.log("code updated")
             }, 1000 * 60 * 5)
 
             return await User.findOne({
-                where: {email},
+                where: { email },
                 attributes: {
                     exclude: ["verification_code", "password"]
                 }
             })
-           
-        } catch (error:any) {
+
+        } catch (error: any) {
             response.status(500).send(sendError(error))
             return null
         }
     }
 
-    public login = async (request:Request, response:Response) => {
+    public login = async (request: Request, response: Response) => {
         try {
 
             console.log(">>>>>>>>>>>>>>>>>>>>LOGIN>>>>>>>>>>>>>>>>>>>>");
-            
-            let {email, password, firebase_token, isGmail, token_id} = request.body
+
+            let { email, password, firebase_token, isGmail, token_id } = request.body
 
             log(request.body)
 
-            if(isGmail)
+            if (isGmail)
                 if (isGmail == 'true') {
 
                     log(">>>>>>>>>>>>>>>>>>>>>>>[Gmail Signin]>>>>>>>>>>>>>>>>>>>")
@@ -310,7 +312,7 @@ export class UserService {
                     } else {
 
                         // verify token ID
-                        let {email, name} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+                        let { email, name } = await this._googleOAuthService.verifyGoogleIdToken(token_id);
                         if (email == null) {
                             response.status(409).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
                             return null;
@@ -320,7 +322,7 @@ export class UserService {
                             return null;
                         }
                         log("*****************Checking System For Credentials*****************")
-                        let user = await User.findOne({where: {email}})
+                        let user = await User.findOne({ where: { email } })
                         if (!user) {
                             response.status(404).send(sendError(`We couldn't fetch your record as ${email}, please sign-in`))
                             return null
@@ -331,12 +333,14 @@ export class UserService {
                             email: user.email, name: user.fullname
                         });
 
-                        await user.update({token, firebase_token, where:{email}})
+                        await user.update({ token, firebase_token, where: { email } })
 
-                        return await User.findOne({where:{email}, 
+                        return await User.findOne({
+                            where: { email },
                             include: [
-                                {model: Profile}
-                            ], attributes:{exclude:["verification_code", "password"]}})
+                                { model: Profile }
+                            ], attributes: { exclude: ["verification_code", "password"] }
+                        })
                     }
 
                 }
@@ -344,7 +348,7 @@ export class UserService {
             // password = hashPassword(password)
 
             let user = await User.findOne({
-                where: {email}
+                where: { email }
             })
 
             if (user == null) {
@@ -371,31 +375,33 @@ export class UserService {
                 email: user.email, name: user.fullname
             });
 
-            await user.update({token, firebase_token, where:{email}})
+            await user.update({ token, firebase_token, where: { email } })
 
-            return await User.findOne({where:{email}, 
+            return await User.findOne({
+                where: { email },
                 include: [
-                    {model: Profile}
-                ], attributes:{exclude:["verification_code", "password"]}})
+                    { model: Profile }
+                ], attributes: { exclude: ["verification_code", "password"] }
+            })
 
-        } catch (error:any) {
+        } catch (error: any) {
             response.status(500).send(sendError(error))
             return null
         }
     }
 
-    public password_recovery = async (request:Request, response:Response) => {
+    public password_recovery = async (request: Request, response: Response) => {
         try {
 
-            let {email, password, verification_code} = request.body
+            let { email, password, verification_code } = request.body
 
             password = await hashPassword(password)
 
-            log({password})
+            log({ password })
 
             let user = await User.findOne({
-                where: {email, verification_code}
-            }) 
+                where: { email, verification_code }
+            })
 
             if (user == null) {
                 response.status(404).send(sendError("Invalid verification code"))
@@ -403,7 +409,7 @@ export class UserService {
             }
 
             await user.update({
-                password, verification_code: generateRandomNumber(), where:{email}
+                password, verification_code: generateRandomNumber(), where: { email }
             })
 
             // run on another thread
@@ -413,42 +419,42 @@ export class UserService {
                 subject: "Password Recovery"
             })
 
-            return await User.findOne({where:{email}, attributes:{exclude:["verification_code", "password", "token"]}})
+            return await User.findOne({ where: { email }, attributes: { exclude: ["verification_code", "password", "token"] } })
 
-        } catch (error:any) {
+        } catch (error: any) {
             response.status(500).send(sendError(error))
             return null
         }
     }
 
-     public verify_google_oauth_token_id = async (request:Request, response:Response) => {
+    public verify_google_oauth_token_id = async (request: Request, response: Response) => {
         try {
 
-            let {token_id, firebase_token} = request.query;
+            let { token_id, firebase_token } = request.query;
 
-            log({token_id, firebase_token})
+            log({ token_id, firebase_token })
 
             if (!token_id) {
                 response.status(409).send(sendError("Please supply your token ID"));
                 return null;
             }
 
-            let {email, name, sub} = await this._googleOAuthService.verifyGoogleIdToken(token_id);
+            let { email, name, sub } = await this._googleOAuthService.verifyGoogleIdToken(token_id);
 
             if (email == null) {
                 response.status(400).send(sendError("Unfortunately we couldn't pick your 'email' up, please try again later"));
                 return null;
             }
-                        
-            if (name == null) { 
+
+            if (name == null) {
                 response.status(400).send(sendError("Unfortunately we couldn't pick your 'name' up, please try again later"));
                 return null;
-            } 
+            }
 
             // create the user
 
-            let user = await User.findOne({where:{email}})
-            
+            let user = await User.findOne({ where: { email } })
+
             if (user) {
                 log("+++++++++++++ Updating Credentials +++++++++++++++")
                 // if (user.phone_number) {
@@ -457,17 +463,19 @@ export class UserService {
                 // }
                 let _user: User = user; _user.fullname = _user.email
                 const token = await generateToken(_user)
-                await user.update({token})
-                return await User.findOne({where:{email}, 
-                include: [
-                    {model: Profile}
-                ], attributes:{exclude:["verification_code", "password"]}})
+                await user.update({ token })
+                return await User.findOne({
+                    where: { email },
+                    include: [
+                        { model: Profile }
+                    ], attributes: { exclude: ["verification_code", "password"] }
+                })
             }
 
             log(" +++++++++++++ Creating Credentials +++++++++++ ")
             let new_user = await User.create({
                 email, fullname: name, is_verified: true,
-                token: "", password: hashPassword(sub), 
+                token: "", password: hashPassword(sub),
                 verification_code: generateRandomNumber(),
                 firebase_token
             })
@@ -476,26 +484,28 @@ export class UserService {
 
             log(token)
 
-            await new_user.update({token})
+            await new_user.update({ token })
 
-            return await User.findOne({where:{email}, include: [{
-                model: Profile
-            }], attributes: {
-                exclude: ["password", "verification_code"],
-            }})
-            
-        } catch (error:any) {
+            return await User.findOne({
+                where: { email }, include: [{
+                    model: Profile
+                }], attributes: {
+                    exclude: ["password", "verification_code"],
+                }
+            })
+
+        } catch (error: any) {
             response.status(500).send(sendError(error))
             return null
         }
-     }
+    }
 
-     public add_stripe_customer = async (request:Request, response:Response) => {
+    public add_stripe_customer = async (request: Request, response: Response) => {
         try {
 
-            let {username, email} = request.body
+            let { username, email } = request.body
 
-            let user:User = await getUser(request)
+            let user: User = await getUser(request)
 
             if (!user) {
                 response.status(400).send(sendError("Something went wrong, please login"));
@@ -507,34 +517,36 @@ export class UserService {
                 email = user.email
             }
 
-            let raw_user = await User.findOne({where:{email}, include: [
-                {model: StripeCustomer}
-            ]})
+            let raw_user = await User.findOne({
+                where: { email }, include: [
+                    { model: StripeCustomer }
+                ]
+            })
 
             let data = await this._stripeService.add_customers(username, email)
 
-            let customer = await StripeCustomer.create({data}) 
+            let customer = await StripeCustomer.create({ data })
 
             let prev_data = (<any>raw_user)["StripeCustomer"]
 
-            log({prev_data})
+            log({ prev_data })
 
-            if (prev_data) { 
+            if (prev_data) {
                 log("<<<<<<<<<<<<<<<<<<<Updating Data>>>>>>>>>>>>>>>>>>>>>>")
                 await prev_data.update({
                     data
                 })
                 log(prev_data)
             } else
-                await (<any> customer).setUser(raw_user)
+                await (<any>customer).setUser(raw_user)
 
             return data
 
-        } catch (error:any) {
+        } catch (error: any) {
             log(error)
             response.status(500).send(sendError(error))
             return null
         }
-     }
+    }
 
 }
