@@ -380,10 +380,30 @@ export class AdminService {
                 }
                 let file_name = data?.Location;
                 log(file_name)
-                await Admin.update({pics: filename}, {where: {id: _admin.id}});
+                await Admin.update({ pics: filename }, { where: { id: _admin.id } });
             }
 
             return await Admin.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } })
+
+        } catch (error: any) {
+            res.status(500).send(sendError(error));
+            log({ error })
+            return null
+        }
+    }
+    public profile = async (req: any, res: Response) => {
+        try {
+
+            let { email } = req.params;
+
+            let admin = await Admin.findOne({ where: { email } })
+
+            if (!admin) {
+                res.status(404).send(sendError("Profile not found"));
+                return null
+            }
+
+            return admin;
 
         } catch (error: any) {
             res.status(500).send(sendError(error));

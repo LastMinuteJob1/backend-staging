@@ -64,4 +64,10 @@ export class AdminController {
             res.send(sendResponse(data))
     }
 
+    public profile = async (req: Request, res: Response) => {
+        let data = await this._adminService.profile(req, res)
+        if (data != null)
+            res.send(sendResponse(data))
+    }
+
 }

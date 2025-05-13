@@ -333,6 +333,22 @@ class AdminService {
                 return null;
             }
         });
+        this.profile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let { email } = req.params;
+                let admin = yield admin_model_1.default.findOne({ where: { email } });
+                if (!admin) {
+                    res.status(404).send((0, error_1.sendError)("Profile not found"));
+                    return null;
+                }
+                return admin;
+            }
+            catch (error) {
+                res.status(500).send((0, error_1.sendError)(error));
+                (0, console_1.log)({ error });
+                return null;
+            }
+        });
     }
 }
 exports.AdminService = AdminService;

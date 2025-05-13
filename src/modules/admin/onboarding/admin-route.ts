@@ -18,6 +18,7 @@ adminRoute.post("/password/change", adminController.changePassword);
 adminRoute.use(authorization_admin)
 adminRoute.get("/", adminController.listAdmin);
 adminRoute.put("/profile", adminController.addProfile);
+adminRoute.get("/profile/:email", adminController.profile);
 
 const storage = multer.diskStorage({
     destination: (req: any, file: any, cb: any) => {
@@ -36,7 +37,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 adminRoute.put("/upload/profile-pics", upload.array("file"), adminController.upload_pics)
-
 adminRoute.patch("/2Fa", adminController.add2FAuthAdmin);
 adminRoute.patch("/set-password", adminController.setPasswordAdmin);
 

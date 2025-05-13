@@ -72,6 +72,11 @@ class AdminController {
             if (data != null)
                 res.send((0, methods_1.sendResponse)(data));
         });
+        this.profile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let data = yield this._adminService.profile(req, res);
+            if (data != null)
+                res.send((0, methods_1.sendResponse)(data));
+        });
     }
 }
 exports.AdminController = AdminController;

@@ -19,6 +19,7 @@ adminRoute.post("/password/change", adminController.changePassword);
 adminRoute.use(middlewares_1.authorization_admin);
 adminRoute.get("/", adminController.listAdmin);
 adminRoute.put("/profile", adminController.addProfile);
+adminRoute.get("/profile/:email", adminController.profile);
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, app_1.storage_path); // Specify the upload directory
