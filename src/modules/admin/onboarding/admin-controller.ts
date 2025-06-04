@@ -5,7 +5,7 @@ import { sendResponse } from "../../../helper/methods";
 
 export class AdminController {
     private _adminService = new AdminService();
-    // super admin only
+    // super admin only 
     public addAdmin = async (req: Request, res: Response) => {
         let data = await this._adminService.addAdmin(req, res)
         if (data != null)
@@ -14,7 +14,7 @@ export class AdminController {
     public removeAdmin = async (req: Request, res: Response) => {
         let data = await this._adminService.removeAdmin(req, res)
         if (data != null)
-            res.send(sendResponse(data))
+            res.send(sendResponse(data)) 
     }
     public deactivateAdmin = async (req: Request, res: Response) => {
         let data = await this._adminService.deactivateAdmin(req, res)

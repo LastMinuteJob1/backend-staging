@@ -1,17 +1,18 @@
+/build
 /node_modules
 
 .env
+.dockerignore
+
 
 Dockerfile
 
-.dockerignore
+/rootkey.csv
 
-/build
+/developer_credentials.csv
 
-rootkey.csv
+/developer_accessKeys.csv
 
-webserver-keypair.pem
+/webserver-keypair.pem
 
-developer_credentials.csv
-
-developer_accessKeys.csv
+ 
