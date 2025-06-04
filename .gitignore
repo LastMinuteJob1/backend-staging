@@ -1,12 +1,12 @@
 /node_modules
 
-/build
-
 .env
 
 Dockerfile
 
 .dockerignore
+
+/build
 
 rootkey.csv
 
