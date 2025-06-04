@@ -53,6 +53,7 @@ class UserService {
             try {
                 let payload = request.body;
                 let { fullname, email, phone_number, pronoun, city, postal_code, address, password, isGmail, token_id, dob, province } = payload;
+                // log({password})
                 let token = yield (0, methods_1.generateToken)(payload);
                 let verification_code = (0, methods_1.generateRandomNumber)();
                 console.log({ verification_code });
@@ -65,12 +66,12 @@ class UserService {
                 }
                 let data = {
                     fullname, email, phone_number, address, verification_code,
-                    password: (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
+                    password: yield (0, methods_1.hashPassword)(password), pronoun, city, postal_code,
                     dob, province,
                     is_verified: false, token: isGmail ? token : null
                 };
                 let is_email_verified = false;
-                (0, console_1.log)(payload);
+                (0, console_1.log)({ data });
                 if (isGmail)
                     if (isGmail.toString() == 'true') {
                         (0, console_1.log)("****************Checking Google OAuth***************");

@@ -16,29 +16,29 @@ exports.StorageService = void 0;
 const app_1 = require("../app");
 const path_1 = __importDefault(require("path"));
 const env_1 = require("../src/config/env");
-const client_s3_1 = require("@aws-sdk/client-s3");
 const lib_storage_1 = require("@aws-sdk/lib-storage");
+const client_s3_1 = require("@aws-sdk/client-s3");
 const fs = require("fs");
 class StorageService {
+    // private accessKeyId = ACCESS_KEY;
+    // private secretAccessKey = SECRET_KEY;
+    // private endpoint = 'https://us-sea-1.linodeobjects.com/';
+    // private bucketName:any = 'job-pics';
     constructor(bucket) {
-        this.accessKeyId = env_1.ACCESS_KEY;
-        this.secretAccessKey = env_1.SECRET_KEY;
-        this.endpoint = 'https://us-sea-1.linodeobjects.com/';
-        this.bucketName = 'job-pics';
         this.s3Client = new client_s3_1.S3Client({
             credentials: {
-                accessKeyId: this.accessKeyId,
-                secretAccessKey: this.secretAccessKey,
+                accessKeyId: env_1.ACCESS_KEY_ID,
+                secretAccessKey: env_1.SECRET_ACCESS_KEY,
             },
-            endpoint: this.endpoint,
-            region: 'us-sea-1',
+            // endpoint: this.endpoint,
+            region: env_1.S3_REGION_NAME,
         });
         this.uploadPicture = (file, fileName) => __awaiter(this, void 0, void 0, function* () {
             let stream = fs.createReadStream(file.path);
             const upload = new lib_storage_1.Upload({
                 client: this.s3Client,
                 params: {
-                    Bucket: this.bucketName,
+                    Bucket: env_1.S3_BUCKET_NAME,
                     Key: fileName,
                     Body: stream,
                     ContentType: file.mimetype,
@@ -87,7 +87,7 @@ class StorageService {
                 res.status(500).send('Internal server error');
             }
         });
-        this.bucketName = bucket;
+        // this.bucketName = bucket;
         // this.endpoint = isProfile ? 'https://profile-uploads.us-sea-1.linodeobjects.com/' : this.endpoint;
     }
 }

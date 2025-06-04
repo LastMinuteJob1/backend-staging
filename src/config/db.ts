@@ -1,13 +1,13 @@
 import { Sequelize } from "sequelize";
-import { MYSQL_DATABASE, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT, MYSQL_USERNAME } from "./env";
+import { DB_NAME, DB_HOST, DB_PWD, DB_PORT, DB_UID } from "./env";
 
 const dbConfig = {
     'development': {
-      username: MYSQL_USERNAME,
-      password: MYSQL_PASSWORD,
-      database: MYSQL_DATABASE,
-      host: MYSQL_HOST,
-      port: MYSQL_PORT,
+      username: DB_UID,
+      password: DB_PWD,
+      database: DB_NAME,
+      host: DB_HOST, 
+      port: DB_PORT,
       dialect: 'postgres',
       models: [],
       dialectOptions: { 

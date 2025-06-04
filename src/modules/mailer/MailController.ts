@@ -10,7 +10,7 @@ export class MailController {
     }
 
     public async send (options:MailInterface) {
-        return await this.mailService.send(options)
+        return await this.mailService.send(options);
     }
 
 }

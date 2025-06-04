@@ -1,33 +1,33 @@
 import { Request, Response } from "express";
 import { storage_path } from "../app";
 import path from "path";
-import { ACCESS_KEY, SECRET_KEY } from "../src/config/env";
+import { ACCESS_KEY, ACCESS_KEY_ID, S3_BUCKET_NAME, S3_REGION_NAME, SECRET_ACCESS_KEY, SECRET_KEY } from "../src/config/env";
 import { log } from "console";
-import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { Boolean } from "aws-sdk/clients/batch";
+import { S3Client, PutObjectCommand, S3ClientConfig } from '@aws-sdk/client-s3';
 
 const fs = require("fs");
 
 export class StorageService {
 
-    private accessKeyId = ACCESS_KEY;
-    private secretAccessKey = SECRET_KEY;
-    private endpoint = 'https://us-sea-1.linodeobjects.com/';
-    private bucketName:any = 'job-pics';
+    // private accessKeyId = ACCESS_KEY;
+    // private secretAccessKey = SECRET_KEY;
+    // private endpoint = 'https://us-sea-1.linodeobjects.com/';
+    // private bucketName:any = 'job-pics';
 
     constructor (bucket:any, /*isProfile:Boolean = false*/) {
-      this.bucketName = bucket;
+      // this.bucketName = bucket;
       // this.endpoint = isProfile ? 'https://profile-uploads.us-sea-1.linodeobjects.com/' : this.endpoint;
-    }
+    } 
 
     private s3Client = new S3Client({
       credentials: {
-        accessKeyId: this.accessKeyId,
-        secretAccessKey: this.secretAccessKey,
+        accessKeyId: ACCESS_KEY_ID,
+        secretAccessKey: SECRET_ACCESS_KEY,
       },
-      endpoint: this.endpoint,
-      region: 'us-sea-1',
+      // endpoint: this.endpoint,
+      region: S3_REGION_NAME,
     });
 
     public uploadPicture = async (file:any, fileName:any) => {
@@ -35,13 +35,13 @@ export class StorageService {
       const upload = new Upload({
         client: this.s3Client,
         params: {
-          Bucket: this.bucketName,
+          Bucket: S3_BUCKET_NAME,
           Key: fileName,
           Body: stream, 
           ContentType: file.mimetype,
           ACL: 'public-read'
         },
-      });
+      }); 
 
       try {
         const uploadResponse = await upload.done();

@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
         cb(null, app_1.storage_path); // Specify the upload directory
     },
     filename: (req, file, cb) => {
-        cb(null, (0, slugify_1.default)("user-profile " + (0, methods_1.generateRandomNumber)() + " " + file.originalname)); // Customize filename if needed
+        cb(null, (0, slugify_1.default)("user-profile-pics " + (0, methods_1.generateRandomNumber)() + " " + file.originalname)); // Customize filename if needed
     }
 });
 const upload = multer({ storage });

@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailService = void 0;
-const env_1 = require("../../config/env");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 class MailService {
     constructor() {
@@ -27,16 +26,12 @@ class MailService {
         //    }
         // });
         this.transporter = nodemailer_1.default.createTransport({
-            host: env_1.SMTP_HOST,
+            host: "mail.lastminutejob.ca",
             port: 465,
             secure: true,
-            tls: {
-                rejectUnauthorized: false,
-                ciphers: 'HIGH:!SSLv2:!aNULL:!eNULL:!IDEA:!LOW:!MD5:!PSK:!RC4:!SEED:!3DES:!SRP:!EXP:!FALLBACK_SCSV' // Supported ciphers
-            },
             auth: {
-                user: env_1.EMAIL_USERNAME,
-                pass: env_1.EMAIL_PASSWORD
+                user: "hey@lastminutejob.ca",
+                pass: "Everythingis2020!!"
             }
         });
         // this.transporter = nodemailer.createTransport(

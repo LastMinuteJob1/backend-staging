@@ -380,7 +380,7 @@ export class AdminService {
                 }
                 let file_name = data?.Location;
                 log(file_name)
-                await Admin.update({ pics: filename }, { where: { id: _admin.id } });
+                await Admin.update({ pics: file_name }, { where: { id: _admin.id } });
             }
 
             return await Admin.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } })

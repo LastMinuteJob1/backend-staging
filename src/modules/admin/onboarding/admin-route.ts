@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
             // Allow only jpg, jpeg and png files
             return cb(new Error('Please upload an image (jpg, jpeg or png).'));
         }
-        cb(null, slugify("job-pics " + generateRandomNumber() + " " + file.originalname)); // Customize filename if needed
+        cb(null, slugify("admin-profile-pics " + generateRandomNumber() + " " + file.originalname)); // Customize filename if needed
     }
 });
 

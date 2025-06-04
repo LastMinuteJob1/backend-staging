@@ -1,9 +1,17 @@
 node_modules
 
-# build
+/build
 
 .env
 
 Dockerfile
 
 .dockerignore
+
+rootkey.csv
+
+webserver-keypair.pem
+
+developer_credentials.csv
+
+developer_accessKeys.csv

@@ -33,7 +33,7 @@ export async function validateToken(token: string) {
 export async function hashPassword(password: string) {
   const saltOrRounds = 10;
   const hash = await bcrypt.hash(password, saltOrRounds);
-  return hash;
+  return hash.toString();
 }
 
 export async function comparePassword(password: string, hash: string) {

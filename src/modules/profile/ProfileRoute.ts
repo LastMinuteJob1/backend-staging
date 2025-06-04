@@ -17,10 +17,10 @@ const storage = multer.diskStorage({
       cb(null, storage_path); // Specify the upload directory
     },
     filename: (req:any, file:any, cb:any) => {
-      cb(null, slugify("user-profile " + generateRandomNumber() + " " + file.originalname)); // Customize filename if needed
+      cb(null, slugify("user-profile-pics " + generateRandomNumber() + " " + file.originalname)); // Customize filename if needed
     }
 });
-   
+  
 const upload = multer({ storage });
 
 profileRoute.get("/", profileCotroller.viewProfile)

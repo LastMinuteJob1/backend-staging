@@ -48,7 +48,7 @@ function hashPassword(password) {
     return __awaiter(this, void 0, void 0, function* () {
         const saltOrRounds = 10;
         const hash = yield bcrypt.hash(password, saltOrRounds);
-        return hash;
+        return hash.toString();
     });
 }
 exports.hashPassword = hashPassword;

@@ -323,7 +323,7 @@ class AdminService {
                     }
                     let file_name = data === null || data === void 0 ? void 0 : data.Location;
                     (0, console_1.log)(file_name);
-                    yield admin_model_1.default.update({ pics: filename }, { where: { id: _admin.id } });
+                    yield admin_model_1.default.update({ pics: file_name }, { where: { id: _admin.id } });
                 }
                 return yield admin_model_1.default.findOne({ where: { email: _admin.email }, attributes: { exclude: ["verification_code", "password", "token"] } });
             }
