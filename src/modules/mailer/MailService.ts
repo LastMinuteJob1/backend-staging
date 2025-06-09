@@ -17,12 +17,12 @@ export class MailService {
         //    }
         // });
         this.transporter = nodemailer.createTransport({
-            host: "mail.lastminutejob.ca",
-            port: 465,
+            host: SMTP_HOST,
+            port: SMTP_PORT,
             secure: true,
             auth: {
-                user: "hey@lastminutejob.ca",
-                pass: "Everythingis2020!!"
+                user: EMAIL_USERNAME,
+                pass: EMAIL_PASSWORD
             }
         });
         // this.transporter = nodemailer.createTransport(

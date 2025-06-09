@@ -8,7 +8,7 @@ export class AdminController {
     // super admin only 
     public addAdmin = async (req: Request, res: Response) => {
         let data = await this._adminService.addAdmin(req, res)
-        if (data != null)
+        if (data != null) 
             res.send(sendResponse(data))
     }
     public removeAdmin = async (req: Request, res: Response) => {
