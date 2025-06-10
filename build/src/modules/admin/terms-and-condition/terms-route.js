@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const middlewares_1 = require("../../../helper/middlewares");
+const terms_controller_1 = require("./terms-controller");
+const adminTermsAndConditionRoute = (0, express_1.Router)(), adminTermsAndConditionController = new terms_controller_1.TermsAndConditionController();
+adminTermsAndConditionRoute.use(middlewares_1.authorization_admin);
+adminTermsAndConditionRoute.get("/", adminTermsAndConditionController.getFAQ);
+adminTermsAndConditionRoute.use(middlewares_1.google_authorization);
+adminTermsAndConditionRoute.patch("/", adminTermsAndConditionController.addFAQ);
+exports.default = adminTermsAndConditionRoute;

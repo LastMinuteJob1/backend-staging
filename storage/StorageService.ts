@@ -16,7 +16,7 @@ export class StorageService {
     // private endpoint = 'https://us-sea-1.linodeobjects.com/';
     // private bucketName:any = 'job-pics';
 
-    constructor (bucket:any, /*isProfile:Boolean = false*/) {
+    constructor (bucket?:any, /*isProfile:Boolean = false*/) {
       // this.bucketName = bucket;
       // this.endpoint = isProfile ? 'https://profile-uploads.us-sea-1.linodeobjects.com/' : this.endpoint;
     } 

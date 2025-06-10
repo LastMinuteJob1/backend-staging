@@ -16,7 +16,7 @@ export class MailService {
         //     pass: EMAIL_PASSWORD
         //    }
         // });
-        this.transporter = nodemailer.createTransport({
+        this.transporter = nodemailer.createTransport((<any> {
             host: SMTP_HOST,
             port: SMTP_PORT,
             secure: true,
@@ -24,7 +24,7 @@ export class MailService {
                 user: EMAIL_USERNAME,
                 pass: EMAIL_PASSWORD
             }
-        });
+        }));
         // this.transporter = nodemailer.createTransport(
         // {
         //     service: "Gmail",

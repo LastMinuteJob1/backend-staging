@@ -143,7 +143,7 @@ export class UserService {
                 })
 
             setTimeout(async () => {
-                await user.update({
+                await user?.update({
                     verification_code: generateRandomNumber(),
                     where: { email }
                 })

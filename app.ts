@@ -52,9 +52,10 @@ import adminKycRoute from './src/modules/admin/kyc/kyc-route';
 import Faq from './src/modules/admin/terms-and-condition/faq-model';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
+// const serverless = require("serverless-http");
 
 const app = express();
-const port: any = process.env.PORT || 3000;
+const port: any = process.env.PORT || 5000;
 
 let mailController: MailController;
 
