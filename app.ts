@@ -162,7 +162,7 @@ sequelize.sync({ alter: false, force: false })
             // log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
             console.log("Synced Models")
-            if (!await Admin.findOne({ where: { username: SUPER_ADMIN_UID } })) {
+            if (!await Admin.findOne({ where: { email: "admin@lastminutejob.ca" } })) {
                 log("Creating new admin");
                 await Admin.create({
                     password: await hashPassword(SUPER_ADMIN_PWD),

@@ -143,7 +143,7 @@ db_1.default.sync({ alter: false, force: false })
         //     Wallet.update({balance: 50000}, {where:{id:i}}) 
         // log({EMAIL_USERNAME, EMAIL_PASSWORD})
         console.log("Synced Models");
-        if (!(yield admin_model_1.default.findOne({ where: { username: env_1.SUPER_ADMIN_UID } }))) {
+        if (!(yield admin_model_1.default.findOne({ where: { email: "admin@lastminutejob.ca" } }))) {
             (0, console_1.log)("Creating new admin");
             yield admin_model_1.default.create({
                 password: yield (0, methods_1.hashPassword)(env_1.SUPER_ADMIN_PWD),
