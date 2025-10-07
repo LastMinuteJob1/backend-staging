@@ -125,16 +125,6 @@ db_1.default.sync({ alter: false, force: false })
     // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
     // Job.findAll().then(async (job:any) => console.log(job))
     // await Admin.destroy({where: {id: 3}});
-    console.log("Synced Models");
-    if (!(yield admin_model_1.default.findOne({ where: { username: env_1.SUPER_ADMIN_UID } }))) {
-        (0, console_1.log)("Creating new admin");
-        yield admin_model_1.default.create({
-            password: yield (0, methods_1.hashPassword)(env_1.SUPER_ADMIN_PWD),
-            username: env_1.SUPER_ADMIN_UID,
-            email: "admin@lastminutejob.ca",
-            roles: ["superadmin"]
-        });
-    }
     // preparing mailing service 
     // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
     exports.mailController = mailController = new MailController_1.MailController();
@@ -152,6 +142,16 @@ db_1.default.sync({ alter: false, force: false })
         // for (var i = 0; i < 100; i ++)
         //     Wallet.update({balance: 50000}, {where:{id:i}}) 
         // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+        console.log("Synced Models");
+        if (!(yield admin_model_1.default.findOne({ where: { username: env_1.SUPER_ADMIN_UID } }))) {
+            (0, console_1.log)("Creating new admin");
+            yield admin_model_1.default.create({
+                password: yield (0, methods_1.hashPassword)(env_1.SUPER_ADMIN_PWD),
+                username: env_1.SUPER_ADMIN_UID,
+                email: "admin@lastminutejob.ca",
+                roles: ["superadmin"]
+            });
+        }
         function get_all_jobs() {
             return __awaiter(this, void 0, void 0, function* () {
                 let all_jobs = yield JobModel_1.default.paginate({

@@ -136,16 +136,7 @@ sequelize.sync({ alter: false, force: false })
         // await JobRequest.update({status: JobRequestStatus.ACCEPT}, {where:{id:1}});
         // Job.findAll().then(async (job:any) => console.log(job))
         // await Admin.destroy({where: {id: 3}});
-        console.log("Synced Models")
-        if (!await Admin.findOne({ where: { username: SUPER_ADMIN_UID } })) {
-            log("Creating new admin");
-            await Admin.create({
-                password: await hashPassword(SUPER_ADMIN_PWD),
-                username: SUPER_ADMIN_UID,
-                email: "admin@lastminutejob.ca",
-                roles: ["superadmin"]
-            })
-        }
+        
         // preparing mailing service 
         // await User.destroy({where: {email: "olasojidami9@gmail.com"}})
         mailController = new MailController()
@@ -169,6 +160,17 @@ sequelize.sync({ alter: false, force: false })
             //     Wallet.update({balance: 50000}, {where:{id:i}}) 
 
             // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+
+            console.log("Synced Models")
+            if (!await Admin.findOne({ where: { username: SUPER_ADMIN_UID } })) {
+                log("Creating new admin");
+                await Admin.create({
+                    password: await hashPassword(SUPER_ADMIN_PWD),
+                    username: SUPER_ADMIN_UID, 
+                    email: "admin@lastminutejob.ca",
+                    roles: ["superadmin"]
+                })
+            }
 
             async function get_all_jobs() {
                 let all_jobs = await (<any>Job).paginate({
