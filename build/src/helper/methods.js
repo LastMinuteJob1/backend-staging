@@ -104,7 +104,7 @@ exports.getCharges = getCharges;
 function generateReferralCode(options) {
     // Define default options
     const defaultOptions = {
-        prefixLength: 6, // Adjust as desired
+        prefixLength: 6,
         separator: "-",
         codeLength: 5,
     };

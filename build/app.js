@@ -62,6 +62,7 @@ const faq_model_1 = __importDefault(require("./src/modules/admin/terms-and-condi
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 let mailController;
+exports.mailController = mailController;
 var cors = require('cors');
 app.use(cors({
     "origin": "*",

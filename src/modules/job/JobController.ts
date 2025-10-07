@@ -9,19 +9,19 @@ export class JobController {
     public create_job = async (req:Request, res:Response) => {
         let data = await this.jobService.create_job(req, res)
         if (data != null)
-            res.send(sendResponse(data))
+            res.send(sendResponse(data)) 
     }
 
     public view_job = async (req:Request, res:Response) => {
         let data = await this.jobService.view_job(req, res)
         if (data != null)
             res.send(sendResponse(data))
-    }
+    } 
 
     public update_job = async (req:Request, res:Response) => {
         let data = await this.jobService.update_job(req, res)
         if (data != null)
-            res.send(sendResponse(data))
+            res.send(sendResponse(data)) 
     }
 
     public delete_job = async (req:Request, res:Response) => {

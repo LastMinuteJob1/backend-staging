@@ -49,7 +49,7 @@ class StripeService {
             });
             yield history.setWallet(wallet);
             new NotificationController_1.NotificationController().add_notification({
-                from: "Last Minute Job", // sender
+                from: "Last Minute Job",
                 title: "Inward Payment",
                 type: NotificationInterface_1.NOTIFICATION_TYPE.PAYMENT_IN,
                 content: `You have been credit with C$${amount}from ${sender.fullname}`,

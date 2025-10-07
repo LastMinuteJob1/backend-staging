@@ -88,7 +88,7 @@ class WalletService {
                 });
                 yield history.setWallet(wallet);
                 new NotificationController_1.NotificationController().add_notification({
-                    from: "Last Minute Job", // sender
+                    from: "Last Minute Job",
                     title: "Inward Payment",
                     type: NotificationInterface_1.NOTIFICATION_TYPE.PAYMENT_IN,
                     content: `You have successfully fund your account with C$${amount}`,

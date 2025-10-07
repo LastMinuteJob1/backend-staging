@@ -5,4 +5,4 @@ var ADTYPE;
 (function (ADTYPE) {
     ADTYPE["GOODS"] = "goods";
     ADTYPE["SERVICES"] = "service";
-})(ADTYPE || (exports.ADTYPE = ADTYPE = {}));
+})(ADTYPE = exports.ADTYPE || (exports.ADTYPE = {}));
