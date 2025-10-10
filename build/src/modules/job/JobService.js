@@ -87,7 +87,7 @@ class JobService {
                 // job.user 
                 // stack in an in-app notification
                 this.notificationController.add_notification({
-                    from: "Last Minute Job",
+                    from: "Last Minute Job", // sender
                     title: "Job creation",
                     type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
                     content: `Hello ${user.fullname}, \nYour job have been posted successfully, kindly proceed to the next step.`,
@@ -576,7 +576,7 @@ class JobService {
                 }
                 yield job.update({ published: true });
                 this.notificationController.add_notification({
-                    from: "Last Minute Job",
+                    from: "Last Minute Job", // sender
                     title: "Job Published",
                     type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
                     content: `Your job is live now! you will get response from our able users`,
@@ -734,7 +734,7 @@ class JobService {
                     yield stripe.setJob(job);
                     yield job.update({ paid: true });
                     this.notificationController.add_notification({
-                        from: "Last Minute Job",
+                        from: "Last Minute Job", // sender
                         title: "Payment Successful",
                         type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
                         content: `You payment of C$${amount} is successful`,
@@ -766,7 +766,7 @@ class JobService {
                     yield history.setWallet(wallet);
                     yield job.update({ paid: true });
                     this.notificationController.add_notification({
-                        from: "Last Minute Job",
+                        from: "Last Minute Job", // sender
                         title: "Job creation",
                         type: NotificationInterface_1.NOTIFICATION_TYPE.JOB_POST_NOTIFICATION,
                         content: `Your payment of C$${job.price} is successful`,

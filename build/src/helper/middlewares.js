@@ -12,7 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stripe_authorization = exports.superadmin_authorization = exports.google_authorization = exports.authorization_admin = exports.authorization = exports.job_creation_middleware = exports.signup_middleware = exports.ErrorWatcher = void 0;
+exports.ErrorWatcher = void 0;
+exports.signup_middleware = signup_middleware;
+exports.job_creation_middleware = job_creation_middleware;
+exports.authorization = authorization;
+exports.authorization_admin = authorization_admin;
+exports.google_authorization = google_authorization;
+exports.superadmin_authorization = superadmin_authorization;
+exports.stripe_authorization = stripe_authorization;
 const error_1 = require("./error");
 const schema_1 = require("./schema");
 const methods_1 = require("./methods");
@@ -41,7 +48,6 @@ function signup_middleware(req, res, next) {
     else
         next();
 }
-exports.signup_middleware = signup_middleware;
 function job_creation_middleware(req, res, next) {
     const { error } = schema_1.jobSchema.validate(req.body);
     let err = error;
@@ -52,10 +58,9 @@ function job_creation_middleware(req, res, next) {
     else
         next();
 }
-exports.job_creation_middleware = job_creation_middleware;
 function authorization(req, res, next) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         //  jwt authorization and stack in user into request object
         const header = req.headers, token = ((_a = header["authorization"]) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "")) || "";
         let decoded = yield (0, methods_1.validateToken)(token);
@@ -81,10 +86,9 @@ function authorization(req, res, next) {
         }
     });
 }
-exports.authorization = authorization;
 function authorization_admin(req, res, next) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         //  jwt authorization and stack in user into request object
         const header = req.headers, token = ((_a = header["authorization"]) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "")) || "";
         let decoded = yield (0, methods_1.validateToken)(token);
@@ -110,7 +114,6 @@ function authorization_admin(req, res, next) {
         }
     });
 }
-exports.authorization_admin = authorization_admin;
 function google_authorization(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let { otp } = req.body;
@@ -124,7 +127,6 @@ function google_authorization(req, res, next) {
         next();
     });
 }
-exports.google_authorization = google_authorization;
 function superadmin_authorization(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let _admin = yield (0, methods_1.getAdmin)(req);
@@ -136,7 +138,6 @@ function superadmin_authorization(req, res, next) {
         next();
     });
 }
-exports.superadmin_authorization = superadmin_authorization;
 const stripeService = new StripeService_1.StripeService();
 function stripe_authorization(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -162,4 +163,3 @@ function stripe_authorization(req, res, next) {
         }
     });
 }
-exports.stripe_authorization = stripe_authorization;

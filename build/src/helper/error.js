@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendError = exports.AppError = void 0;
+exports.AppError = void 0;
+exports.sendError = sendError;
 class AppError extends Error {
     constructor(message, statusCode = 500) {
         super(message);
@@ -15,4 +16,3 @@ function sendError(message, status = 500) {
         message, result: []
     };
 }
-exports.sendError = sendError;

@@ -12,7 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateOTP = exports.generateReferralCode = exports.getCharges = exports.generateUUID = exports.getAdmin = exports.getUser = exports.generateRandomNumber = exports.comparePassword = exports.hashPassword = exports.validateToken = exports.generateToken = exports.sendResponse = void 0;
+exports.sendResponse = sendResponse;
+exports.generateToken = generateToken;
+exports.validateToken = validateToken;
+exports.hashPassword = hashPassword;
+exports.comparePassword = comparePassword;
+exports.generateRandomNumber = generateRandomNumber;
+exports.getUser = getUser;
+exports.getAdmin = getAdmin;
+exports.generateUUID = generateUUID;
+exports.getCharges = getCharges;
+exports.generateReferralCode = generateReferralCode;
+exports.generateOTP = generateOTP;
 const env_1 = require("../config/env");
 const admin_model_1 = __importDefault(require("../modules/admin/onboarding/admin-model"));
 const UserModel_1 = __importDefault(require("../modules/user/UserModel"));
@@ -24,14 +35,12 @@ function sendResponse(data, message = "OK", status = 200) {
         message, result: data, status
     };
 }
-exports.sendResponse = sendResponse;
 const jwt = new authorization_1.JWTToken('HS256', env_1.JWT_SECRET_KEY, '24h');
 function generateToken(user) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield jwt.generateToken({ email: user.email, name: user.fullname });
     });
 }
-exports.generateToken = generateToken;
 function validateToken(token) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -43,7 +52,6 @@ function validateToken(token) {
         }
     });
 }
-exports.validateToken = validateToken;
 function hashPassword(password) {
     return __awaiter(this, void 0, void 0, function* () {
         const saltOrRounds = 10;
@@ -51,14 +59,12 @@ function hashPassword(password) {
         return hash.toString();
     });
 }
-exports.hashPassword = hashPassword;
 function comparePassword(password, hash) {
     return __awaiter(this, void 0, void 0, function* () {
         const status = yield bcrypt.compare(password, hash);
         return status;
     });
 }
-exports.comparePassword = comparePassword;
 // export async function disableToken(token:string) {
 //     if (validateToken(token)) {
 //         jwt.disableToken(token)
@@ -70,7 +76,6 @@ function generateRandomNumber() {
     let value = Math.floor(Math.random() * (max - min + 1) + min);
     return value.toString();
 }
-exports.generateRandomNumber = generateRandomNumber;
 function getUser(req) {
     return __awaiter(this, void 0, void 0, function* () {
         const headers = req["headers"];
@@ -81,7 +86,6 @@ function getUser(req) {
             return JSON.parse(user_req);
     });
 }
-exports.getUser = getUser;
 function getAdmin(req) {
     return __awaiter(this, void 0, void 0, function* () {
         const headers = req["headers"];
@@ -92,19 +96,16 @@ function getAdmin(req) {
             return JSON.parse(user_req);
     });
 }
-exports.getAdmin = getAdmin;
 function generateUUID() {
     return crypto.randomUUID();
 }
-exports.generateUUID = generateUUID;
 function getCharges(price) {
     return (7.5 * price) / 100;
 }
-exports.getCharges = getCharges;
 function generateReferralCode(options) {
     // Define default options
     const defaultOptions = {
-        prefixLength: 6,
+        prefixLength: 6, // Adjust as desired
         separator: "-",
         codeLength: 5,
     };
@@ -121,7 +122,6 @@ function generateReferralCode(options) {
     // Combine the components
     return prefix + settings.separator + code;
 }
-exports.generateReferralCode = generateReferralCode;
 function generateOTP(length = 4) {
     const digits = '0123456789';
     let otp = '';
@@ -132,4 +132,3 @@ function generateOTP(length = 4) {
     }
     return otp;
 }
-exports.generateOTP = generateOTP;

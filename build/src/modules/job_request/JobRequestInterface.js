@@ -9,4 +9,4 @@ var JobRequestStatus;
     JobRequestStatus[JobRequestStatus["COMPLETED_PENDING"] = 3] = "COMPLETED_PENDING";
     JobRequestStatus[JobRequestStatus["COMPLETED_REJECTED"] = 4] = "COMPLETED_REJECTED";
     JobRequestStatus[JobRequestStatus["COMPLETED"] = 5] = "COMPLETED";
-})(JobRequestStatus = exports.JobRequestStatus || (exports.JobRequestStatus = {}));
+})(JobRequestStatus || (exports.JobRequestStatus = JobRequestStatus = {}));

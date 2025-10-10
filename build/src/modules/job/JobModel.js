@@ -40,7 +40,7 @@ Job.init({
         defaultValue: 10
     },
     job_date: {
-        type: sequelize_1.DataTypes.STRING,
+        type: sequelize_1.DataTypes.STRING, // Change to DataTypes.DATE
         allowNull: true
     },
     paid: {

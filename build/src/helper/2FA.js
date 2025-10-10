@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verify2FAToken = exports.generate2FASecret = void 0;
+exports.generate2FASecret = generate2FASecret;
+exports.verify2FAToken = verify2FAToken;
 const console_1 = require("console");
 let speakeasy = require("speakeasy");
 let qr_code = require("qrcode");
@@ -32,7 +33,6 @@ function generate2FASecret(admin) {
         };
     });
 }
-exports.generate2FASecret = generate2FASecret;
 function verify2FAToken(otp, admin) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -57,4 +57,3 @@ function verify2FAToken(otp, admin) {
         }
     });
 }
-exports.verify2FAToken = verify2FAToken;

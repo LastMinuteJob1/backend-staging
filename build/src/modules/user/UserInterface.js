@@ -6,4 +6,4 @@ var IUserAccountStatus;
     IUserAccountStatus["IN_ACTIVE"] = "in-active";
     IUserAccountStatus["ACTIVE"] = "active";
     IUserAccountStatus["DELETED"] = "deleted";
-})(IUserAccountStatus = exports.IUserAccountStatus || (exports.IUserAccountStatus = {}));
+})(IUserAccountStatus || (exports.IUserAccountStatus = IUserAccountStatus = {}));

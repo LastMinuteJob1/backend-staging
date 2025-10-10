@@ -82,7 +82,7 @@ class NotificationService {
                 return null;
             }
         });
-        this.add_notification = (data, send_push = true) => __awaiter(this, void 0, void 0, function* () {
+        this.add_notification = (data_1, ...args_1) => __awaiter(this, [data_1, ...args_1], void 0, function* (data, send_push = true) {
             let { title, type, content, from, user } = data;
             let slug = (0, slugify_1.default)(title + " " + (0, methods_1.generateRandomNumber)(), { lower: true });
             let notification = yield NotificationModel_1.default.create({
