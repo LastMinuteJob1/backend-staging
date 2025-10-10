@@ -68,6 +68,11 @@ export class JobService {
             // let { Profile } = user;
             let profile = (<any> _user)["Profile"];
 
+            if (!profile) {
+                res.status(404).send(sendError("Please complete your profile before creating a job"));
+                return null
+            }
+
             const { is_kyc_verified, prove_of_location, kyc_docs } = profile;
 
             if (!is_kyc_verified) {

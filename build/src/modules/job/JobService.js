@@ -65,6 +65,10 @@ class JobService {
                 }
                 // let { Profile } = user;
                 let profile = _user["Profile"];
+                if (!profile) {
+                    res.status(404).send((0, error_1.sendError)("Please complete your profile before creating a job"));
+                    return null;
+                }
                 const { is_kyc_verified, prove_of_location, kyc_docs } = profile;
                 if (!is_kyc_verified) {
                     res.status(401).send((0, error_1.sendError)(`Your KYC status is still pending, kindly upload or verify the following documents 'Prove of location' and 'National ID'`));

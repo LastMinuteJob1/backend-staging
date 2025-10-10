@@ -481,6 +481,9 @@ export class UserService {
                 firebase_token
             })
 
+            let profile = await Profile.create({})
+            await (<any>profile).setUser(new_user)
+
             const token = await generateToken(new_user)
 
             log(token)
