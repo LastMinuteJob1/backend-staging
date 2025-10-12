@@ -410,6 +410,8 @@ class UserService {
                     verification_code: (0, methods_1.generateRandomNumber)(),
                     firebase_token
                 });
+                let profile = yield ProfileModel_1.default.create({});
+                yield profile.setUser(new_user);
                 const token = yield (0, methods_1.generateToken)(new_user);
                 (0, console_1.log)(token);
                 yield new_user.update({ token });

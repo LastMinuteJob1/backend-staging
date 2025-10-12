@@ -73,12 +73,12 @@ export class JobService {
                 return null
             }
 
-            const { is_kyc_verified, prove_of_location, kyc_docs } = profile;
+            // const { is_kyc_verified, prove_of_location, kyc_docs } = profile; 
 
-            if (!is_kyc_verified) {
-                res.status(401).send(sendError(`Your KYC status is still pending, kindly upload or verify the following documents 'Prove of location' and 'National ID'`));
-                return null
-            }
+            // if (!is_kyc_verified) {
+            //     res.status(401).send(sendError(`Your KYC status is still pending, kindly upload or verify the following documents 'Prove of location' and 'National ID'`));
+            //     return null
+            // }
 
             // const profile: Profile = _user["Profile"];
 
