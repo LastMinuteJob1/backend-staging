@@ -390,7 +390,7 @@ class UserService {
                     (0, console_1.log)("+++++++++++++ Updating Credentials +++++++++++++++");
                     // if (user.phone_number) {
                     //     response.status(409).send(sendError("Please signup instead"))
-                    //     return null
+                    //     return null 
                     // }
                     let _user = user;
                     _user.fullname = _user.email;
@@ -403,10 +403,12 @@ class UserService {
                         ], attributes: { exclude: ["verification_code", "password"] }
                     });
                 }
+                const password = yield (0, methods_1.hashPassword)(sub);
+                (0, console_1.log)({ password });
                 (0, console_1.log)(" +++++++++++++ Creating Credentials +++++++++++ ");
                 let new_user = yield UserModel_1.default.create({
                     email, fullname: name, is_verified: true,
-                    token: "", password: (0, methods_1.hashPassword)(sub),
+                    token: "", password,
                     verification_code: (0, methods_1.generateRandomNumber)(),
                     firebase_token
                 });

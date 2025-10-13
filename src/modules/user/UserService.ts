@@ -402,7 +402,7 @@ export class UserService {
 
             let user = await User.findOne({
                 where: { email, verification_code }
-            })
+            }) 
 
             if (user == null) {
                 response.status(404).send(sendError("Invalid verification code"))
@@ -460,7 +460,7 @@ export class UserService {
                 log("+++++++++++++ Updating Credentials +++++++++++++++")
                 // if (user.phone_number) {
                 //     response.status(409).send(sendError("Please signup instead"))
-                //     return null
+                //     return null 
                 // }
                 let _user: User = user; _user.fullname = _user.email
                 const token = await generateToken(_user)
@@ -473,10 +473,14 @@ export class UserService {
                 })
             }
 
+            const password = await hashPassword(sub);
+
+            log({password}) 
+
             log(" +++++++++++++ Creating Credentials +++++++++++ ")
             let new_user = await User.create({
                 email, fullname: name, is_verified: true,
-                token: "", password: hashPassword(sub),
+                token: "", password,
                 verification_code: generateRandomNumber(),
                 firebase_token
             })
