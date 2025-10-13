@@ -141,6 +141,11 @@ db_1.default.sync({ alter: false, force: false })
         // for (var i = 0; i < 100; i ++)
         //     Wallet.update({balance: 50000}, {where:{id:i}}) 
         // log({EMAIL_USERNAME, EMAIL_PASSWORD})
+        // console.log(await User.findAll({
+        //     include: [
+        //         { model: Job }
+        //     ]
+        // }))
         console.log("Synced Models");
         if (!(yield admin_model_1.default.findOne({ where: { email: "admin@lastminutejob.ca" } }))) {
             (0, console_1.log)("Creating new admin");

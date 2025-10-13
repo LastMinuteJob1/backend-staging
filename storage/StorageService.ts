@@ -26,13 +26,14 @@ export class StorageService {
         accessKeyId: ACCESS_KEY_ID,
         secretAccessKey: SECRET_ACCESS_KEY,
       },
-      // endpoint: this.endpoint,
-      region: S3_REGION_NAME,
+      endpoint: "https://lmj-butter.us-iad-10.linodeobjects.com", 
+      region: S3_REGION_NAME, 
+      forcePathStyle: true, 
     });
 
     public uploadPicture = async (file:any, fileName:any) => {
       let stream = fs.createReadStream(file.path);
-      const upload = new Upload({
+      const upload = new Upload({ 
         client: this.s3Client,
         params: {
           Bucket: S3_BUCKET_NAME,
@@ -41,7 +42,7 @@ export class StorageService {
           ContentType: file.mimetype,
           ACL: 'public-read'
         },
-      }); 
+      });  
 
       try {
         const uploadResponse = await upload.done();

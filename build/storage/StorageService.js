@@ -30,8 +30,9 @@ class StorageService {
                 accessKeyId: env_1.ACCESS_KEY_ID,
                 secretAccessKey: env_1.SECRET_ACCESS_KEY,
             },
-            // endpoint: this.endpoint,
+            endpoint: "https://lmj-butter.us-iad-10.linodeobjects.com",
             region: env_1.S3_REGION_NAME,
+            forcePathStyle: true,
         });
         this.uploadPicture = (file, fileName) => __awaiter(this, void 0, void 0, function* () {
             let stream = fs.createReadStream(file.path);

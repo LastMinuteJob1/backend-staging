@@ -161,6 +161,12 @@ sequelize.sync({ alter: false, force: false })
 
             // log({EMAIL_USERNAME, EMAIL_PASSWORD})
 
+            // console.log(await User.findAll({
+            //     include: [
+            //         { model: Job }
+            //     ]
+            // }))
+
             console.log("Synced Models")
             if (!await Admin.findOne({ where: { email: "admin@lastminutejob.ca" } })) {
                 log("Creating new admin");
