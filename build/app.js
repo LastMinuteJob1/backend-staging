@@ -156,6 +156,29 @@ db_1.default.sync({ alter: false, force: false })
                 roles: ["superadmin"]
             });
         }
+        const test_user = yield UserModel_1.default.findOne({
+            where: {
+                email: "lastminutejobca@gmail.com"
+            },
+            include: [
+                {
+                    model: ProfileModel_1.default
+                }
+            ]
+        });
+        (0, console_1.log)(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....");
+        const profile = test_user["Profile"];
+        yield ProfileModel_1.default.update({
+            is_kyc_verified: true,
+            is_verified: true
+        }, { where: { id: profile.id } });
+        (0, console_1.log)({ profile: test_user["Profile"] });
+        // log(">>>>>>>>>>>>>>>Cleaning up jobs>>>>>>>>>>>>>>>>>")
+        // const all_jobs = await Job.findAll({ where: { active: true, published: true } })
+        // for (let job of all_jobs) {
+        //     job.destroy()
+        // } 
+        // log(">>>>>>>>>>>>>>>Destroyed all jobs>>>>>>>>>>>>>>>>>")
         function get_all_jobs() {
             return __awaiter(this, void 0, void 0, function* () {
                 let all_jobs = yield JobModel_1.default.paginate({

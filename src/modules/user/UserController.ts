@@ -60,4 +60,10 @@ export class UserController {
             response.send(sendResponse(data))
     }
 
+    public delete = async (request: Request, response: Response) => {
+        let data = await this.userService.delete(request, response)
+        if (data != null)
+            response.send(sendResponse(data))
+    }
+
 }

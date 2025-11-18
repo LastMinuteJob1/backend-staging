@@ -391,6 +391,31 @@ export class UserService {
         }
     }
 
+    public delete = async (request: Request, response: Response) => {
+        try {
+
+            let user: User = await getUser(request)
+
+            if (!user) {
+                response.status(400).send(sendError("Something went wrong, please login"));
+                return null
+            }
+
+            await User.destroy({ where: {
+                id: user.id
+            } });
+
+            return {
+                deleted: true,
+                message: "Account deleted successfully"
+            }
+
+        } catch (error: any) {
+            response.status(500).send(sendError(error))
+            return null
+        }
+    }
+
     public password_recovery = async (request: Request, response: Response) => {
         try {
 

@@ -20,5 +20,6 @@ userRouter.post("/verify-google-oauth-token-id", userController.verify_google_oa
 userRouter.use(authorization)
 userRouter.post("/add-stripe-account", userController.add_stripe_customer)
 userRouter.post("/partial-sign-up", userController.partial_signup)
+userRouter.delete("/delete", userController.delete)
 
 export default userRouter

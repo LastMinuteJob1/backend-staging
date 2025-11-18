@@ -50,6 +50,7 @@ import TermsAndConditions from './src/modules/admin/terms-and-condition/terms-mo
 import adminInteracRoute from './src/modules/admin/interac/admin-interac-route';
 import adminKycRoute from './src/modules/admin/kyc/kyc-route';
 import Faq from './src/modules/admin/terms-and-condition/faq-model';
+import { where } from 'sequelize';
 // import { initializeApp } from "firebase-admin/app"
 // import { JobRequestStatus } from './src/modules/job_request/JobRequestInterface';
 // const serverless = require("serverless-http");
@@ -177,6 +178,34 @@ sequelize.sync({ alter: false, force: false })
                     roles: ["superadmin"]
                 })
             }
+
+            // const test_user = await User.findOne({
+            //     where: {
+            //         email: "lastminutejobca@gmail.com"
+            //     },
+            //     include: [
+            //         {
+            //             model: Profile
+            //         }
+            //     ]   
+            // })
+
+            // log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.....")
+            // const profile = (<any> test_user)["Profile"];
+
+            // await Profile.update({ 
+            //     is_kyc_verified: true, 
+            //     is_verified: true  
+            // }, { where: { id: profile.id } });
+
+            // log({profile: (<any> test_user)["Profile"]})   
+
+            // log(">>>>>>>>>>>>>>>Cleaning up jobs>>>>>>>>>>>>>>>>>")
+            // const all_jobs = await Job.findAll({ where: { active: true, published: true } })
+            // for (let job of all_jobs) {
+            //     job.destroy()
+            // } 
+            // log(">>>>>>>>>>>>>>>Destroyed all jobs>>>>>>>>>>>>>>>>>")
 
             async function get_all_jobs() {
                 let all_jobs = await (<any>Job).paginate({
