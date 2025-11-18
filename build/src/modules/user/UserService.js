@@ -339,6 +339,26 @@ class UserService {
                 return null;
             }
         });
+        this.delete = (request, response) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let user = yield (0, methods_1.getUser)(request);
+                if (!user) {
+                    response.status(400).send((0, error_1.sendError)("Something went wrong, please login"));
+                    return null;
+                }
+                yield UserModel_1.default.destroy({ where: {
+                        id: user.id
+                    } });
+                return {
+                    deleted: true,
+                    message: "Account deleted successfully"
+                };
+            }
+            catch (error) {
+                response.status(500).send((0, error_1.sendError)(error));
+                return null;
+            }
+        });
         this.password_recovery = (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 let { email, password, verification_code } = request.body;
